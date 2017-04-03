@@ -65,7 +65,7 @@ int editor_read_key(int fd)
         int nread;
         char c, seq[3];
         while((nread = read(fd, &c, 1)) == 0);
-        if(nread = -1) exit(1);
+        if(nread == -1) exit(1);
 
         while(1) {
                 switch(c) { 
@@ -99,7 +99,7 @@ int editor_read_key(int fd)
                                 }
 
                                 // ESC 0 sequences
-                                else if(seq[0] == '0') {
+                                else if(seq[0] == 'O') {
                                         switch (seq[1]) {
                                                 case 'H': return HOME_KEY;
                                                 case 'F': return END_KEY;
@@ -155,7 +155,7 @@ int get_window_size(int ifd, int ofd, int *rows, int *columns)
 
                 // go to the right bottom margin and get position
                 if(write(ofd, "\x1b[999C\x1b[999B", 12) != 12) goto failed;
-                retval = get_cursor_pos(ifd, ofd, &original_row, &original_column);
+                retval = get_cursor_pos(ifd, ofd, rows, columns);
                 if(retval == -1) goto failed;
 
                 // restore the cursor position
@@ -320,7 +320,7 @@ void editor_update_syntax(editing_row *row)
 
         // propagate a syntax change to the next row if the open comment state is changed
         int oc = editing_row_has_open_comment(row);
-        if(row->hl_open_comment != oc && row->index+1 < Editor.num_of_rows)editor_update_syntax(&Editor.row[row->index+1]);
+        if(row->hl_open_comment != oc && row->index+1 < Editor.num_of_rows) editor_update_syntax(&Editor.row[row->index+1]);
         row->hl_open_comment = oc;
 }
 
@@ -604,7 +604,7 @@ void editor_delete_char()
 
         else {
                 editor_row_delete_char(row, filecol-1);
-                if(Editor.cursor_x == 0 & Editor.column_offset)
+                if(Editor.cursor_x == 0 && Editor.column_offset)
                         Editor.column_offset--;
                 else
                         Editor.cursor_x--;
@@ -967,7 +967,9 @@ void editor_move_cursor(int key)
                                 Editor.cursor_x = 0;
                                 Editor.column_offset = 0;
                                 if(Editor.cursor_y == Editor.screen_rows-1) {
-                                        Editor.row_offset += 1;
+                                        Editor.row_offset++;
+                                } else {
+                                    Editor.cursor_y += 1;
                                 }
                         }
                         break;
