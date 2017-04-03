@@ -48,8 +48,8 @@ typedef struct editing_row {
         int index;              // the index of the row in the file
         int size;               // size of the row (not including null terminator)
         int rendered_size;      // size of the rendered row
-        int *chars;             // the content of the row
-        int *rendered_chars;    // the content of the rendered row
+        char *chars;             // the content of the row
+        char *rendered_chars;    // the content of the rendered row
         unsigned char *hl;      // syntax highlighting for each character in the rendered row
         int hl_open_comment;    // the row had an open comment 
 } editing_row;
@@ -79,8 +79,6 @@ struct editor_config {
         struct editor_syntax *syntax;   // current syntaxt highlighting
 };
 
-
-static struct editor_config editor;
 
 
 enum KEY_ACTION {
@@ -183,7 +181,7 @@ void editor_select_syntax_highlight(char *filename); // select the correct highl
 
 void editor_update_row(editing_row *row); //update the rendered version and the syntax highlighting of a row
 
-void editor_insert_row(int at, char*s, size_t length); // insert a row at the specified position, shifting the other rows to the bottom if needed
+void editor_insert_row(int at, char *s, size_t length); // insert a row at the specified position, shifting the other rows to the bottom if needed
 
 void editor_free_row(editing_row *row); //free the current rows heap allocated data
 
@@ -225,7 +223,7 @@ struct append_buf {
 
 void ab_append(struct append_buf *ab, const char *s, int length);
 
-void ab_free(struct append_bud *ab);
+void ab_free(struct append_buf *ab);
 
 void editor_refresh_screen(void); // this writes the whole screen using VT100 escape characters
 
