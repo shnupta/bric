@@ -219,7 +219,7 @@ struct append_buf {
         int length;
 };
 
-#define ABUT_INIT {NULL, 0}
+#define ABUF_INIT {NULL, 0}
 
 void ab_append(struct append_buf *ab, const char *s, int length);
 
