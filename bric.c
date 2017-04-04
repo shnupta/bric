@@ -735,7 +735,7 @@ void editor_refresh_screen(void)
                 if(len > 0) {
                         if(len > Editor.screen_columns) len = Editor.screen_columns;
                         char *c = row->rendered_chars+Editor.column_offset;
-                        unsigned char *hl = row->rendered_chars+Editor.column_offset;
+                        unsigned char *hl = row->hl+Editor.column_offset;
                         int j;
                         for (j = 0; j < len; j++) {
                                 if(hl[j] == HL_NONPRINT) {
