@@ -1100,7 +1100,7 @@ void init_editor(void)
 int main(int argc, char **argv)
 {
         if(argc != 2) {
-                fprintf(stderr, "Usage: bric <filename>");
+                fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
 
