@@ -17,7 +17,7 @@ If you have performed a `make install` then just `bric <filename>`. It can be a 
 
 ### Todo:
 - Git integration
-- Line number
+- Line numbers
 - More syntax keyword colours
 - More language syntax highlighting
 - More shortcuts (e.g. goto, delete line, append etc.)
