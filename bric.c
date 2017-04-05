@@ -11,6 +11,7 @@ static struct editor_config Editor;
         // dont bother checking the return value as its too late
         if (Editor.rawmode) {
                 tcsetattr(fd, TCSAFLUSH, &orig_termios);
+                write(fd, "\033[2J\033[H\033[?1049l", 15); 
                 Editor.rawmode = 0;
         }
 }
@@ -26,7 +27,7 @@ int enable_raw_mode(int fd)
         struct termios raw;
 
         if(Editor.rawmode) return 0; //already enabled
-        if(!isatty(STDIN_FILENO)) goto fatal;
+        if(!isatty(fd)) goto fatal;
         atexit(editor_at_exit);
         if(tcgetattr(fd, &orig_termios) == -1) goto fatal;
 
@@ -50,6 +51,7 @@ int enable_raw_mode(int fd)
 
         //put terminal in raw mode after flushing
         if(tcsetattr(fd, TCSAFLUSH, &raw) < 0) goto fatal;
+        if(write(fd, "\033[?1049h\033[2J\033[H", 15) != 15) goto fatal;
         Editor.rawmode = 1;
         return 0;
 
