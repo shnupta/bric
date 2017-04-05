@@ -1,9 +1,7 @@
 #include "bric.h"
 
-
 static struct editor_config Editor;
-
-
+static struct termios orig_termios; // so we can restore original at exit
 
 // Low level terminal handling
  void disable_raw_mode(int fd)
@@ -51,7 +49,7 @@ int enable_raw_mode(int fd)
 
         //put terminal in raw mode after flushing
         if(tcsetattr(fd, TCSAFLUSH, &raw) < 0) goto fatal;
-        if(write(fd, "\033[?1049h\033[2J\033[H", 15) != 15) goto fatal;
+        //if(write(fd, "\033[?1049h\033[2J\033[H", 15) != 15) goto fatal;
         Editor.rawmode = 1;
         return 0;
 

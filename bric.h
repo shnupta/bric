@@ -16,30 +16,7 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-
-// Syntax highlighting macros
-#define HL_NORMAL 0
-#define HL_NONPRINT 1
-#define HL_COMMENT 2
-#define HL_MLCOMMENT 3
-#define HL_KEYWORD1 4
-#define HL_KEYWORD2 5
-#define HL_STRING 6
-#define HL_NUMBER 7
-#define HL_MATCH 8 //a search match
-
-#define HL_HIGHLIGHT_STRINGS (1<<0)
-#define HL_HIGHLIGHT_NUMBERS (1<<1)
-
-
-struct editor_syntax {
-        char **filematch;
-        char **keywords;
-        char singleline_comment_start[2];
-        char multiline_comment_start[3];
-        char multiline_comment_end[3];
-        int flags;
-};
+#include "modules/syntax/syntax.h"
 
 
 
@@ -53,12 +30,6 @@ typedef struct editing_row {
         unsigned char *hl;      // syntax highlighting for each character in the rendered row
         int hl_open_comment;    // the row had an open comment 
 } editing_row;
-
-
-typedef struct hlcolour {
-        int r, g, b;
-} hlcolour;
-
 
 
 
@@ -108,45 +79,10 @@ enum KEY_ACTION {
 
 
 
-/* Syntax highlighting
- * 
- * In order to add a new syntax, define two arrays with a list of file name
- * matches and keywords. The file name matches are used in order to match a 
- * given syntax with a given filename.
- *
- * The list of keywords to highlight is just the words but they can have a trailing '|' to allow us to highlight in a different colour.
- *
- * Then in the highlight_db global variable, we have two string arrays and a set of flags
- * to enable highlighting of comments and numbers.
- *
- * The characters for single and multiline comments must be exactly two and must be provided as well
- */
-
-// C and C++
-char *C_HL_extensions[] = {".c", ".cpp", NULL};
-char *C_HL_keywords[] = {
-        "switch", "if", "while", "for", "break", "continue", "return", "else", "struct", "union", "typedef", "static", "enum", "class", "case",
-        "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|", NULL
-};
-
-
-// here is an array of syntax highlights by extensions, keywords, comments, delimiters and flags
-struct editor_syntax highlight_db[] = {
-        {
-                // C and C++
-                C_HL_extensions,
-                C_HL_keywords,
-                "//", "/*", "*/",
-                HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS
-        }
-};
-
-#define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
 
 
 // Low level terminal handling
 
-static struct termios orig_termios; // so we can restore original at exit
 
 void disable_raw_mode(int fd);
 
