@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "modules/syntax/syntax.h"
 
