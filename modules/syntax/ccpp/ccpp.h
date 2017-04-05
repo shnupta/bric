@@ -10,4 +10,27 @@ char *CCPP_keywords[] = {
 	NULL
 };
 
+
+//struct editor_syntax CCPP = {
+//	CCPP_extensions,
+//	CCPP_keywords,
+//	"//",
+//	"/*",
+//	"*/",
+//	HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS
+//};
+
+
+#define CCPP_syntax { \
+	CCPP_extensions, \
+	CCPP_keywords, \
+	"//", \
+	"/*", \
+	"*/", \
+	HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS \
+}
+
+
+
+
 #endif
