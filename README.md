@@ -1,6 +1,8 @@
 # Bric
 Bric is a text editor based on kilo.
 
+Bric does not depend on any library (not even curses). It uses fairly standard VT100 (and similar terminals) escape sequences to write and read to and from the terminal.
+
 
 ### Installation:
 ```
