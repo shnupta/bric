@@ -1011,14 +1011,11 @@ void editor_goto(int fd)
 {
 	char query[BRIC_QUERY_LENGTH+1] = {0};
 	int qlen = 0;
-	int y;
-	int filerow;
 	int line_number;
+	int current_line;
 
 	while(1) {
-		for(y = 0; y < Editor.screen_rows; y++) {
-			filerow = Editor.row_offset + y;
-		}	
+		current_line = Editor.row_offset + Editor.cursor_y + 1;		
 		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
@@ -1030,17 +1027,17 @@ void editor_goto(int fd)
 				editor_set_status_message("");
 				return;
 			}
-			if(line_number <= Editor.num_of_rows + 1) {
-				if (filerow > line_number) {
-					int diff = filerow - line_number;
+			if(line_number <= Editor.num_of_rows) {
+				if (current_line > line_number) {
+					int diff = current_line - line_number;
           				
           				while(diff > 0) {
 						editor_move_cursor(ARROW_UP);
 						diff--;
 					}
 					editor_set_status_message("");
-				} else if(line_number > filerow) {
-					int diff = line_number - filerow;
+				} else if(line_number > current_line) {
+					int diff = line_number - current_line;
 
 					while(diff > 0) {
 						editor_move_cursor(ARROW_DOWN);
