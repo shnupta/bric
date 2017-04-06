@@ -13,7 +13,15 @@ make install (with privileges)
 ```
 
 ### Usage:
-If you have performed a `make install` then just `bric <filename>`. It can be a new or existing filename. `Ctrl-Q` to quit, `Ctrl-S` to save, `Ctrl-F` to find. Navigate with the arrow keys (a better movement system will be implemented in the future).
+If you have performed a `make install` then just `bric <filename>`. It can be a new or existing filename. 
+
+Shortcuts:
+```
+Ctrl-Q - Quit 
+Ctrl-S - Save 
+Ctrl-F - Find 
+Arrow Keys - Move
+```
 
 ### Todo:
 - Git integration
