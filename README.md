@@ -20,15 +20,15 @@ Shortcuts:
 Ctrl-Q - Quit 
 Ctrl-S - Save 
 Ctrl-F - Find 
+Ctrl-G - Goto
 Arrow Keys - Move
 ```
 
 ### Todo:
 - Git integration
-- Line numbers
 - More syntax keyword colours
 - More language syntax highlighting
-- More shortcuts (e.g. goto, delete line, append etc.)
+- More shortcuts
 
 ### Contribution:
 I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR!
