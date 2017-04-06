@@ -1011,28 +1011,42 @@ void editor_goto(int fd)
 {
 	char query[BRIC_QUERY_LENGTH+1] = {0};
 	int qlen = 0;
-	int line_number = 1;
+	int y;
+	int filerow;
+	int line_number;
 
 	while(1) {
+		for(y = 0; y < Editor.screen_rows; y++) {
+			filerow = Editor.row_offset + y;
+		}	
 		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
 		int c = editor_read_key(fd);
-		if(c == ENTER || c == ESC) {
-			if(c == ESC) return;
-			if(line_number < Editor.num_of_rows) {
-				if (Editor.cursor_y > line_number) {
-					int diff = Editor.cursor_y - line_number;
-					while(diff > 0) {
+		if(c == DEL_KEY || c == BACKSPACE) {
+			if(qlen != 0) query[--qlen] = '\0';
+		}else if(c == ENTER || c == ESC) {
+			if(c == ESC) {
+				editor_set_status_message("");
+				return;
+			}
+			if(line_number <= Editor.num_of_rows + 1) {
+				if (filerow > line_number) {
+					int diff = filerow - line_number;
+          				
+          				while(diff > 0) {
 						editor_move_cursor(ARROW_UP);
 						diff--;
 					}
-				} else if(line_number > Editor.cursor_y) {
-					int diff = line_number - Editor.cursor_y;
+					editor_set_status_message("");
+				} else if(line_number > filerow) {
+					int diff = line_number - filerow;
+
 					while(diff > 0) {
 						editor_move_cursor(ARROW_DOWN);
 						diff--;
 					}
+					editor_set_status_message("");
 				}
 				editor_refresh_screen();
 				return;
