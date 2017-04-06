@@ -51,10 +51,11 @@ struct editor_config {
         struct editor_syntax *syntax;   // current syntaxt highlighting
 };
 
-
+#define CTRL_KEY(k) ((k) & 0x1f)
 
 enum KEY_ACTION {
         KEY_NULL = 0,
+	 CTRL_G = CTRL_KEY('g'),
         CTRL_C = 3,
         CTRL_D = 3,
         CTRL_F = 6,

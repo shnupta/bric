@@ -9,18 +9,17 @@ static struct termios orig_termios; // so we can restore original at exit
         // dont bother checking the return value as its too late
         if (Editor.rawmode) {
                 tcsetattr(fd, TCSAFLUSH, &orig_termios);
-                write(fd, "\033[2J\033[H\033[?1049l", 15); 
+                write(fd, "\033[2J\033[H\033[?1049l", 15);
                 Editor.rawmode = 0;
         }
 }
 
-
-void editor_at_exit(void) 
+void editor_at_exit(void)
 {
         disable_raw_mode(STDIN_FILENO);
 }
 
-int enable_raw_mode(int fd) 
+int enable_raw_mode(int fd)
 {
         struct termios raw;
 
@@ -33,10 +32,10 @@ int enable_raw_mode(int fd)
         /* input modes: no break, no CR to NL, no parity check, no strip char,
          *      * no start/stop output control. */
         raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-        
+
         // output modes - disable post processing
         raw.c_oflag &= ~(OPOST);
-        
+
         //control modes - set 8 bit chars
         raw.c_cflag |= (CS8);
 
@@ -68,7 +67,7 @@ int editor_read_key(int fd)
         if(nread == -1) exit(1);
 
         while(1) {
-                switch(c) { 
+                switch(c) {
                         case ESC: // escape sequence
                                 // if its an escape then we timeout here
                                 if(read(fd, seq, 1) == 0) return ESC;
@@ -81,7 +80,7 @@ int editor_read_key(int fd)
                                                 if(read(fd, seq+2, 1) == 0) return ESC;
                                                 if(seq[2] == '~') {
                                                         switch(seq[1]) {
-                                                                case '3': return DEL_KEY; 
+                                                                case '3': return DEL_KEY;
                                                                 case '5': return PAGE_UP;
                                                                 case '6': return PAGE_DOWN;
                                                         }
@@ -106,7 +105,7 @@ int editor_read_key(int fd)
                                         }
                                 }
                                 break;
-                                
+
                         default:
                                 return c;
                 }
@@ -180,7 +179,7 @@ failed:
 int is_separator(int c)
 {
         return c == '\0' || isspace(c) || strchr(",.()+_/*=~%[];", c) != NULL;
-}       
+}
 
 
 // return true if the specified row's last char is part of a multiline comment that spans to the next row
@@ -251,7 +250,7 @@ void editor_update_syntax(editing_row *row)
                         prev_sep = 0;
                         continue;
                 }
-        
+
 
                 // handle "" and ''
                 if(in_string) {
@@ -274,7 +273,7 @@ void editor_update_syntax(editing_row *row)
                                 continue;
                         }
                 }
-                
+
                 // handle non printable chars
                 if(!isprint(*p)) {
                         row->hl[i] = HL_NONPRINT;
@@ -372,9 +371,9 @@ void editor_update_row(editing_row *row)
 
         //create a version of the row that we can directly print on the screen
         free(row->rendered_chars);
-        for(j = 0; j < row->size; j++) 
+        for(j = 0; j < row->size; j++)
                 if( row->chars[j] == TAB) tabs++;
-        
+
         row->rendered_chars = malloc(row->size + tabs*8 + nonprint*9 + 1);
         index = 0;
         for(j = 0; j < row->size; j++) {
@@ -481,7 +480,7 @@ void editor_row_insert_char(editing_row *row, int at, int c)
                 row->size += padlen+1;
         } else {
                 // in the middle of string so make empty space for char
-                row->chars = realloc(row->chars, row->size+2); 
+                row->chars = realloc(row->chars, row->size+2);
                 memmove(row->chars+at+1, row->chars+at, row->size-at+1);
                 row->size++;
         }
@@ -492,7 +491,7 @@ void editor_row_insert_char(editing_row *row, int at, int c)
 
 
 // append the string s to the end of the row
-void editor_row_append_string(editing_row *row, char *s, size_t len) 
+void editor_row_append_string(editing_row *row, char *s, size_t len)
 {
         row->chars = realloc(row->chars, row->size+len+1);
         memcpy(row->chars+row->size, s, len);
@@ -592,14 +591,14 @@ void editor_delete_char()
                 row = NULL;
                 if(Editor.cursor_y == 0)
                         Editor.row_offset--;
-                else 
+                else
                         Editor.cursor_y--;
                 Editor.cursor_x = filecol;
                 if(Editor.cursor_x >= Editor.screen_columns) {
                         int shift = (Editor.screen_columns-Editor.cursor_x)+1;
                         Editor.cursor_x -= shift;
                         Editor.column_offset += shift;
-                } 
+                }
         }
 
         else {
@@ -696,7 +695,7 @@ void ab_free(struct append_buf *ab)
 }
 
 
-// this function writes the whole screen using VT100 escape characters starting 
+// this function writes the whole screen using VT100 escape characters starting
 // from the logical state of the editor in the global state 'Editor'
 void editor_refresh_screen(void)
 {
@@ -812,7 +811,7 @@ void editor_refresh_screen(void)
         ab_append(&ab, "\x1b[?25h", 6);
         write(STDOUT_FILENO, ab.b, ab.length);
         ab_free(&ab);
-}       
+}
 
 
 
@@ -830,7 +829,7 @@ void editor_set_status_message(const char *fmt, ...)
 // FINDING MODE
 
 
-void editor_find(int fd) 
+void editor_find(int fd)
 {
         char query[BRIC_QUERY_LENGTH+1] = {0};
         int qlen = 0;
@@ -974,7 +973,7 @@ void editor_move_cursor(int key)
                         }
                         break;
                 case ARROW_UP:
-                        if(Editor.cursor_y == 0) { 
+                        if(Editor.cursor_y == 0) {
                                 if(Editor.row_offset) Editor.row_offset--;
                         } else {
                                 Editor.cursor_y -= 1;
@@ -990,7 +989,7 @@ void editor_move_cursor(int key)
                         }
                         break;
         }
-        
+
         //fix cursor_x if the current line doesn't have enough chars
         filerow = Editor.row_offset+Editor.cursor_y;
         filecol = Editor.column_offset+Editor.cursor_x;
@@ -1007,6 +1006,48 @@ void editor_move_cursor(int key)
 
 
 
+// GOTO
+void editor_goto(int fd)
+{
+	char query[BRIC_QUERY_LENGTH+1] = {0};
+	int qlen = 0;
+	int line_number = 1;
+
+	while(1) {
+		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
+		editor_refresh_screen();
+
+		int c = editor_read_key(fd);
+		if(c == ENTER || c == ESC) {
+			if(c == ESC) return;
+			if(line_number < Editor.num_of_rows) {
+				if (Editor.cursor_y > line_number) {
+					int diff = Editor.cursor_y - line_number;
+					while(diff > 0) {
+						editor_move_cursor(ARROW_UP);
+						diff--;
+					}
+				} else if(line_number > Editor.cursor_y) {
+					int diff = line_number - Editor.cursor_y;
+					while(diff > 0) {
+						editor_move_cursor(ARROW_DOWN);
+						diff--;
+					}
+				}
+				editor_refresh_screen();
+				return;
+			}
+		} else if(isprint(c)) {
+			if(qlen < BRIC_QUERY_LENGTH) {
+				query[qlen++] = c;
+				query[qlen] = '\0';
+				sscanf(query, "%d", &line_number);
+			}
+		}
+	}
+}
+
+
 void editor_process_key_press(int fd)
 {
         static int quit_times = BRIC_QUIT_TIMES;
@@ -1019,7 +1060,10 @@ void editor_process_key_press(int fd)
                 case CTRL_C:
                         //ignore it because we dont want users to lose changes
                         break;
-                case CTRL_Q:
+		case CTRL_G:
+			editor_goto(fd);
+			break;
+              case CTRL_Q:
                         //quit if the file isnt dirty
                         if(Editor.dirty && quit_times) {
                                 editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit.", quit_times);
@@ -1047,7 +1091,7 @@ void editor_process_key_press(int fd)
                                 Editor.cursor_y = Editor.screen_rows-1;
                         {
                                 int times = Editor.screen_rows;
-                                while(times--) 
+                                while(times--)
                                         editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
                         }
                         break;
@@ -1071,7 +1115,7 @@ void editor_process_key_press(int fd)
 
 
 
-int editor_file_was_modified(void) 
+int editor_file_was_modified(void)
 {
         return Editor.dirty;
 }
