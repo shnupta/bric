@@ -1027,7 +1027,7 @@ void editor_goto(int fd)
 				editor_set_status_message("");
 				return;
 			}
-			if(line_number <= Editor.num_of_rows) {
+			if(line_number <= Editor.num_of_rows && line_number > 0) {
 				if (current_line > line_number) {
 					int diff = current_line - line_number;
           				
@@ -1045,6 +1045,10 @@ void editor_goto(int fd)
 					}
 					editor_set_status_message("");
 				}
+				editor_refresh_screen();
+				return;
+			} else {
+				editor_set_status_message("Out of bounds");
 				editor_refresh_screen();
 				return;
 			}
