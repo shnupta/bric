@@ -9,7 +9,7 @@ bric does not depend on any library (not even curses). It uses fairly standard V
 git clone https://github.com/shnupta/bric
 cd bric
 make
-make install (with privileges)
+make install
 ```
 
 ### Usage:
