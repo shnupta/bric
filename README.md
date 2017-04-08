@@ -3,6 +3,9 @@ bric is a text editor based on kilo.
 
 bric does not depend on any library (not even curses). It uses fairly standard VT100 (and similar terminals) escape sequences to write and read to and from the terminal.
 
+### Here is a screencast of bric on Linux:
+![Screencast](https://github.com/shnupta/bric/blob/master/screencast.gif)
+
 
 ### Installation:
 ```
