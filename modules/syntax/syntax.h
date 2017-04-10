@@ -10,11 +10,15 @@
 #define HL_NONPRINT 1
 #define HL_COMMENT 2
 #define HL_MLCOMMENT 3
-#define HL_KEYWORD1 4
-#define HL_KEYWORD2 5
-#define HL_STRING 6
-#define HL_NUMBER 7
-#define HL_MATCH 8 //a search match
+#define HL_STRING 4
+#define HL_NUMBER 5
+#define HL_MATCH 6 //a search match
+#define HL_KEYWORD_TYPE 10
+#define HL_KEYWORD_PP 11
+#define HL_KEYWORD_COND 12
+#define HL_KEYWORD_RETURN 13
+#define HL_KEYWORD_ADAPTER 14
+#define HL_KEYWORD_LOOP 15
 
 #define HL_HIGHLIGHT_STRINGS (1<<0)
 #define HL_HIGHLIGHT_NUMBERS (1<<1)

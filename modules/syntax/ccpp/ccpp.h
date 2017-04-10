@@ -4,9 +4,22 @@
 // C and C++
 char *CCPP_extensions[] = {".c", ".cpp", ".h" ,NULL};
 char *CCPP_keywords[] = {
-       "asm", "auto", "break", "case", "catch", "const", "const_cast", "continue", "default", "delete", "do", "dynamic_cast", "else", "explicit", "export", "extern", "false", "for", "friend", "goto", "if", "mutable", "new", "operator", "private", "public", "register", "reinterpret_cast", "return", "sizeof", "static", "static_cast", "switch", "template", "throw", "try", "typedef", "typeid", "typename", "using", "virtual", "volatile", "while", 
-	//types        
-	"short|", "bool|", "true|", "false|", "void|", "wchar_t|", "struct|", "union|", "enum|" ,"int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|",
+	//types and misc
+	"char", "bool", "short", "int", "__int8", "__int16", "__int32", "__int64",
+	"long", "wchar_t", "__wchar_t", "float", "double", "true", "false",
+	"continue", "break", "enum", "struct",
+	//preprocessor
+	"#define|", "#elif|", "#else|", "#ifndef|", "#error|", "#if|", "#ifdef|",
+	"#pragma|", "#import|", "#include|", "#line|", "#undef|", "#using|", "#endif|",
+	//conditionals
+	"if~", "else~", "switch~", "case~", "try~", "throw~", "catch~",
+	//return
+	"return^", "goto^",
+	//adapters
+	"const`", "static`", "public`", "protected`", "void`", "typedef`", 
+	"union`", "virtual`", "volatile`", "private`",  
+	//loops,
+	"for@", "while@", "do@",
 	NULL
 };
 

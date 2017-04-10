@@ -178,7 +178,7 @@ failed:
 
 int is_separator(int c)
 {
-        return c == '\0' || isspace(c) || strchr(",.()+_/*=~%[];", c) != NULL;
+        return c == '\0' || isspace(c) || strchr(",.()+_/*=%[];", c) != NULL;
 }
 
 
@@ -295,12 +295,21 @@ void editor_update_syntax(editing_row *row)
                         int j;
                         for(j = 0; keywords[j]; j++) {
                                 int klen = strlen(keywords[j]);
-                                int kw2 = keywords[j][klen-1] == '|';
-                                if(kw2) klen--;
+                                int pp = keywords[j][klen-1] == '|'; // preprocessor keyword
+				int cond = keywords[j][klen-1] == "~"; // condition
+				int retu = keywords[j][klen-1] == "#";
+				int adapter = keywords[j][klen-1] == "`"; //adapter keywords
+    				int loopy = keywords[j][klen-1] == "@";                            
+				if(pp || cond || retu || adapter || loopy) klen--;
 
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
                                         // keyword
-                                        memset(row->hl+i, kw2 ? HL_KEYWORD2 : HL_KEYWORD1, klen);
+                                        if(pp) memset(row->hl+i, HL_KEYWORD_PP, klen);
+					else if(cond) memset(row->hl+i, HL_KEYWORD_COND, klen);
+                                        else if(retu) memset(row->hl+i, HL_KEYWORD_RETURN, klen);
+                                        else if(adapter) memset(row->hl+i, HL_KEYWORD_ADAPTER, klen);
+                                        else if(loopy) memset(row->hl+i, HL_KEYWORD_LOOP, klen);
+                                        else memset(row->hl+i, HL_KEYWORD_TYPE, klen);
                                         p += klen;
                                         i += klen;
                                         break;
@@ -329,10 +338,14 @@ int editor_syntax_to_colour(int highlight)
         switch(highlight) {
                 case HL_COMMENT:
                 case HL_MLCOMMENT: return 36; // cyan
-                case HL_KEYWORD1: return 33; // yellow
-                case HL_KEYWORD2: return 32; // green
-                case HL_STRING: return 35; // magenta
-                case HL_NUMBER: return 31; // red
+                case HL_KEYWORD_COND: return 33; // yellow
+                case HL_KEYWORD_TYPE: return 32; // green
+		case HL_KEYWORD_PP: return 34; // blue
+		case HL_KEYWORD_RETURN: return 35; //magenta
+		case HL_KEYWORD_ADAPTER: return 30; //grey
+		case HL_KEYWORD_LOOP: return 36; //cyan
+                case HL_STRING: return 31; // red
+                case HL_NUMBER: return 34; // red
                 case HL_MATCH: return 34; // blue
                 default: return 37; // white
         }

@@ -32,6 +32,13 @@ Arrow Keys - Move
 - More syntax keyword colours
 - More language syntax highlighting
 - More shortcuts
+- Yank & paste lines
+- Append to end of line
+- Jump to beginning of line
+- Soft/hard wrap lines
+- Auto indent
+- Line numbers
+- Config file rather than hard coded colours etc
 
 ### Contribution:
 I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR!
