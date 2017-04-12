@@ -942,6 +942,7 @@ void editor_find(int fd)
 void editor_find_replace(int fd)
 {
 	char query[BRIC_QUERY_LENGTH + 1] = { 0 };
+	char replace_word[BRIC_QUERY_LENGTH + 1] = { 0 };
 	int qlen = 0;
 	int last_match = -1; // last line where match was found -1 for now
 	int find_next = 0; // if 1 search next if -1 search prev
@@ -1208,8 +1209,8 @@ void editor_process_key_press(int fd)
                         editor_find(fd);
                         break;
 				case CTRL_R:
-					editor_find_replace(fd);
-					break;
+						editor_find_replace(fd);
+						break;
                 case BACKSPACE:
                 case CTRL_H:
                 case DEL_KEY:

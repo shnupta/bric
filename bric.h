@@ -59,6 +59,7 @@ enum KEY_ACTION {
         CTRL_C = 3,
         CTRL_D = 3,
         CTRL_F = 6,
+		CTRL_R = 7,
         CTRL_H = 8,
         TAB = 9,
         CTRL_L = 12,
