@@ -55,11 +55,11 @@ struct editor_config {
 
 enum KEY_ACTION {
         KEY_NULL = 0,
-	 CTRL_G = CTRL_KEY('g'),
+		CTRL_G = CTRL_KEY('g'),
         CTRL_C = 3,
         CTRL_D = 3,
         CTRL_F = 6,
-		CTRL_R = 7,
+		CTRL_R = CTRL_KEY('r'),
         CTRL_H = 8,
         TAB = 9,
         CTRL_L = 12,
