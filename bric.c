@@ -947,7 +947,8 @@ void editor_find_replace(int fd)
 	int last_match = -1; // last line where match was found -1 for now
 	int find_next = 0; // if 1 search next if -1 search prev
 	int saved_hl_line = -1; // no saved highlight
-	int *current_input = &query;
+	int *current_input_len = &qlen;
+	char *current_input[] = &query;
 	char *saved_hl = NULL;
 
 #define FIND_RESTORE_HL do { \
@@ -986,9 +987,8 @@ void editor_find_replace(int fd)
 			find_next = -1;
 		}
 		else if (c == TAB) {
-			if (current_input == &query) {
-				current_input = &replace_word;
-			}
+			if (current_input == &query) current_input = &replace_word;
+			else if (current_input == &replace_word) current_input = &query;
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
