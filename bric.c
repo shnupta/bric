@@ -299,7 +299,7 @@ void editor_update_syntax(editing_row *row)
 				int cond = keywords[j][klen-1] == "~"; // condition
 				int retu = keywords[j][klen-1] == "#";
 				int adapter = keywords[j][klen-1] == "`"; //adapter keywords
-    				int loopy = keywords[j][klen-1] == "@";                            
+    				int loopy = keywords[j][klen-1] == "@";
 				if(pp || cond || retu || adapter || loopy) klen--;
 
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
@@ -943,12 +943,13 @@ void editor_find_replace(int fd)
 {
 	char query[BRIC_QUERY_LENGTH + 1] = { 0 };
 	char replace_word[BRIC_QUERY_LENGTH + 1] = { 0 };
+	int replace_len = 0;
 	int qlen = 0;
 	int last_match = -1; // last line where match was found -1 for now
 	int find_next = 0; // if 1 search next if -1 search prev
 	int saved_hl_line = -1; // no saved highlight
+	char *current_input = query;
 	int *current_input_len = &qlen;
-	char *current_input[] = &query;
 	char *saved_hl = NULL;
 
 #define FIND_RESTORE_HL do { \
@@ -968,7 +969,7 @@ void editor_find_replace(int fd)
 
 		int c = editor_read_key(fd);
 		if (c == DEL_KEY || c == CTRL_H || c == BACKSPACE) {
-			if (qlen != 0) query[--qlen] = '\0';
+			if (*current_input_len != 0) current_input[--(*current_input_len)] = '\0';
 			last_match = -1;
 		}
 		else if (c == ESC || c == ENTER) {
@@ -987,13 +988,18 @@ void editor_find_replace(int fd)
 			find_next = -1;
 		}
 		else if (c == TAB) {
-			if (current_input == &query) current_input = &replace_word;
-			else if (current_input == &replace_word) current_input = &query;
+			if (current_input == query) {
+				current_input = replace_word;
+				current_input_len = &replace_len;
+			} else if(current_input == replace_word) {
+				current_input = query;
+				current_input_len = &qlen;
+			}
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
-				query[qlen++] = c;
-				query[qlen] = '\0';
+				current_input[(*current_input_len)++] = c;
+				current_input[(*current_input_len)] = '\0';
 				last_match = -1;
 			}
 		}
@@ -1136,7 +1142,7 @@ void editor_goto(int fd)
 	int current_line;
 
 	while(1) {
-		current_line = Editor.row_offset + Editor.cursor_y + 1;		
+		current_line = Editor.row_offset + Editor.cursor_y + 1;
 		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
@@ -1151,7 +1157,7 @@ void editor_goto(int fd)
 			if(line_number <= Editor.num_of_rows && line_number > 0) {
 				if (current_line > line_number) {
 					int diff = current_line - line_number;
-          				
+
           				while(diff > 0) {
 						editor_move_cursor(ARROW_UP);
 						diff--;
