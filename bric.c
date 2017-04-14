@@ -997,7 +997,7 @@ void editor_find_replace(int fd)
 			}
 		}
 		else if (c == DEL_KEY) {
-			Editor.cursor_x += qlen
+			Editor.cursor_x += qlen;
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
