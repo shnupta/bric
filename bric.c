@@ -1231,6 +1231,9 @@ void editor_process_key_press(int fd)
                 case CTRL_F:
                         editor_find(fd);
                         break;
+				case CTRL_R : 
+						editor_find_replace(fd);
+						break
                 case BACKSPACE:
                 case CTRL_H:
                 case DEL_KEY:
