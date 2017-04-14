@@ -998,7 +998,7 @@ void editor_find_replace(int fd)
 		}
 		else if (c == DEL_KEY) {
 			Editor.cursor_x += qlen;
-			for (i = 0; i < qlen; i++) 
+			for (int i = 0; i < qlen; i++) 
 			{
 				editor_delete_char(fd);
 			}
