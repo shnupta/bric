@@ -996,7 +996,7 @@ void editor_find_replace(int fd)
 				current_input_len = &qlen;
 			}
 		}
-		else if (c == DEL_KEY) {
+		else if (c == ENTER) {
 			Editor.cursor_x += qlen;
 			for (int i = 0; i < qlen; i++) 
 			{
