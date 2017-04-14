@@ -998,6 +998,10 @@ void editor_find_replace(int fd)
 		}
 		else if (c == DEL_KEY) {
 			Editor.cursor_x += qlen;
+			for (i = 0; i < qlen; i++) 
+			{
+				editor_delete_char(fd);
+			}
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
