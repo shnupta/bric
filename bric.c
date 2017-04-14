@@ -867,7 +867,7 @@ void editor_find(int fd)
                 editor_refresh_screen();
 
                 int c = editor_read_key(fd);
-                if(c == DEL_KEY || c == CTRL_H || c == BACKSPACE) {
+                if(c == CTRL_H || c == BACKSPACE) {
                         if(qlen != 0) query[--qlen] = '\0';
                         last_match = -1;
                 } else if(c == ESC || c == ENTER) {
@@ -968,7 +968,7 @@ void editor_find_replace(int fd)
 		editor_refresh_screen();
 
 		int c = editor_read_key(fd);
-		if (c == DEL_KEY || c == CTRL_H || c == BACKSPACE) {
+		if (c == CTRL_H || c == BACKSPACE) {
 			if (*current_input_len != 0) current_input[--(*current_input_len)] = '\0';
 			last_match = -1;
 		}
@@ -996,7 +996,7 @@ void editor_find_replace(int fd)
 				current_input_len = &qlen;
 			}
 		}
-		else if (c == DEL_KEY) {
+		else if (c == W) {
 			Editor.cursor_x += qlen;
 		}
 		else if (isprint(c)) {
