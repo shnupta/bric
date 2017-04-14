@@ -14,7 +14,7 @@ char *CCPP_keywords[] = {
 	//conditionals
 	"if~", "else~", "switch~", "case~", "try~", "throw~", "catch~",
 	//return
-	"return^", "goto^",
+	"return#", "goto#",
 	//adapters
 	"const`", "static`", "public`", "protected`", "void`", "typedef`", 
 	"union`", "virtual`", "volatile`", "private`",  

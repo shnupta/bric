@@ -1308,7 +1308,7 @@ int main(int argc, char **argv)
         editor_select_syntax_highlight(argv[1]);
         editor_open(argv[1]);
         enable_raw_mode(STDIN_FILENO);
-        editor_set_status_message("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
+        editor_set_status_message("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-R = find & replace | Ctrl-G - goto");
         while(1) {
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
