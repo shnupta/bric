@@ -1004,7 +1004,7 @@ void editor_find_replace(int fd)
 			}
 			for (int j = 0; j < replace_len; j++)
 			{
-				editor_insert_char(replace_word[j])
+				editor_insert_char(replace_word[j]);
 			}
 		}
 		else if (isprint(c)) {
