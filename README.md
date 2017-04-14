@@ -23,6 +23,7 @@ Shortcuts:
 Ctrl-Q - Quit 
 Ctrl-S - Save 
 Ctrl-F - Find 
+Ctrl-R - Find and Replace
 Ctrl-G - Goto
 Arrow Keys - Move
 ```
