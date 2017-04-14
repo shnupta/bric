@@ -964,7 +964,7 @@ void editor_find_replace(int fd)
 	int saved_column_offset = Editor.column_offset, saved_row_offset = Editor.row_offset;
 
 	while (1) {
-		editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Delete)", query, replace_word);
+		editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)", query, replace_word);
 		editor_refresh_screen();
 
 		int c = editor_read_key(fd);
@@ -996,7 +996,7 @@ void editor_find_replace(int fd)
 				current_input_len = &qlen;
 			}
 		}
-		else if (c == DEL_KEY) {
+		else if (c == ENTER) {
 			Editor.cursor_x += qlen;
 			for (int i = 0; i < qlen; i++) 
 			{
@@ -1231,6 +1231,9 @@ void editor_process_key_press(int fd)
                 case CTRL_F:
                         editor_find(fd);
                         break;
+				case CTRL_R: 
+						editor_find_replace(fd);
+						break;
                 case BACKSPACE:
                 case CTRL_H:
                 case DEL_KEY:
