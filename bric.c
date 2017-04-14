@@ -299,7 +299,7 @@ void editor_update_syntax(editing_row *row)
 				int cond = keywords[j][klen-1] == "~"; // condition
 				int retu = keywords[j][klen-1] == "#";
 				int adapter = keywords[j][klen-1] == "`"; //adapter keywords
-    				int loopy = keywords[j][klen-1] == "@";
+    				int loopy = keywords[j][klen-1] == "@";                            
 				if(pp || cond || retu || adapter || loopy) klen--;
 
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
@@ -867,7 +867,7 @@ void editor_find(int fd)
                 editor_refresh_screen();
 
                 int c = editor_read_key(fd);
-                if(c == CTRL_H || c == BACKSPACE) {
+                if(c == DEL_KEY || c == CTRL_H || c == BACKSPACE) {
                         if(qlen != 0) query[--qlen] = '\0';
                         last_match = -1;
                 } else if(c == ESC || c == ENTER) {
@@ -1153,7 +1153,7 @@ void editor_goto(int fd)
 	int current_line;
 
 	while(1) {
-		current_line = Editor.row_offset + Editor.cursor_y + 1;
+		current_line = Editor.row_offset + Editor.cursor_y + 1;		
 		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
@@ -1168,7 +1168,7 @@ void editor_goto(int fd)
 			if(line_number <= Editor.num_of_rows && line_number > 0) {
 				if (current_line > line_number) {
 					int diff = current_line - line_number;
-
+          				
           				while(diff > 0) {
 						editor_move_cursor(ARROW_UP);
 						diff--;
@@ -1231,9 +1231,6 @@ void editor_process_key_press(int fd)
                 case CTRL_F:
                         editor_find(fd);
                         break;
-				case CTRL_R:
-						editor_find_replace(fd);
-						break;
                 case BACKSPACE:
                 case CTRL_H:
                 case DEL_KEY:
