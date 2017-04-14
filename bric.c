@@ -964,7 +964,7 @@ void editor_find_replace(int fd)
 	int saved_column_offset = Editor.column_offset, saved_row_offset = Editor.row_offset;
 
 	while (1) {
-		editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Delete)", query, replace_word);
+		editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)", query, replace_word);
 		editor_refresh_screen();
 
 		int c = editor_read_key(fd);
