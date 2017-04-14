@@ -1002,6 +1002,10 @@ void editor_find_replace(int fd)
 			{
 				editor_delete_char(fd);
 			}
+			for (int j = 0; j < replace_len; j++)
+			{
+				editor_insert_char(replace_word[j])
+			}
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
