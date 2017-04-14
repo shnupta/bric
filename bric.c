@@ -1000,7 +1000,7 @@ void editor_find_replace(int fd)
 			Editor.cursor_x += qlen;
 			for (int i = 0; i < qlen; i++) 
 			{
-				editor_delete_char(fd);
+				editor_delete_char();
 			}
 			for (int j = 0; j < replace_len; j++)
 			{
