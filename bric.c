@@ -3,6 +3,7 @@
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 
+
 // Low level terminal handling
 void disable_raw_mode(int fd)
 {
