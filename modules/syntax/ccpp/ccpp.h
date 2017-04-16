@@ -16,8 +16,8 @@ char *CCPP_keywords[] = {
 	//return
 	"return#", "goto#",
 	//adapters
-	"const`", "static`", "public`", "protected`", "void`", "typedef`", 
-	"union`", "virtual`", "volatile`", "private`",  
+	"const^", "static^", "public^", "protected^", "void^", "typedef^", 
+	"union^", "virtual^", "volatile^", "private^",  
 	//loops,
 	"for@", "while@", "do@",
 	NULL

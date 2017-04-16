@@ -4,7 +4,7 @@ static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 
 // Low level terminal handling
- void disable_raw_mode(int fd)
+void disable_raw_mode(int fd)
 {
         // dont bother checking the return value as its too late
         if (Editor.rawmode) {
@@ -296,10 +296,10 @@ void editor_update_syntax(editing_row *row)
                         for(j = 0; keywords[j]; j++) {
                                 int klen = strlen(keywords[j]);
                                 int pp = keywords[j][klen-1] == '|'; // preprocessor keyword
-				int cond = keywords[j][klen-1] == "~"; // condition
-				int retu = keywords[j][klen-1] == "#";
-				int adapter = keywords[j][klen-1] == "`"; //adapter keywords
-    				int loopy = keywords[j][klen-1] == "@";                            
+				int cond = keywords[j][klen-1] == '~'; // condition
+				int retu = keywords[j][klen-1] == '#';
+				int adapter = keywords[j][klen-1] == '^'; //adapter keywords
+    				int loopy = keywords[j][klen-1] == '@';                            
 				if(pp || cond || retu || adapter || loopy) klen--;
 
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
@@ -337,17 +337,18 @@ int editor_syntax_to_colour(int highlight)
 {
         switch(highlight) {
                 case HL_COMMENT:
-                case HL_MLCOMMENT: return 36; // cyan
-                case HL_KEYWORD_COND: return 33; // yellow
+                case HL_MLCOMMENT: return 33; // yellow
+                case HL_KEYWORD_COND: return 36; // cyan
                 case HL_KEYWORD_TYPE: return 32; // green
 		case HL_KEYWORD_PP: return 34; // blue
 		case HL_KEYWORD_RETURN: return 35; //magenta
-		case HL_KEYWORD_ADAPTER: return 30; //grey
+		case HL_KEYWORD_ADAPTER: return 94; //grey
 		case HL_KEYWORD_LOOP: return 36; //cyan
                 case HL_STRING: return 31; // red
                 case HL_NUMBER: return 34; // red
-                case HL_MATCH: return 34; // blue
-                default: return 37; // white
+                case HL_MATCH: return 101; // background light red
+  		case HL_BACKGROUND_DEFAULT: return 49;              
+		default: return 37; // white
         }
 }
 
@@ -921,6 +922,7 @@ void editor_find(int fd)
                                         saved_hl = malloc(row->rendered_size);
                                         memcpy(saved_hl, row->hl, row->rendered_size);
                                         memset(row->hl+match_offset, HL_MATCH, qlen);
+					 memset(row->hl+match_offset+qlen, HL_BACKGROUND_DEFAULT, qlen);
                                 }
                                 Editor.cursor_y = 0;
                                 Editor.cursor_x = match_offset;
@@ -1046,6 +1048,7 @@ void editor_find_replace(int fd)
 					saved_hl = malloc(row->rendered_size);
 					memcpy(saved_hl, row->hl, row->rendered_size);
 					memset(row->hl + match_offset, HL_MATCH, qlen);
+					memset(row->hl + match_offset + qlen, HL_BACKGROUND_DEFAULT, qlen);
 				}
 				Editor.cursor_y = 0;
 				Editor.cursor_x = match_offset;
