@@ -12,8 +12,6 @@ char *PHP_keywords[] = {
 		"protected^","static^",
         //conditionals
         "if~","else~","switch~","case~","try~","catch~","finally~","and","elseif~","default#","or","throw~",
-        //start
-        "<?php","?>",
         //conditionals
         "if~","else~","switch~","case~","try~","catch~","finally~",
         //return
