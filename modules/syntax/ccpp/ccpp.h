@@ -7,7 +7,7 @@ char *CCPP_keywords[] = {
 	//types and misc
 	"char", "bool", "short", "int", "__int8", "__int16", "__int32", "__int64",
 	"long", "wchar_t", "__wchar_t", "float", "double", "true", "false",
-	"continue", "break", "enum", "struct",
+	"continue", "break", "enum", "struct","class","default#","namespace",
 	//preprocessor
 	"#define|", "#elif|", "#else|", "#ifndef|", "#error|", "#if|", "#ifdef|",
 	"#pragma|", "#import|", "#include|", "#line|", "#undef|", "#using|", "#endif|",
