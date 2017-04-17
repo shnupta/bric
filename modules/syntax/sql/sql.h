@@ -1,7 +1,7 @@
 #ifndef _SYNTAX_SQL_H
 #define _SYNTAX_SQL_H
 
-// C and C++
+// MySQL, just the beginning
 char *SQL_extensions[] = {".sql" ,NULL};
 char *SQL_keywords[] = {
 	"create","table","insert","from","values","select",
