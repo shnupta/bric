@@ -33,7 +33,8 @@ typedef struct hlcolour {
 // here is an array of syntax highlights by extensions, keywords, comments, del
 struct editor_syntax highlight_db[] = {
        CCPP_syntax,
-	Python_syntax
+	Python_syntax,
+	PHP_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
