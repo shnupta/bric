@@ -4,6 +4,7 @@
 #include "editor_syntax.h"
 #include "ccpp/ccpp.h"
 #include "python/python.h"
+#include "php/php.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
