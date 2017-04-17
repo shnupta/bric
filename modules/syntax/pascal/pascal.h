@@ -2,7 +2,7 @@
 #define _SYNTAX_PASCAL_H
 
 // pascal
-char *PAS_extensions[] = {".c", ".cpp", ".h" ,NULL};
+char *PAS_extensions[] = {".pas" ,NULL};
 char *PAS_keywords[] = {
 	//types and misc
 	"array", "begin", "asm", "constructor", "destructor", "div", "end", "false",
