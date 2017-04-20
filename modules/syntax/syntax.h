@@ -5,6 +5,8 @@
 #include "ccpp/ccpp.h"
 #include "python/python.h"
 #include "php/php.h"
+#include "pascal/pascal.h"
+#include "sql/sql.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -32,9 +34,11 @@ typedef struct hlcolour {
 
 // here is an array of syntax highlights by extensions, keywords, comments, del
 struct editor_syntax highlight_db[] = {
-       CCPP_syntax,
+    CCPP_syntax,
 	Python_syntax,
-	PHP_syntax
+	PHP_syntax,
+	Pascal_syntax,
+	SQL_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
