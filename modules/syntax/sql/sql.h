@@ -11,7 +11,6 @@ char *SQL_keywords[] = {
 #define SQL_syntax { \
 	SQL_extensions, \
 	SQL_keywords, \
-	"#", \
 	"-- ", \
 	"/*", \
 	"*/", \
