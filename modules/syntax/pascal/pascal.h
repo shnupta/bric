@@ -26,8 +26,6 @@ char *PAS_keywords[] = {
 #define Pascal_syntax { \
 	PAS_extensions, \
 	PAS_keywords, \
-	"(*", \
-	"*(", \
 	"{", \
 	"}", \
 	"//", \
