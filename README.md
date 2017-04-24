@@ -3,6 +3,8 @@ bric is a text editor based on kilo.
 
 bric does not depend on any library (not even curses). It uses fairly standard VT100 (and similar terminals) escape sequences to write and read to and from the terminal.
 
+[My blog post](https://shnupta.github.io/posts/0/bric.html)
+
 ### Here is a screencast of bric on Linux:
 ![Screencast](https://github.com/shnupta/bric/blob/master/screencast.gif)
 
@@ -30,7 +32,6 @@ Arrow Keys - Move
 
 ### Todo:
 - Git integration
-- More syntax keyword colours
 - More language syntax highlighting
 - More shortcuts
 - Yank & paste lines

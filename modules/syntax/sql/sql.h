@@ -4,7 +4,9 @@
 // MySQL, just the beginning
 char *SQL_extensions[] = {".sql" ,NULL};
 char *SQL_keywords[] = {
-	"create","table","insert","from","values","select",
+	"create","insert","from","values","select","alter","orderby",
+	"table~","database~","column~",
+	"asc@","desc@",
 	NULL
 };
 
@@ -16,8 +18,5 @@ char *SQL_keywords[] = {
 	"*/", \
 	HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS \
 }
-
-
-
 
 #endif
