@@ -12,8 +12,8 @@ char *Python_keywords[] = {
 	Python_extensions, \
 	Python_keywords, \
 	"#", \
-	"/*", \
-	"*/", \
+	"'''", \
+	"'''", \
 	HL_HIGHLIGHT_STRINGS | HL_HIGHLIGHT_NUMBERS \
 }
 
