@@ -23,12 +23,12 @@ char *PAS_keywords[] = {
 
 
 
-#define Pascal_syntax { \
+#define PAS_syntax { \
 	PAS_extensions, \
 	PAS_keywords, \
+    "#", \
 	"{", \
 	"}", \
-	"//", \
 	HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS \
 }
 

@@ -37,7 +37,7 @@ struct editor_syntax highlight_db[] = {
     CCPP_syntax,
 	Python_syntax,
 	PHP_syntax,
-	Pascal_syntax,
+	PAS_syntax,
 	SQL_syntax
 };
 
