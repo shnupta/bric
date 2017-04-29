@@ -49,7 +49,8 @@ struct editor_config {
         char status_message[80];
         time_t status_message_time;
         struct editor_syntax *syntax;   // current syntaxt highlighting
-        int line_numbers;              // show line numbers
+        int line_numbers;               // show line numbers
+        int indent;                     //  tabs and spaces indentation    
 
 };
 
@@ -188,6 +189,8 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 #define LINE_NUMBER_LENGTH 7
 
 #define LINE_NUMBER_FORMAT "%5d: "
+
+#define TAB_LENGTH 4 // TODO: make it changable
 
 void editor_process_key_press(int fd);
 

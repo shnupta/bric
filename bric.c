@@ -549,7 +549,29 @@ void editor_insert_char(int c)
         Editor.dirty++;
 }
 
+char *get_indent_prefix(char *s, int max_length)
+{
+    int ptr = 0;
+    while (s[ptr] == ' ' || s[ptr] == '\t') ptr++;
+    if (ptr > max_length) ptr = max_length;
+    char *res = (char*)malloc((ptr + 1) * sizeof(char));
+    memcpy(res, s, ptr * sizeof(char));
+    res[ptr] = '\0';
+    return res;
+}
 
+char *set_indent_prefix(char *text, char *prefix)
+{
+    int result_length = strlen(text) + strlen(prefix);
+    int ptr = 0;
+    while (text[ptr] == ' ' || text[ptr] == '\t') ptr++;
+    result_length -= ptr;
+    char *res = (char*)malloc((result_length + 1) * sizeof(char));
+    res[0] = '\0';
+    res = strcat(res, prefix);
+    res = strcat(res, text + ptr);
+    return res;
+}
 /* Inserting a newline is slightly complex as we have to handle inserting a
  *  * newline in the middle of a line, splitting the line as needed. */
 void editor_insert_newline(void)
@@ -565,14 +587,24 @@ void editor_insert_newline(void)
                 }
                 return;
         }
-
+        char *indent_prefix = NULL;
+        if (Editor.indent)
+        {
+            indent_prefix = get_indent_prefix(row->chars, filecol + 1);
+        }
+        else
+        {
+            indent_prefix = get_indent_prefix(row->chars, 0);
+        }
         // if the cursor is over the line size then we conceptually think its just over the last character
         if(filecol >= row->size) filecol = row->size;
         if(filecol == 0) {
-                editor_insert_row(filerow, "", 0);
+                editor_insert_row(filerow, indent_prefix, strlen(indent_prefix));
         } else {
                 // we are in the middle of a line, split it between two rows
-                editor_insert_row(filerow+1, row->chars+filecol, row->size-filecol);
+                char *new_row = set_indent_prefix(row->chars+filecol, indent_prefix);
+                editor_insert_row(filerow+1, new_row, strlen(new_row));
+                free(new_row);
                 row = &Editor.row[filerow];
                 row->chars[filecol] = '\0';
                 row->size = filecol;
@@ -583,8 +615,9 @@ fixcursor:
                 Editor.row_offset++;
         else
                 Editor.cursor_y++;
-        Editor.cursor_x = 0;
-        Editor.column_offset = 0;
+        Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
+        Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
+        free(indent_prefix);
 }
 
 
@@ -637,6 +670,9 @@ void parse_argument(char *arg)
         {
             case 'l':
                 Editor.line_numbers = 1;
+                break;
+            case 'i':
+                Editor.indent = 1;
                 break;
             default:
                 // TODO: warning of unrecognised argument
@@ -793,7 +829,7 @@ void editor_refresh_screen(void)
                                                 int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", colour);
                                                 current_colour = colour;
                                                 ab_append(&ab, buf, clen);
-                                        }
+                                        }                               
                                         ab_append(&ab, c+j, 1);
                                 }
                         }
@@ -836,10 +872,16 @@ void editor_refresh_screen(void)
         int filerow = Editor.row_offset+Editor.cursor_y;
         editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
         if(r) {
+                int was_tab = 0;
                 for(j = Editor.column_offset; j < (Editor.cursor_x+Editor.column_offset); j++) {
-                        if(j < r->size && r->chars[j] == TAB) cursor_x += 7-((cursor_x)%8);
+                        if(j < r->size && r->chars[j] == TAB)
+                        {
+                            cursor_x += 7-((cursor_x)%8);
+                            was_tab = 1;
+                        }    
                         cursor_x++;
                 }
+                if (was_tab) cursor_x--;
         }
         snprintf(buf, sizeof(buf), "\x1b[%d;%dH", Editor.cursor_y + 1, cursor_x);
         ab_append(&ab, buf, strlen(buf));
@@ -1259,8 +1301,11 @@ void editor_process_key_press(int fd)
 						editor_find_replace(fd);
 						break;
                 case BACKSPACE:
+                        editor_delete_char();
+                        break;
                 case CTRL_H:
                 case DEL_KEY:
+                        editor_move_cursor(ARROW_RIGHT);
                         editor_delete_char();
                         break;
                 case PAGE_UP:
@@ -1330,7 +1375,17 @@ void init_editor(void)
         Editor.screen_rows -= 2; // get room for status bar
 }
 
-
+void close_editor(void)
+{
+    free(Editor.filename);
+    for (int i = 0; i < Editor.num_of_rows; i++)
+    {
+        free(Editor.row[i].chars);
+        free(Editor.row[i].rendered_chars);
+        free(Editor.row[i].hl);
+    }
+    free(Editor.row);
+}
 
 int main(int argc, char **argv)
 {
@@ -1360,5 +1415,6 @@ int main(int argc, char **argv)
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
         }
+        close_editor();
         return 0;
 }
