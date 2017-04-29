@@ -144,8 +144,6 @@ int editor_open(char *filename); // load the specified program in the editor mem
 
 int editor_save(void); //save the current file on the disk
 
-
-
 // Terminal updating stuff
 
 

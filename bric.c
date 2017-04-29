@@ -1252,7 +1252,7 @@ void editor_process_key_press(int fd)
                         {
                                 int times = Editor.screen_rows;
                                 while(times--)
-                                        editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+									editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
                         }
                         break;
                 case ARROW_UP:
@@ -1266,6 +1266,13 @@ void editor_process_key_press(int fd)
                 case ESC:
                         //nothing to do
                         break;
+				case END_KEY:
+                    {
+					   int times = Editor.row->size - Editor.row->index;
+                       while (times--) 
+                            editor_move_cursor(ARROW_RIGHT);
+                    }
+                       break;
                 default:
                         editor_insert_char(c);
                         break;
