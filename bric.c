@@ -628,7 +628,23 @@ void editor_delete_char()
 }
 
 
-
+void parse_argument(char *arg)
+{
+    int ptr = 0;
+    while (arg[ptr] != '\0')
+    {
+        switch (arg[ptr])
+        {
+            case 'l':
+                Editor.line_numbers = 1;
+                break;
+            default:
+                // TODO: warning of unrecognised argument
+                break;
+        }
+        ptr++;
+    }
+}
 // load the specified progam in the editor memory
 int editor_open(char *filename)
 {
@@ -693,7 +709,7 @@ writeerr:
 // TERMINAL UPDATING
 
 
-void ab_append(struct append_buf *ab, const char *s, int length)
+void ab_append(struct append_buf *ab, char *s, int length)
 {
         char *new = realloc(ab->b, ab->length+length);
 
@@ -723,7 +739,11 @@ void editor_refresh_screen(void)
         ab_append(&ab, "\x1b[H", 3); // go home
         for(y = 0; y < Editor.screen_rows; y++) {
                 int filerow = Editor.row_offset+y;
-
+                if (Editor.line_numbers)
+                {
+                    sprintf(buf, LINE_NUMBER_FORMAT, filerow + 1);
+                    ab_append(&ab, buf, strlen(buf));
+                }
                 if(filerow >= Editor.num_of_rows) {
                         if(Editor.num_of_rows == 0 && y == Editor.screen_rows/3) {
                                 char welcome[80];
@@ -742,7 +762,6 @@ void editor_refresh_screen(void)
 
                         continue;
                 }
-
                 row = &Editor.row[filerow];
                 int len = row->rendered_size - Editor.column_offset;
                 int current_colour = -1;
@@ -813,6 +832,7 @@ void editor_refresh_screen(void)
         // put cursor at its current position
         int j;
         int cursor_x = 1;
+        if (Editor.line_numbers) cursor_x += LINE_NUMBER_LENGTH;
         int filerow = Editor.row_offset+Editor.cursor_y;
         editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
         if(r) {
@@ -821,7 +841,7 @@ void editor_refresh_screen(void)
                         cursor_x++;
                 }
         }
-        snprintf(buf, sizeof(buf), "\x1b[%d;%dH", Editor.cursor_y+1, cursor_x);
+        snprintf(buf, sizeof(buf), "\x1b[%d;%dH", Editor.cursor_y + 1, cursor_x);
         ab_append(&ab, buf, strlen(buf));
         ab_append(&ab, "\x1b[?25h", 6);
         write(STDOUT_FILENO, ab.b, ab.length);
@@ -1252,7 +1272,7 @@ void editor_process_key_press(int fd)
                         {
                                 int times = Editor.screen_rows;
                                 while(times--)
-                                        editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+									editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
                         }
                         break;
                 case ARROW_UP:
@@ -1266,6 +1286,13 @@ void editor_process_key_press(int fd)
                 case ESC:
                         //nothing to do
                         break;
+				case END_KEY:
+                    {
+					   int times = Editor.row->size - Editor.row->index;
+                       while (times--) 
+                            editor_move_cursor(ARROW_RIGHT);
+                    }
+                       break;
                 default:
                         editor_insert_char(c);
                         break;
@@ -1296,6 +1323,10 @@ void init_editor(void)
                 perror("Unable to query the screen for size (columns / rows)");
                 exit(1);
         }
+        if (Editor.line_numbers)
+        {
+            Editor.screen_columns -= LINE_NUMBER_LENGTH;
+        }
         Editor.screen_rows -= 2; // get room for status bar
 }
 
@@ -1303,14 +1334,26 @@ void init_editor(void)
 
 int main(int argc, char **argv)
 {
-        if(argc != 2) {
+        int file_arg = -1;
+        for (int i = 1; i < argc; i++)
+        {
+            if (argv[i][0] != '-')
+            {
+                file_arg = i;
+            }
+            else
+            {
+                parse_argument(argv[i]);
+            }
+        }
+        if(file_arg == -1) {
                 fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
 
         init_editor();
-        editor_select_syntax_highlight(argv[1]);
-        editor_open(argv[1]);
+        editor_select_syntax_highlight(argv[file_arg]);
+        editor_open(argv[file_arg]);
         enable_raw_mode(STDIN_FILENO);
         editor_set_status_message("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-R = find & replace | Ctrl-G - goto");
         while(1) {

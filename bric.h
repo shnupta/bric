@@ -49,6 +49,8 @@ struct editor_config {
         char status_message[80];
         time_t status_message_time;
         struct editor_syntax *syntax;   // current syntaxt highlighting
+        int line_numbers;              // show line numbers
+
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -144,8 +146,6 @@ int editor_open(char *filename); // load the specified program in the editor mem
 
 int editor_save(void); //save the current file on the disk
 
-
-
 // Terminal updating stuff
 
 
@@ -160,7 +160,7 @@ struct append_buf {
 
 #define ABUF_INIT {NULL, 0}
 
-void ab_append(struct append_buf *ab, const char *s, int length);
+void ab_append(struct append_buf *ab, char *s, int length);
 
 void ab_free(struct append_buf *ab);
 
@@ -184,6 +184,10 @@ void editor_goto(int fd);
 void editor_move_cursor(int key); // handle cursor position change due to arrow key press
 
 #define BRIC_QUIT_TIMES 3
+
+#define LINE_NUMBER_LENGTH 7
+
+#define LINE_NUMBER_FORMAT "%5d: "
 
 void editor_process_key_press(int fd);
 
