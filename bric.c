@@ -1323,6 +1323,10 @@ void init_editor(void)
                 perror("Unable to query the screen for size (columns / rows)");
                 exit(1);
         }
+        if (Editor.line_numbers)
+        {
+            Editor.screen_columns -= LINE_NUMBER_LENGTH;
+        }
         Editor.screen_rows -= 2; // get room for status bar
 }
 
