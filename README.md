@@ -35,11 +35,9 @@ Arrow Keys - Move
 - More language syntax highlighting
 - More shortcuts
 - Yank & paste lines
-- Append to end of line
 - Jump to beginning of line
 - Soft/hard wrap lines
 - Auto indent
-- Line numbers
 - Config file rather than hard coded colours etc
 
 ### Contribution:
