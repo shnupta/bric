@@ -49,6 +49,8 @@ struct editor_config {
         char status_message[80];
         time_t status_message_time;
         struct editor_syntax *syntax;   // current syntaxt highlighting
+        int line_numbers;              // show line numbers
+
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -158,7 +160,7 @@ struct append_buf {
 
 #define ABUF_INIT {NULL, 0}
 
-void ab_append(struct append_buf *ab, const char *s, int length);
+void ab_append(struct append_buf *ab, char *s, int length);
 
 void ab_free(struct append_buf *ab);
 
