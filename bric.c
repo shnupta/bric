@@ -741,10 +741,8 @@ void editor_refresh_screen(void)
                 int filerow = Editor.row_offset+y;
                 if (Editor.line_numbers)
                 {
-
-                    sprintf(buf, "%5d", filerow);
+                    sprintf(buf, LINE_NUMBER_FORMAT, filerow + 1);
                     ab_append(&ab, buf, strlen(buf));
-                    ab_append(&ab, ": ", 2);
                 }
                 if(filerow >= Editor.num_of_rows) {
                         if(Editor.num_of_rows == 0 && y == Editor.screen_rows/3) {
@@ -834,7 +832,7 @@ void editor_refresh_screen(void)
         // put cursor at its current position
         int j;
         int cursor_x = 1;
-        if (Editor.line_numbers) cursor_x += 7;
+        if (Editor.line_numbers) cursor_x += LINE_NUMBER_LENGTH;
         int filerow = Editor.row_offset+Editor.cursor_y;
         editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
         if(r) {

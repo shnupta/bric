@@ -185,6 +185,10 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 
 #define BRIC_QUIT_TIMES 3
 
+#define LINE_NUMBER_LENGTH 7
+
+#define LINE_NUMBER_FORMAT "%5d: "
+
 void editor_process_key_press(int fd);
 
 int editor_file_was_modified(void);
