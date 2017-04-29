@@ -191,6 +191,7 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 #define LINE_NUMBER_FORMAT "%5d: "
 
 #define TAB_LENGTH 4 // TODO: make it changable
+
 void editor_process_key_press(int fd);
 
 int editor_file_was_modified(void);

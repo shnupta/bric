@@ -604,6 +604,7 @@ void editor_insert_newline(void)
                 // we are in the middle of a line, split it between two rows
                 char *new_row = set_indent_prefix(row->chars+filecol, indent_prefix);
                 editor_insert_row(filerow+1, new_row, strlen(new_row));
+                free(new_row);
                 row = &Editor.row[filerow];
                 row->chars[filecol] = '\0';
                 row->size = filecol;
@@ -616,6 +617,7 @@ fixcursor:
                 Editor.cursor_y++;
         Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
         Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
+        free(indent_prefix);
 }
 
 
@@ -1373,7 +1375,17 @@ void init_editor(void)
         Editor.screen_rows -= 2; // get room for status bar
 }
 
-
+void close_editor(void)
+{
+    free(Editor.filename);
+    for (int i = 0; i < Editor.num_of_rows; i++)
+    {
+        free(Editor.row[i].chars);
+        free(Editor.row[i].rendered_chars);
+        free(Editor.row[i].hl);
+    }
+    free(Editor.row);
+}
 
 int main(int argc, char **argv)
 {
@@ -1403,5 +1415,6 @@ int main(int argc, char **argv)
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
         }
+        close_editor();
         return 0;
 }
