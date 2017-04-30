@@ -919,6 +919,7 @@ void editor_refresh_screen(void)
                                         if (background_colour != -1)
                                         {
                                             ab_append(&ab, "\x1b[49m", 5);
+                                            background_colour = -1;
                                         }
                                         char sym;
                                         ab_append(&ab, "\x1b[7m", 4);
@@ -932,6 +933,7 @@ void editor_refresh_screen(void)
                                         if (background_colour != -1)
                                         {
                                             ab_append(&ab, "\x1b[49m", 5);
+                                            background_colour = -1;
                                         }
                                         if(current_colour != -1) {
                                                 ab_append(&ab, "\x1b[39m", 5);
@@ -943,13 +945,16 @@ void editor_refresh_screen(void)
                                         if (background_colour != -1)
                                         {
                                             ab_append(&ab, "\x1b[49m", 5);
+                                            background_colour = -1;
                                         }
                                         if(colour != current_colour) {
                                                 char buf[16];
                                                 int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", colour);
                                                 current_colour = colour;
                                                 ab_append(&ab, buf, clen);
-                                        }           
+                                        }          
+                                        ab_append(&ab, c+j, 1);
+ 
                                 }
                         }
                 }
