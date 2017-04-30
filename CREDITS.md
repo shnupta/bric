@@ -8,4 +8,4 @@ WillDott - Find and replace feature
 
 sadboyzvone - Multiple language syntax implementations
 
-grikukan - line numbers, indentation level maintainer, basic config file setup
+grikukan - line numbers, indentation level maintainer, basic config file setup, selection mode
