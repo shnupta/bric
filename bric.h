@@ -17,11 +17,15 @@
 #include <fcntl.h>
 #include <time.h>
 #include <pwd.h>
+#include <assert.h>
 
 #include "modules/syntax/syntax.h"
 
+#define EDIT_MODE 0
+#define SELECTION_MODE 1
 
-
+const char help_message[] = "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-R = find & replace | Ctrl-G - goto | Ctrl-D - selection mode | Ctrl-A - select all";
+const char selection_mode_message[] = "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy";
 // this represents the current single line of the file that we are editing
 typedef struct editing_row {
         int index;              // the index of the row in the file
@@ -61,13 +65,16 @@ struct editor_config {
         editing_row *row;               // the rows
         int dirty;                      // if the file is modified but not saved
         char *filename;                 // currently open filename
-        char status_message[80];
+        char status_message[256];
         time_t status_message_time;
         struct editor_syntax *syntax;   // current syntaxt highlighting
         int line_numbers;               // show line numbers
         int indent;                     // tabs and spaces indentation    
-        colour_map colours;               // highlight colours
-
+        colour_map colours;             // highlight colours
+        int mode;                       // selection or normal mode
+        int selected_base_x;
+        int selected_base_y;
+        char *clipboard;
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -76,8 +83,9 @@ enum KEY_ACTION {
 	KEY_NULL = 0,
 	CTRL_G = CTRL_KEY('g'),
 	CTRL_R = CTRL_KEY('r'),
+    CTRL_A = 1,
 	CTRL_C = 3,
-	CTRL_D = 3,
+	CTRL_D = 4,
 	CTRL_F = 6,
     CTRL_H = 8,
     TAB = 9,
@@ -86,6 +94,7 @@ enum KEY_ACTION {
     CTRL_Q = 17,
     CTRL_S = 19,
     CTRL_U = 21,
+    CTRL_V = 22,
     ESC = 27,
     BACKSPACE = 127,
     ARROW_LEFT = 1000,
