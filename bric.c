@@ -572,6 +572,40 @@ char *set_indent_prefix(char *text, char *prefix)
     res = strcat(res, text + ptr);
     return res;
 }
+
+/*
+ * This function copies the current line to a separate buffer.
+ */
+void editor_yank_row() {
+    int filerow = Editor.row_offset+Editor.cursor_y;
+
+    editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+
+    if (row) {
+        Editor.yank_buffer_len = row->size+1;
+        if (!Editor.yank_buffer) {
+            if ((Editor.yank_buffer = (char*) malloc(Editor.yank_buffer_len)) != NULL ) {
+                memcpy(Editor.yank_buffer, row->chars, Editor.yank_buffer_len);
+            } else {
+                perror("Error allocating memory.");
+                exit(1);
+            }
+        } else {
+            if ((Editor.yank_buffer = (char*) realloc(Editor.yank_buffer, Editor.yank_buffer_len)) != NULL ) {
+                memcpy(Editor.yank_buffer, row->chars, Editor.yank_buffer_len);
+            } else {
+                perror("Error allocating memory.");
+                exit(1);
+            }
+        }
+    }
+}
+
+void editor_paste_row() {
+    int filerow = Editor.row_offset+Editor.cursor_y;
+    editor_insert_row(filerow, Editor.yank_buffer, Editor.yank_buffer_len-1); // note -1 to account for the null terminator
+}
+
 /* Inserting a newline is slightly complex as we have to handle inserting a
  *  * newline in the middle of a line, splitting the line as needed. */
 void editor_insert_newline(void)
@@ -1416,6 +1450,12 @@ void editor_process_key_press(int fd)
                 case CTRL_S:
                         editor_save();
                         break;
+                case CTRL_Y:
+                    editor_yank_row();
+                    break;
+                case CTRL_P:
+                  editor_paste_row();
+                    break;
                 case CTRL_F:
                         editor_find(fd);
                         break;
