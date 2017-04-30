@@ -761,6 +761,99 @@ void ab_free(struct append_buf *ab)
         free(ab->b);
 }
 
+void copy_to_clipboard(void)
+{
+    free(Editor.clipboard);
+    int lx = Editor.cursor_x + Editor.column_offset;
+    int ly = Editor.cursor_y + Editor.row_offset;
+    int rx = Editor.selected_base_x;
+    int ry = Editor.selected_base_y;
+    if (ly > ry || (ly == ry && lx > rx))
+    {
+        int t = lx;
+        lx = rx;
+        rx = t;
+        t = ly;
+        ly = ry;
+        ry = t;
+    }
+    int clipboard_length = 1;
+    for (int i = ly; i <= ry; i++)
+    {
+        int left_border = 0, right_border = Editor.row[i].size - 1;
+        if (i == ly) left_border = lx;
+        if (i == ry && rx < right_border) right_border = rx;
+        clipboard_length += right_border - left_border + 1;
+        if (i != ry) clipboard_length++;
+    }
+    Editor.clipboard = (char*)malloc(clipboard_length * sizeof(char));
+    int ptr = 0;
+    for (int i = ly; i <= ry; i++)
+    {
+        int left_border = 0, right_border = Editor.row[i].size - 1;
+        if (i == ly) left_border = lx;
+        if (i == ry && rx < right_border) right_border = rx;
+        for (int j = left_border; j <= right_border; j++)
+        {
+            Editor.clipboard[ptr] = Editor.row[i].chars[j];
+            ptr++;
+        }
+        if (i != ry)
+        {
+            Editor.clipboard[ptr] = '\n';
+            ptr++;
+        }
+    }
+    Editor.clipboard[ptr] = '\0';
+}
+void paste_from_clipboard(void)
+{
+    if (Editor.clipboard == NULL) return;
+    int length = strlen(Editor.clipboard);
+    for (int i = 0; i < length; i++)
+    {
+        if (Editor.clipboard[i] == '\n')
+        {
+            editor_insert_newline();
+        }
+        else
+        {
+            editor_insert_char(Editor.clipboard[i]);
+        }
+    }
+}
+int is_char_selected(int x, int y)
+{
+    int lx = Editor.cursor_x + Editor.column_offset;
+    int ly = Editor.cursor_y + Editor.row_offset;
+    int rx = Editor.selected_base_x;
+    int ry = Editor.selected_base_y;
+    if (ly > ry || (ly == ry && lx > rx))
+    {
+        int t = lx;
+        lx = rx;
+        rx = t;
+        t = ly;
+        ly = ry;
+        ry = t;
+    }
+    if (ly == ry)
+    {
+        return y == ly && x >= lx && x <= rx;
+    }
+    else if (y == ly)
+    {
+        return x >= lx;
+    }
+    else if (y == ry)
+    {
+        return x <= rx;
+    }
+    else
+    {
+        return y >= ly && y <= ry;
+    }
+}
 
 // this function writes the whole screen using VT100 escape characters starting
 // from the logical state of the editor in the global state 'Editor'
@@ -775,6 +868,9 @@ void editor_refresh_screen(void)
         ab_append(&ab, "\x1b[H", 3); // go home
         for(y = 0; y < Editor.screen_rows; y++) {
                 int filerow = Editor.row_offset+y;
+                ab_append(&ab, "\x1b[49m", 5);
+                ab_append(&ab, "\x1b[39m", 5);
+
                 if (Editor.line_numbers)
                 {
                     sprintf(buf, LINE_NUMBER_FORMAT, filerow + 1);
@@ -800,14 +896,32 @@ void editor_refresh_screen(void)
                 }
                 row = &Editor.row[filerow];
                 int len = row->rendered_size - Editor.column_offset;
-                int current_colour = -1;
+                int current_colour = -1, background_colour = -1;
                 if(len > 0) {
                         if(len > Editor.screen_columns) len = Editor.screen_columns;
                         char *c = row->rendered_chars+Editor.column_offset;
                         unsigned char *hl = row->hl+Editor.column_offset;
                         int j;
                         for (j = 0; j < len; j++) {
-                                if(hl[j] == HL_NONPRINT) {
+                                if (Editor.mode == SELECTION_MODE && is_char_selected(j + Editor.column_offset, filerow)) {
+                                    if (background_colour == -1)
+                                    {
+                                        ab_append(&ab, "\x1b[47m", 5);
+                                        background_colour = 47;
+                                    }
+                                    if (current_colour != 30)
+                                    {
+                                        ab_append(&ab, "\x1b[30m", 5);
+                                        current_colour = 30;
+                                    }
+                                    ab_append(&ab, c+j, 1);                     
+
+                                } else if(hl[j] == HL_NONPRINT) {
+                                        if (background_colour != -1)
+                                        {
+                                            ab_append(&ab, "\x1b[49m", 5);
+                                            background_colour = -1;
+                                        }
                                         char sym;
                                         ab_append(&ab, "\x1b[7m", 4);
                                         if(c[j] <= 26)
@@ -817,6 +931,11 @@ void editor_refresh_screen(void)
                                         ab_append(&ab, &sym, 1);
                                         ab_append(&ab, "\x1b[0m", 4);
                                 } else if (hl[j] == HL_NORMAL) {
+                                        if (background_colour != -1)
+                                        {
+                                            ab_append(&ab, "\x1b[49m", 5);
+                                            background_colour = -1;
+                                        }
                                         if(current_colour != -1) {
                                                 ab_append(&ab, "\x1b[39m", 5);
                                                 current_colour = -1;
@@ -824,13 +943,19 @@ void editor_refresh_screen(void)
                                         ab_append(&ab, c+j, 1);
                                 } else {
                                         int colour = editor_syntax_to_colour(hl[j]);
+                                        if (background_colour != -1)
+                                        {
+                                            ab_append(&ab, "\x1b[49m", 5);
+                                            background_colour = -1;
+                                        }
                                         if(colour != current_colour) {
                                                 char buf[16];
                                                 int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", colour);
                                                 current_colour = colour;
                                                 ab_append(&ab, buf, clen);
-                                        }                               
+                                        }          
                                         ab_append(&ab, c+j, 1);
+ 
                                 }
                         }
                 }
@@ -1276,9 +1401,6 @@ void editor_process_key_press(int fd)
                 case ENTER:
                         editor_insert_newline();
                         break;
-                case CTRL_C:
-                        //ignore it because we dont want users to lose changes
-                        break;
 		case CTRL_G:
 			editor_goto(fd);
 			break;
@@ -1328,8 +1450,33 @@ void editor_process_key_press(int fd)
                         break;
                 case CTRL_L: // means refresh screen
                         break;
+                case CTRL_D:
+                        if (Editor.mode == EDIT_MODE)
+                        {
+                            Editor.mode = SELECTION_MODE;
+                            Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
+                            Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
+                            editor_set_status_message(selection_mode_message);
+                        }
+                        break;
+                case CTRL_C:
+                        if (Editor.mode == SELECTION_MODE)
+                        {
+                            copy_to_clipboard();
+                        }
+                        break;
+                case CTRL_V:
+                        if (Editor.mode == EDIT_MODE)
+                        {
+                            paste_from_clipboard();
+                        }
+                        break;
                 case ESC:
-                        //nothing to do
+                        if (Editor.mode == SELECTION_MODE)
+                        {
+                            Editor.mode = EDIT_MODE;
+                            editor_set_status_message(help_message);
+                        }
                         break;
 				case END_KEY:
                     {
@@ -1377,6 +1524,7 @@ void init_editor(void)
         Editor.colours.hl_match_colour = 101;
         Editor.colours.hl_background_colour = 49;
         Editor.colours.hl_default_colour = 37;
+        Editor.mode = EDIT_MODE;
         if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
                 perror("Unable to query the screen for size (columns / rows)");
                 exit(1);
@@ -1491,6 +1639,7 @@ void close_editor(void)
         free(Editor.row[i].hl);
     }
     free(Editor.row);
+    free(Editor.clipboard);
 }
 
 int main(int argc, char **argv)
@@ -1519,7 +1668,7 @@ int main(int argc, char **argv)
         editor_select_syntax_highlight(argv[file_arg]);
         editor_open(argv[file_arg]);
         enable_raw_mode(STDIN_FILENO);
-        editor_set_status_message("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-R = find & replace | Ctrl-G - goto");
+        editor_set_status_message(help_message);
         while(1) {
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
