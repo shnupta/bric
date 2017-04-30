@@ -30,6 +30,32 @@ Ctrl-G - Goto
 Arrow Keys - Move
 ```
 
+Config file:
+bric is customizable from a configuration file - `~/.bricrc`
+
+Here is an example config file:
+```
+set linenumbers true
+set indent true
+
+set hl_comment_colour 33
+set hl_mlcomment_colour 33
+set hl_keyword_cond_colour 36
+set hl_keyword_type_colour 32
+set hl_keyword_pp_colour 34
+set hl_keyword_return_colour 35
+set hl_keyword_adapter_colour 94
+set hl_keyword_loop_colour 36
+set hl_string_colour 31
+set hl_number_colour 34
+set hl_match_colour 101
+set hl_background_colour 49
+set hl_default_colour 37
+```
+Note: 
+Not all options have to be set. The ones shown above are the colours (however indent maintaining and linenumbers are not)
+
+
 ### Todo:
 - Git integration
 - More language syntax highlighting
@@ -37,8 +63,7 @@ Arrow Keys - Move
 - Yank & paste lines
 - Jump to beginning of line
 - Soft/hard wrap lines
-- Auto indent
-- Config file rather than hard coded colours etc
+- Auto indent (partially done)
 
 ### Contribution:
 I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR!
