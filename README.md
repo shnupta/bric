@@ -27,6 +27,11 @@ Ctrl-S - Save
 Ctrl-F - Find 
 Ctrl-R - Find and Replace
 Ctrl-G - Goto
+Ctrl-D - Enter selection mode
+    Arrows - Select text
+    Ctrl-C - Copy Selection
+    ESC - Back to Editing mode
+Ctrl-V - Paste selection (in editor clipboard)
 Arrow Keys - Move
 ```
 
