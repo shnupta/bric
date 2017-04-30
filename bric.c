@@ -781,8 +781,8 @@ void copy_to_clipboard(void)
     for (int i = ly; i <= ry; i++)
     {
         int left_border = 0, right_border = Editor.row[i].size - 1;
-        if (i == ly) left_border = ly;
-        if (i == ry && ry < right_border) right_border = ry;
+        if (i == ly) left_border = lx;
+        if (i == ry && rx < right_border) right_border = rx;
         clipboard_length += right_border - left_border + 1;
         if (i != ry) clipboard_length++;
     }
@@ -791,8 +791,8 @@ void copy_to_clipboard(void)
     for (int i = ly; i <= ry; i++)
     {
         int left_border = 0, right_border = Editor.row[i].size - 1;
-        if (i == ly) left_border = ly;
-        if (i == ry && ry < right_border) right_border = ry;
+        if (i == ly) left_border = lx;
+        if (i == ry && rx < right_border) right_border = rx;
         for (int j = left_border; j <= right_border; j++)
         {
             Editor.clipboard[ptr] = Editor.row[i].chars[j];
@@ -808,6 +808,7 @@ void copy_to_clipboard(void)
 }
 void paste_from_clipboard(void)
 {
+    if (Editor.clipboard == NULL) return;
     int length = strlen(Editor.clipboard);
     for (int i = 0; i < length; i++)
     {
