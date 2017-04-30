@@ -337,19 +337,19 @@ void editor_update_syntax(editing_row *row)
 int editor_syntax_to_colour(int highlight)
 {
         switch(highlight) {
-                case HL_COMMENT:
-                case HL_MLCOMMENT: return 33; // yellow
-                case HL_KEYWORD_COND: return 36; // cyan
-                case HL_KEYWORD_TYPE: return 32; // green
-		case HL_KEYWORD_PP: return 34; // blue
-		case HL_KEYWORD_RETURN: return 35; //magenta
-		case HL_KEYWORD_ADAPTER: return 94; //grey
-		case HL_KEYWORD_LOOP: return 36; //cyan
-                case HL_STRING: return 31; // red
-                case HL_NUMBER: return 34; // red
-                case HL_MATCH: return 101; // background light red
-  		case HL_BACKGROUND_DEFAULT: return 49;              
-		default: return 37; // white
+                case HL_COMMENT: return Editor.colours.hl_comment_colour;
+                case HL_MLCOMMENT: return Editor.colours.hl_mlcomment_colour;
+                case HL_KEYWORD_COND: return Editor.colours.hl_keyword_cond_colour;
+                case HL_KEYWORD_TYPE: return Editor.colours.hl_keyword_type_colour;
+                case HL_KEYWORD_PP: return Editor.colours.hl_keyword_pp_colour;
+                case HL_KEYWORD_RETURN: return Editor.colours.hl_keyword_return_colour;
+                case HL_KEYWORD_ADAPTER: return Editor.colours.hl_keyword_adapter_colour;
+                case HL_KEYWORD_LOOP: return Editor.colours.hl_keyword_loop_colour;
+                case HL_STRING: return Editor.colours.hl_string_colour;
+                case HL_NUMBER: return Editor.colours.hl_number_colour;
+                case HL_MATCH: return Editor.colours.hl_match_colour;
+  		        case HL_BACKGROUND_DEFAULT: return Editor.colours.hl_background_colour;
+                default: return Editor.colours.hl_default_colour;
         }
 }
 
@@ -1364,6 +1364,19 @@ void init_editor(void)
         Editor.dirty = 0;
         Editor.filename = NULL;
         Editor.syntax = NULL;
+        Editor.colours.hl_comment_colour = 33;
+        Editor.colours.hl_mlcomment_colour = 33;
+        Editor.colours.hl_keyword_cond_colour = 36;
+        Editor.colours.hl_keyword_type_colour = 32;
+        Editor.colours.hl_keyword_pp_colour = 34;
+        Editor.colours.hl_keyword_return_colour = 35;
+        Editor.colours.hl_keyword_adapter_colour = 94;
+        Editor.colours.hl_keyword_loop_colour = 36;
+        Editor.colours.hl_string_colour = 31;
+        Editor.colours.hl_number_colour = 34;
+        Editor.colours.hl_match_colour = 101;
+        Editor.colours.hl_background_colour = 49;
+        Editor.colours.hl_default_colour = 37;
         if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
                 perror("Unable to query the screen for size (columns / rows)");
                 exit(1);
@@ -1373,6 +1386,99 @@ void init_editor(void)
             Editor.screen_columns -= LINE_NUMBER_LENGTH;
         }
         Editor.screen_rows -= 2; // get room for status bar
+}
+
+void load_config_file(void)
+{
+    struct passwd *user = getpwuid(getuid());
+    char config_file[80];
+    config_file[0] = 0;
+    strcat(config_file, user->pw_dir);
+    strcat(config_file, "/.bricrc");
+    FILE *config = fopen(config_file, "r");
+    if (config == NULL)
+    {
+        return;
+    }
+    char variable_name[60], value[60];
+    while (fscanf(config, "set %s %s\n", variable_name, value) == 2) 
+    {
+        if (strcmp(variable_name, "linenumbers") == 0)
+        {
+            if (strcmp(value, "true") == 0)
+            {
+                Editor.line_numbers = 1;
+            }
+            else
+            {
+                Editor.line_numbers = 0;
+            }
+        }
+        else if (strcmp(variable_name, "indent") == 0)
+        {
+            if (strcmp(value, "true") == 0)
+            {
+                Editor.indent = 1;
+            }
+            else
+            {
+                Editor.indent = 0;
+            }
+        }
+        else if (strcmp(variable_name, "hl_comment_colour") == 0)
+        {
+            Editor.colours.hl_comment_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_mlcomment_colour") == 0)
+        {
+            Editor.colours.hl_mlcomment_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_keyword_cond_colour") == 0)
+        {
+            Editor.colours.hl_keyword_cond_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_keyword_type_colour") == 0)
+        {
+            Editor.colours.hl_keyword_type_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_keyword_pp_colour") == 0)
+        {
+            Editor.colours.hl_keyword_pp_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_keyword_return_colour") == 0)
+        {
+            Editor.colours.hl_keyword_return_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_keyword_adapter_colour") == 0)
+        {
+            Editor.colours.hl_keyword_adapter_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_keyword_loop_colour") == 0)
+        {
+            Editor.colours.hl_keyword_loop_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_string_colour") == 0)
+        {
+            Editor.colours.hl_string_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_number_colour") == 0)
+        {
+            Editor.colours.hl_number_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_match_colour") == 0)
+        {
+            Editor.colours.hl_match_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_background_colour") == 0)
+        {
+            Editor.colours.hl_background_colour = atoi(value);
+        }
+        else if (strcmp(variable_name, "hl_default_colour") == 0)
+        {
+            Editor.colours.hl_default_colour = atoi(value);
+        }
+    }
+    fclose(config);
 }
 
 void close_editor(void)
@@ -1396,17 +1502,20 @@ int main(int argc, char **argv)
             {
                 file_arg = i;
             }
-            else
-            {
-                parse_argument(argv[i]);
-            }
         }
         if(file_arg == -1) {
                 fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
-
         init_editor();
+        load_config_file();
+        for (int i = 1; i < argc; i++)
+        {
+            if (argv[i][0] == '-')
+            {
+                parse_argument(argv[i]);
+            }
+        }
         editor_select_syntax_highlight(argv[file_arg]);
         editor_open(argv[file_arg]);
         enable_raw_mode(STDIN_FILENO);

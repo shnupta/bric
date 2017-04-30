@@ -16,6 +16,7 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <time.h>
+#include <pwd.h>
 
 #include "modules/syntax/syntax.h"
 
@@ -33,7 +34,21 @@ typedef struct editing_row {
 } editing_row;
 
 
-
+typedef struct colour_map {
+    int hl_comment_colour;
+    int hl_mlcomment_colour;
+    int hl_keyword_cond_colour;
+    int hl_keyword_type_colour;
+    int hl_keyword_pp_colour;
+    int hl_keyword_return_colour;
+    int hl_keyword_adapter_colour;
+    int hl_keyword_loop_colour;
+    int hl_string_colour;
+    int hl_number_colour;
+    int hl_match_colour;
+    int hl_background_colour;
+    int hl_default_colour;
+} colour_map;
 // configuration structure for the editor
 struct editor_config {
         int cursor_x, cursor_y;         // the x and y of the cursor
@@ -50,7 +65,8 @@ struct editor_config {
         time_t status_message_time;
         struct editor_syntax *syntax;   // current syntaxt highlighting
         int line_numbers;               // show line numbers
-        int indent;                     //  tabs and spaces indentation    
+        int indent;                     // tabs and spaces indentation    
+        colour_map colours;               // highlight colours
 
 };
 
