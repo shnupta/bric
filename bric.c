@@ -598,6 +598,7 @@ void editor_yank_row() {
                 exit(1);
             }
         }
+        editor_delete_row(filerow);
     }
 }
 
