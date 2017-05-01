@@ -32,6 +32,8 @@ Ctrl-D - Enter selection mode
     Ctrl-C - Copy Selection
     ESC - Back to Editing mode
 Ctrl-V - Paste selection (in editor clipboard)
+Ctrl-Y - Yank line (cut)
+Ctrl-P - Paste yanked line
 Arrow Keys - Move
 ```
 
@@ -64,8 +66,6 @@ Not all options have to be set. The ones shown above are the colours (however in
 ### Todo:
 - Git integration
 - More language syntax highlighting
-- More shortcuts
-- Yank & paste lines
 - Jump to beginning of line
 - Soft/hard wrap lines
 - Auto indent (partially done)
