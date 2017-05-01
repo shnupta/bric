@@ -64,6 +64,8 @@ struct editor_config {
         int rawmode;                    // is terminal raw mode enabled?
         editing_row *row;               // the rows
         int dirty;                      // if the file is modified but not saved
+        int yank_buffer_len;            // length of yank buffer
+        char *yank_buffer;              // buffer to hold yanked/copied text
         char *filename;                 // currently open filename
         char status_message[256];
         time_t status_message_time;
@@ -83,6 +85,8 @@ enum KEY_ACTION {
 	KEY_NULL = 0,
 	CTRL_G = CTRL_KEY('g'),
 	CTRL_R = CTRL_KEY('r'),
+  CTRL_Y = CTRL_KEY('y'),
+  CTRL_P = CTRL_KEY('p'),
     CTRL_A = 1,
 	CTRL_C = 3,
 	CTRL_D = 4,
@@ -171,6 +175,10 @@ void editor_delete_char(); // delete the char at the current prompt position
 int editor_open(char *filename); // load the specified program in the editor memory
 
 int editor_save(void); //save the current file on the disk
+
+void editor_yank_row();
+
+void editor_paste_row();
 
 // Terminal updating stuff
 
