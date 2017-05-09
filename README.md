@@ -58,6 +58,8 @@ set hl_number_colour 34
 set hl_match_colour 101
 set hl_background_colour 49
 set hl_default_colour 37
+
+set tab_length 8
 ```
 Note: 
 Not all options have to be set. The ones shown above are the colours (however indent maintaining and linenumbers are not)
