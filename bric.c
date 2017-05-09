@@ -1526,6 +1526,24 @@ void editor_process_key_press(int fd)
                             editor_move_cursor(ARROW_RIGHT);
                     }
                        break;
+                
+                case TAB:
+                    {
+                        if(Editor.tab_length < 0)
+                        {
+                                editor_insert_char(c);
+                        }
+                        else
+                        {
+                            int i = 0;
+                            while(i < Editor.tab_length){
+                                editor_insert_char(' ');
+                                i++;
+                            }
+                        }
+            
+                    }
+                        break;
                 default:
                         editor_insert_char(c);
                         break;
@@ -1666,6 +1684,11 @@ void load_config_file(void)
         {
             Editor.colours.hl_default_colour = atoi(value);
         }
+        else if(strcmp(variable_name, "tab_length") == 0)
+        {
+            Editor.tab_length = atoi(value);
+        }
+            
     }
     fclose(config);
 }

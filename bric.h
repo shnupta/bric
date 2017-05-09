@@ -71,7 +71,8 @@ struct editor_config {
         time_t status_message_time;
         struct editor_syntax *syntax;   // current syntaxt highlighting
         int line_numbers;               // show line numbers
-        int indent;                     // tabs and spaces indentation    
+        int indent;                     // tabs and spaces indentation
+        int tab_length;             //number of spaces when tab pressed
         colour_map colours;             // highlight colours
         int mode;                       // selection or normal mode
         int selected_base_x;
