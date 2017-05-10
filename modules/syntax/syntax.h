@@ -7,6 +7,7 @@
 #include "php/php.h"
 #include "pascal/pascal.h"
 #include "sql/sql.h"
+#include "javascript/javascript.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -38,7 +39,8 @@ struct editor_syntax highlight_db[] = {
 	Python_syntax,
 	PHP_syntax,
 	PAS_syntax,
-	SQL_syntax
+	SQL_syntax,
+	JAVASCRIPT_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
