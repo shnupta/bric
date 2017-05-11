@@ -9,7 +9,7 @@ bric does not depend on any library (not even curses). It uses fairly standard V
 ![Screencast](https://github.com/shnupta/bric/blob/master/screencast.gif)
 
 
-### NOTE: In a few months I will be refactoring the code and making the editor more of a vim style editor.
+## NOTE: In a few months I will be refactoring the code and making the editor more of a vim style editor.
 
 ### Installation:
 ```
