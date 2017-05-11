@@ -3,6 +3,7 @@
 
 #include "editor_syntax.h"
 #include "ccpp/ccpp.h"
+#include "csharp/csharp.h"
 #include "python/python.h"
 #include "php/php.h"
 #include "pascal/pascal.h"
@@ -37,6 +38,7 @@ typedef struct hlcolour {
 // here is an array of syntax highlights by extensions, keywords, comments, del
 struct editor_syntax highlight_db[] = {
 	CCPP_syntax,
+  CSHARP_syntax,
 	Python_syntax,
 	PHP_syntax,
 	PAS_syntax,
