@@ -40,7 +40,7 @@ typedef struct hlcolour {
 // here is an array of syntax highlights by extensions, keywords, comments, del
 struct editor_syntax highlight_db[] = {
 	CCPP_syntax,
-  CSHARP_syntax,
+    CSHARP_syntax,
 	Python_syntax,
 	PHP_syntax,
 	PAS_syntax,
@@ -48,7 +48,7 @@ struct editor_syntax highlight_db[] = {
 	JAVA_syntax,
 	JAVASCRIPT_syntax,
 	GO_syntax,
-  RUBY_syntax
+    RUBY_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
