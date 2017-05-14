@@ -11,6 +11,7 @@
 #include "java/java.h"
 #include "javascript/javascript.h"
 #include "go/go.h"
+#include "ruby/ruby.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -46,7 +47,8 @@ struct editor_syntax highlight_db[] = {
 	SQL_syntax,
 	JAVA_syntax,
 	JAVASCRIPT_syntax,
-	GO_syntax
+	GO_syntax,
+  RUBY_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
