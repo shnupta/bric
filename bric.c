@@ -300,7 +300,7 @@ void editor_update_syntax(editing_row *row)
 				int cond = keywords[j][klen-1] == '~'; // condition
 				int retu = keywords[j][klen-1] == '#';
 				int adapter = keywords[j][klen-1] == '^'; //adapter keywords
-    				int loopy = keywords[j][klen-1] == '@';                            
+    				int loopy = keywords[j][klen-1] == '@';
 				if(pp || cond || retu || adapter || loopy) klen--;
 
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
@@ -614,15 +614,16 @@ void editor_insert_newline(void)
         int filerow = Editor.row_offset+Editor.cursor_y;
         int filecol = Editor.column_offset+Editor.cursor_x;
         editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        char *indent_prefix = NULL;
 
         if (!row) {
-                if(filerow == Editor.num_of_rows) {
+                if(filerow == Editor.num_of_rows-1) { //prevent segfault for now..
                         editor_insert_row(filerow, "", 0);
                         goto fixcursor;
                 }
                 return;
         }
-        char *indent_prefix = NULL;
+
         if (Editor.indent)
         {
             indent_prefix = get_indent_prefix(row->chars, filecol + 1);
@@ -949,7 +950,7 @@ void editor_refresh_screen(void)
                                         ab_append(&ab, "\x1b[30m", 5);
                                         current_colour = 30;
                                     }
-                                    ab_append(&ab, c+j, 1);                     
+                                    ab_append(&ab, c+j, 1);
 
                                 } else if(hl[j] == HL_NONPRINT) {
                                         if (background_colour != -1)
@@ -988,9 +989,9 @@ void editor_refresh_screen(void)
                                                 int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", colour);
                                                 current_colour = colour;
                                                 ab_append(&ab, buf, clen);
-                                        }          
+                                        }
                                         ab_append(&ab, c+j, 1);
- 
+
                                 }
                         }
                 }
@@ -1038,7 +1039,7 @@ void editor_refresh_screen(void)
                         {
                             cursor_x += 7-((cursor_x)%8);
                             was_tab = 1;
-                        }    
+                        }
                         cursor_x++;
                 }
                 if (was_tab) cursor_x--;
@@ -1223,7 +1224,7 @@ void editor_find_replace(int fd)
 		}
 		else if (c == ENTER) {
 			Editor.cursor_x += qlen;
-			for (int i = 0; i < qlen; i++) 
+			for (int i = 0; i < qlen; i++)
 			{
 				editor_delete_char();
 			}
@@ -1379,7 +1380,7 @@ void editor_goto(int fd)
 	int current_line;
 
 	while(1) {
-		current_line = Editor.row_offset + Editor.cursor_y + 1;		
+		current_line = Editor.row_offset + Editor.cursor_y + 1;
 		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
@@ -1394,7 +1395,7 @@ void editor_goto(int fd)
 			if(line_number <= Editor.num_of_rows && line_number > 0) {
 				if (current_line > line_number) {
 					int diff = current_line - line_number;
-          				
+
           				while(diff > 0) {
 						editor_move_cursor(ARROW_UP);
 						diff--;
@@ -1460,7 +1461,7 @@ void editor_process_key_press(int fd)
                 case CTRL_F:
                         editor_find(fd);
                         break;
-				case CTRL_R: 
+				case CTRL_R:
 						editor_find_replace(fd);
 						break;
                 case BACKSPACE:
@@ -1522,11 +1523,11 @@ void editor_process_key_press(int fd)
 				case END_KEY:
                     {
 					   int times = Editor.row->size - Editor.row->index;
-                       while (times--) 
+                       while (times--)
                             editor_move_cursor(ARROW_RIGHT);
                     }
                        break;
-                
+
                 case TAB:
                     {
                         if(Editor.tab_length < 0)
@@ -1541,7 +1542,7 @@ void editor_process_key_press(int fd)
                                 i++;
                             }
                         }
-            
+
                     }
                         break;
                 default:
@@ -1608,7 +1609,7 @@ void load_config_file(void)
         return;
     }
     char variable_name[60], value[60];
-    while (fscanf(config, "set %s %s\n", variable_name, value) == 2) 
+    while (fscanf(config, "set %s %s\n", variable_name, value) == 2)
     {
         if (strcmp(variable_name, "linenumbers") == 0)
         {
@@ -1688,7 +1689,7 @@ void load_config_file(void)
         {
             Editor.tab_length = atoi(value);
         }
-            
+
     }
     fclose(config);
 }
