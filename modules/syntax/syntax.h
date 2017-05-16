@@ -13,6 +13,7 @@
 #include "go/go.h"
 #include "ruby/ruby.h"
 #include "rust/rust.h"
+#include "html/html.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -40,17 +41,18 @@ typedef struct hlcolour {
 
 // here is an array of syntax highlights by extensions, keywords, comments, del
 struct editor_syntax highlight_db[] = {
-	CCPP_syntax,
+  CCPP_syntax,
   CSHARP_syntax,
-	Python_syntax,
-	PHP_syntax,
-	PAS_syntax,
-	SQL_syntax,
-	JAVA_syntax,
-	JAVASCRIPT_syntax,
-	GO_syntax,
+  Python_syntax,
+  PHP_syntax,
+  PAS_syntax,
+  SQL_syntax,
+  JAVA_syntax,
+  JAVASCRIPT_syntax,
+  GO_syntax,
   RUBY_syntax,
-	rust_syntax
+  rust_syntax,
+  HTML_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
