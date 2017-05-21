@@ -23,8 +23,9 @@
 
 #define EDIT_MODE 0
 #define SELECTION_MODE 1
+#define NORMAL_MODE 2
 
-const char help_message[] = "HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find | Ctrl-R = find & replace | Ctrl-G - goto | Ctrl-D - selection mode | Ctrl-A - select all";
+const char help_message[] = "Normal mode.";
 const char selection_mode_message[] = "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy";
 // this represents the current single line of the file that we are editing
 typedef struct editing_row {
@@ -34,7 +35,7 @@ typedef struct editing_row {
         char *chars;             // the content of the row
         char *rendered_chars;    // the content of the rendered row
         unsigned char *hl;      // syntax highlighting for each character in the rendered row
-        int hl_open_comment;    // the row had an open comment 
+        int hl_open_comment;    // the row had an open comment
 } editing_row;
 
 
@@ -128,7 +129,7 @@ int enable_raw_mode(int fd); // lets us use terminal in raw mode
 
 int editor_read_key(int fd); // read a key from the terminal put in raw mode
 
-int get_cursor_pos(int ifd, int ofd, int *rows, int *columns); //using the ESC [6n escape sequence to query the cursor position and return it in *rows and *columns. 
+int get_cursor_pos(int ifd, int ofd, int *rows, int *columns); //using the ESC [6n escape sequence to query the cursor position and return it in *rows and *columns.
 
 int get_window_size(int ifd, int ofd, int *rows, int *columns); // try to get the number of columns in the current terminal
 
@@ -139,9 +140,9 @@ int get_window_size(int ifd, int ofd, int *rows, int *columns); // try to get th
 
 int is_separator(int c);
 
-int editing_row_has_open_comment(editing_row *row); 
+int editing_row_has_open_comment(editing_row *row);
 
-void editor_update_syntax(editing_row *row); 
+void editor_update_syntax(editing_row *row);
 
 int editor_syntax_to_colour(int highlight); //maps the syntax highlight to the terminal colours
 
@@ -184,9 +185,9 @@ void editor_paste_row();
 // Terminal updating stuff
 
 
-// this is a very simple append buffer struct, it is a heap allocated 
+// this is a very simple append buffer struct, it is a heap allocated
 // string where we can append to. this is useful in order to write all
-//the escape sequences in a buffer and flush them to the standard 
+//the escape sequences in a buffer and flush them to the standard
 //output in a single call - to avoid flickering
 struct append_buf {
         char *b;
@@ -201,7 +202,7 @@ void ab_free(struct append_buf *ab);
 
 void editor_refresh_screen(void); // this writes the whole screen using VT100 escape characters
 
-void editor_set_status_message(const char *fmt, ...); 
+void editor_set_status_message(const char *fmt, ...);
 
 
 
@@ -235,5 +236,3 @@ void init_editor(void);
 
 
 #endif
-
-
