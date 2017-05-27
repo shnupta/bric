@@ -104,14 +104,14 @@ enum KEY_ACTION {
     ESC = 27,
     BACKSPACE = 127,
     ARROW_LEFT = 1000,
-    ARROW_RIGHT,
-    ARROW_UP,
-    ARROW_DOWN,
-    DEL_KEY,
-    HOME_KEY,
-    END_KEY,
-    PAGE_UP,
-    PAGE_DOWN
+    ARROW_RIGHT=39,
+    ARROW_UP=38,
+    ARROW_DOWN=40,
+    DEL_KEY=46,
+    HOME_KEY=36,
+    END_KEY=35,
+    PAGE_UP=33,
+    PAGE_DOWN=34
 };
 
 
