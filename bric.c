@@ -1356,6 +1356,22 @@ void editor_move_cursor(int key)
                                 }
                         }
                         break;
+                case HOME_KEY:
+                        Editor.cursor_x=0;
+                        Editor.column_offset=0;
+                        break;
+
+                case END_KEY:
+                        if(row->size>Editor.screen_columns-1)
+                        {
+                                Editor.cursor_x=Editor.screen_columns-1;
+                                Editor.column_offset=row->size-(Editor.screen_columns+1)+1;
+                        } else {
+                                Editor.cursor_x=row->size-1;
+                        }
+                        break;
+
+
         }
 
         //fix cursor_x if the current line doesn't have enough chars
@@ -1607,13 +1623,13 @@ void editor_process_key_press(int fd)
                                 Editor.mode = NORMAL_MODE;
                                 editor_set_status_message("Normal mode.");
                                 break;
-        		case END_KEY:
-                            {
-        					   int times = Editor.row->size - Editor.row->index;
-                               while (times--)
-                                    editor_move_cursor(ARROW_RIGHT);
-                            }
-                               break;
+
+                        case HOME_KEY:
+                                editor_move_cursor(HOME_KEY);
+                                break;
+        		        case END_KEY:
+                                editor_move_cursor(END_KEY);
+                                break;
 
                         case TAB:
                             {
@@ -1656,6 +1672,11 @@ void editor_process_key_press(int fd)
                         case 'e':
                                 Editor.mode = EDIT_MODE;
                                 break;
+                        case HOME_KEY:
+                                editor_move_cursor(HOME_KEY);
+                                break;
+                        case END_KEY:
+                                editor_move_cursor(END_KEY);
 
                 }
                 break;
