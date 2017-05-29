@@ -58,6 +58,15 @@ fatal:
 }
 
 
+int numbers_only(const char *s)
+{
+    while (*s) {
+        if (isdigit(*s++) == 0) return 0;
+    }
+
+    return 1;
+}
+
 // read a key from terminal input in raw mode and handle
 int editor_read_key(int fd)
 {
@@ -1376,60 +1385,43 @@ void editor_move_cursor(int key)
 
 
 // GOTO
-void editor_goto(int fd)
+void editor_goto(int linenumber)
 {
-	char query[BRIC_QUERY_LENGTH+1] = {0};
-	int qlen = 0;
-	int line_number;
+	int line_number = linenumber;
 	int current_line;
 
 	while(1) {
 		current_line = Editor.row_offset + Editor.cursor_y + 1;
-		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
-		int c = editor_read_key(fd);
-		if(c == DEL_KEY || c == BACKSPACE) {
-			if(qlen != 0) query[--qlen] = '\0';
-		}else if(c == ENTER || c == ESC) {
-			if(c == ESC) {
-				editor_set_status_message("");
-				return;
-			}
-			if(line_number <= Editor.num_of_rows && line_number > 0) {
-				if (current_line > line_number) {
-					int diff = current_line - line_number;
+		if(line_number <= Editor.num_of_rows && line_number > 0) {
+			if (current_line > line_number) {
+				int diff = current_line - line_number;
 
-          				while(diff > 0) {
-						editor_move_cursor(ARROW_UP);
-						diff--;
-					}
-					editor_set_status_message("");
-				} else if(line_number > current_line) {
-					int diff = line_number - current_line;
-
-					while(diff > 0) {
-						editor_move_cursor(ARROW_DOWN);
-						diff--;
-					}
-					editor_set_status_message("");
+      				while(diff > 0) {
+					editor_move_cursor(ARROW_UP);
+					diff--;
 				}
-				editor_refresh_screen();
-				return;
-			} else {
-				editor_set_status_message("Out of bounds");
-				editor_refresh_screen();
-				return;
+				editor_set_status_message("");
+			} else if(line_number > current_line) {
+				int diff = line_number - current_line;
+
+				while(diff > 0) {
+					editor_move_cursor(ARROW_DOWN);
+					diff--;
+				}
+				editor_set_status_message("");
 			}
-		} else if(isprint(c)) {
-			if(qlen < BRIC_QUERY_LENGTH) {
-				query[qlen++] = c;
-				query[qlen] = '\0';
-				sscanf(query, "%d", &line_number);
-			}
+			editor_refresh_screen();
+			return;
+		} else {
+			editor_set_status_message("Out of bounds");
+			editor_refresh_screen();
+			return;
 		}
 	}
 }
+
 
 void editor_harsh_quit()
 {
@@ -1468,7 +1460,10 @@ void editor_check_quit(int fd)
 
 void editor_parse_command(int fd, char *query)
 {
-        if (strcmp(query, "q!") == 0) {
+        if (numbers_only(query)) { 
+                editor_goto(atoi(query));
+                return;
+        } else if (strcmp(query, "q!") == 0) {
                 editor_harsh_quit();
                 return;
         } else if(strcmp(query, "w") == 0) {
@@ -1490,6 +1485,12 @@ void editor_parse_command(int fd, char *query)
             return;
         } else if (strcmp(query, "fr") == 0) {
             editor_find_replace(fd);
+            return;
+        } else if (strcmp(query, "sm") == 0) {
+            Editor.mode = SELECTION_MODE;
+            Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
+            Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
+            editor_set_status_message(selection_mode_message);
             return;
         }
 }
@@ -1534,8 +1535,7 @@ void editor_process_key_press(int fd)
                                 editor_insert_newline();
                                 break;
         		case CTRL_G:
-        			editor_goto(fd);
-        			break;
+             			break;
                       case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
@@ -1647,6 +1647,13 @@ void editor_process_key_press(int fd)
                 switch (c) {
                         case 'r':
                             if (Editor.prev_char == 'y') editor_yank_row();
+                            if (Editor.prev_char == 'p') editor_paste_row();
+                            break;
+                        case 'p':
+                            if (Editor.prev_char == 'c') paste_from_clipboard();
+                            break;
+                        case 'c':
+                            if (Editor.prev_char == 'c') Editor.clipboard = "";
                             break;
                         case 'h':
                         case 'j':
@@ -1669,7 +1676,29 @@ void editor_process_key_press(int fd)
 
                 }
                 break;
+            case SELECTION_MODE:
+                switch(c) {
+                    case 'h':
+                    case 'j':
+                    case 'k':
+                    case 'l':
+                    case ARROW_UP:
+                    case ARROW_DOWN:
+                    case ARROW_RIGHT:
+                    case ARROW_LEFT:
+                        editor_move_cursor(c);
+                        break;
+
+                    case ESC:
+                        Editor.mode = NORMAL_MODE;
+                        break;
+                    
+                    case CTRL_C:
+                        copy_to_clipboard();
+                        break;
+                }
         }
+        
         Editor.prev_char = c;
         quit_times = BRIC_QUIT_TIMES;
 }

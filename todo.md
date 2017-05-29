@@ -4,10 +4,12 @@
   - [ ] Prevent duplicate symbol errors of #defines 
     - [ ] This includes syntax arrays, figure out how to declare them at runtime?
 - [x] Fix longer comment tags for html
-- [ ] Move some functions over to the command system
+- [x] Move some functions over to the command system
 - [x] Figure out how to have multiple functions in normal mode like 'yl' 
   - [x] NOPE: possibly by setting a variable similar to quit times and set as 1 if y was last pressed char
   - [x] YES: Add a new field to the editor_config struct that stores the previous entered char then use that to compare
 - [ ] Change how rows are stored?
   - [x] USED DUBBLY LIST Make linked list implementation (better searching speed and stuff?)
   - [ ] Work out how to use the .a or shared object in bric
+- [ ] Fix segfault when trying to insert newline on non-existent line
+- [ ] Add more functions like 'o' to go to new line below and insert mode

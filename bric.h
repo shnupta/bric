@@ -214,7 +214,7 @@ void editor_set_status_message(const char *fmt, ...);
 
 void editor_find(int fd);
 
-void editor_goto(int fd);
+void editor_goto(int linenumber);
 
 // Editor events handling
 
