@@ -7,9 +7,9 @@
 struct editor_syntax {
         char **filematch;
         char **keywords;
-        char singleline_comment_start[3];
-        char multiline_comment_start[3];
-        char multiline_comment_end[3];
+        char singleline_comment_start[6];
+        char multiline_comment_start[6];
+        char multiline_comment_end[6];
         int flags;
 };
 

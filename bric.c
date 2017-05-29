@@ -3,7 +3,6 @@
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 
-
 // Low level terminal handling
 void disable_raw_mode(int fd)
 {
@@ -1231,6 +1230,8 @@ void editor_find_replace(int fd)
 			{
 				editor_insert_char(replace_word[j]);
 			}
+                       editor_refresh_screen();
+                       return;
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
@@ -1484,6 +1485,12 @@ void editor_parse_command(int fd, char *query)
                         editor_harsh_quit();
                 }
                 return;
+        } else if (strcmp(query, "f") == 0) {
+            editor_find(fd);
+            return;
+        } else if (strcmp(query, "fr") == 0) {
+            editor_find_replace(fd);
+            return;
         }
 }
 
@@ -1519,10 +1526,9 @@ void enter_command(int fd)
 void editor_process_key_press(int fd)
 {
         static int quit_times = BRIC_QUIT_TIMES;
-
         int c = editor_read_key(fd);
         switch(Editor.mode) {
-        case EDIT_MODE:
+        case INSERT_MODE:
                 switch(c) {
                         case ENTER:
                                 editor_insert_newline();
@@ -1583,7 +1589,7 @@ void editor_process_key_press(int fd)
                         case CTRL_L: // means refresh screen
                                 break;
                         case CTRL_D:
-                                if (Editor.mode == EDIT_MODE)
+                                if (Editor.mode == INSERT_MODE)
                                 {
                                     Editor.mode = SELECTION_MODE;
                                     Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
@@ -1598,7 +1604,7 @@ void editor_process_key_press(int fd)
                                 }
                                 break;
                         case CTRL_V:
-                                if (Editor.mode == EDIT_MODE)
+                                if (Editor.mode == INSERT_MODE)
                                 {
                                     paste_from_clipboard();
                                 }
@@ -1639,6 +1645,9 @@ void editor_process_key_press(int fd)
                 break;
         case NORMAL_MODE:
                 switch (c) {
+                        case 'r':
+                            if (Editor.prev_char == 'y') editor_yank_row();
+                            break;
                         case 'h':
                         case 'j':
                         case 'k':
@@ -1653,13 +1662,15 @@ void editor_process_key_press(int fd)
                         case ':':
                                 enter_command(fd);
                                 break;
-                        case 'e':
-                                Editor.mode = EDIT_MODE;
+                        case 'i':
+                                Editor.mode = INSERT_MODE;
+                                editor_set_status_message("Insert mode.");
                                 break;
 
                 }
                 break;
         }
+        Editor.prev_char = c;
         quit_times = BRIC_QUIT_TIMES;
 }
 
@@ -1704,6 +1715,7 @@ void init_editor(void)
         {
             Editor.screen_columns -= LINE_NUMBER_LENGTH;
         }
+        Editor.prev_char = ' ';
         Editor.screen_rows -= 2; // get room for status bar
 }
 

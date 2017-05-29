@@ -21,7 +21,7 @@
 
 #include "modules/syntax/syntax.h"
 
-#define EDIT_MODE 0
+#define INSERT_MODE 0
 #define SELECTION_MODE 1
 #define NORMAL_MODE 2
 
@@ -79,6 +79,7 @@ struct editor_config {
         int selected_base_x;
         int selected_base_y;
         char *clipboard;
+        char prev_char;
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
