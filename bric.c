@@ -1366,6 +1366,39 @@ void editor_move_cursor(int key)
                                 }
                         }
                         break;
+                case HOME_KEY:
+                        Editor.cursor_x=0;
+                        Editor.column_offset=0;
+                        break;
+
+                case END_KEY:
+                        if(row->size>Editor.screen_columns-1)
+                        {
+                                Editor.cursor_x=Editor.screen_columns-1;
+                                Editor.column_offset=row->size-(Editor.screen_columns+1)+1;
+                        } else {
+                                Editor.cursor_x=row->size-1;
+                        }
+                        break;
+                case PAGE_UP:
+                        if(Editor.cursor_y != 0) Editor.cursor_y = 0;
+
+                {
+                        int times = Editor.screen_rows-2; // keep last two rows from previous view (like in vim)
+                        while(times--)
+                                editor_move_cursor(ARROW_UP);
+                }
+                        break;
+
+                case PAGE_DOWN:
+                        if (Editor.cursor_y != Editor.screen_rows-1) Editor.cursor_y = Editor.screen_rows-1;
+
+                {
+                        int times = Editor.screen_rows-2; // keep last two rows from previous view (like in vim)
+                        while(times--)
+                                editor_move_cursor(ARROW_DOWN);
+                }
+                break;
         }
 
         //fix cursor_x if the current line doesn't have enough chars
@@ -1534,9 +1567,9 @@ void editor_process_key_press(int fd)
                         case ENTER:
                                 editor_insert_newline();
                                 break;
-        		case CTRL_G:
-             			break;
-                      case CTRL_Q:
+        		        case CTRL_G:
+             			        break;
+                        case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
                                         editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit.", quit_times);
@@ -1549,11 +1582,11 @@ void editor_process_key_press(int fd)
                                 editor_save();
                                 break;
                         case CTRL_Y:
-                            editor_yank_row();
-                            break;
+                                editor_yank_row();
+                                break;
                         case CTRL_P:
-                          editor_paste_row();
-                            break;
+                                editor_paste_row();
+                                break;
                         case CTRL_F:
                                 editor_find(fd);
                                 break;
@@ -1569,16 +1602,10 @@ void editor_process_key_press(int fd)
                                 editor_delete_char();
                                 break;
                         case PAGE_UP:
+                                editor_move_cursor(PAGE_UP);
+                                break;
                         case PAGE_DOWN:
-                                if(c == PAGE_UP && Editor.cursor_y != 0)
-                                        Editor.cursor_y = 0;
-                                else if (c == PAGE_DOWN && Editor.cursor_y != Editor.screen_rows-1)
-                                        Editor.cursor_y = Editor.screen_rows-1;
-                                {
-                                        int times = Editor.screen_rows;
-                                        while(times--)
-        									editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-                                }
+                                editor_move_cursor(PAGE_DOWN);
                                 break;
                         case ARROW_UP:
                         case ARROW_DOWN:
@@ -1613,13 +1640,12 @@ void editor_process_key_press(int fd)
                                 Editor.mode = NORMAL_MODE;
                                 editor_set_status_message("Normal mode.");
                                 break;
-        		case END_KEY:
-                            {
-        					   int times = Editor.row->size - Editor.row->index;
-                               while (times--)
-                                    editor_move_cursor(ARROW_RIGHT);
-                            }
-                               break;
+                        case HOME_KEY:
+                                editor_move_cursor(HOME_KEY);
+                                break;
+        		        case END_KEY:
+                                editor_move_cursor(END_KEY);
+                                break;
 
                         case TAB:
                             {
@@ -1673,6 +1699,18 @@ void editor_process_key_press(int fd)
                                 Editor.mode = INSERT_MODE;
                                 editor_set_status_message("Insert mode.");
                                 break;
+                        case HOME_KEY:
+                                editor_move_cursor(HOME_KEY);
+                                break;
+                        case END_KEY:
+                                editor_move_cursor(END_KEY);
+                                break;
+                        case PAGE_UP:
+                                editor_move_cursor(PAGE_UP);
+                                break;
+                        case PAGE_DOWN:
+                                editor_move_cursor(PAGE_DOWN);
+                                break;
 
                 }
                 break;
@@ -1695,6 +1733,12 @@ void editor_process_key_press(int fd)
                     
                     case CTRL_C:
                         copy_to_clipboard();
+                        break;
+                    case HOME_KEY:
+                        editor_move_cursor(HOME_KEY);
+                        break;
+                    case END_KEY:
+                        editor_move_cursor(END_KEY);
                         break;
                 }
         }
