@@ -11,5 +11,7 @@
 - [ ] Change how rows are stored?
   - [x] USED DUBBLY LIST Make linked list implementation (better searching speed and stuff?)
   - [ ] Work out how to use the .a or shared object in bric
-- [ ] Fix segfault when trying to insert newline on non-existent line
+- [x] Fix segfault when trying to insert newline on non-existent line
 - [ ] Add more functions like 'o' to go to new line below and insert mode
+- [ ] write docs for new command functions and stuff
+- [ ] Actually organise code to be of one code style and comment to make it more readable and understandable
