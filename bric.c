@@ -622,6 +622,7 @@ void editor_insert_newline(void)
         int filerow = Editor.row_offset+Editor.cursor_y;
         int filecol = Editor.column_offset+Editor.cursor_x;
         editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        char *indent_prefix = NULL;
 
         if (!row) {
                 if(filerow == Editor.num_of_rows) {
@@ -630,7 +631,6 @@ void editor_insert_newline(void)
                 }
                 return;
         }
-        char *indent_prefix = NULL;
         if (Editor.indent)
         {
             indent_prefix = get_indent_prefix(row->chars, filecol + 1);
