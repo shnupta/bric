@@ -623,6 +623,8 @@ void editor_insert_newline(void)
         int filecol = Editor.column_offset+Editor.cursor_x;
         editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
 
+        char *indent_prefix = NULL;
+
         if (!row) {
                 if(filerow == Editor.num_of_rows) {
                         editor_insert_row(filerow, "", 0);
@@ -630,7 +632,7 @@ void editor_insert_newline(void)
                 }
                 return;
         }
-        char *indent_prefix = NULL;
+
         if (Editor.indent)
         {
             indent_prefix = get_indent_prefix(row->chars, filecol + 1);
@@ -653,14 +655,20 @@ void editor_insert_newline(void)
                 row->size = filecol;
                 editor_update_row(row);
         }
+
 fixcursor:
         if(Editor.cursor_y == Editor.screen_rows-1)
                 Editor.row_offset++;
         else
                 Editor.cursor_y++;
-        Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
-        Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
-        free(indent_prefix);
+
+        if(indent_prefix) {
+
+            Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
+            Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
+            free(indent_prefix);
+
+        }
 }
 
 
