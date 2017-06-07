@@ -631,6 +631,7 @@ void editor_insert_newline(void)
                 }
                 return;
         }
+
         if (Editor.indent)
         {
             indent_prefix = get_indent_prefix(row->chars, filecol + 1);
@@ -653,14 +654,20 @@ void editor_insert_newline(void)
                 row->size = filecol;
                 editor_update_row(row);
         }
+
 fixcursor:
         if(Editor.cursor_y == Editor.screen_rows-1)
                 Editor.row_offset++;
         else
                 Editor.cursor_y++;
-        Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
-        Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
-        free(indent_prefix);
+
+        if(indent_prefix) {
+
+            Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
+            Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
+            free(indent_prefix);
+
+        }
 }
 
 
