@@ -1682,6 +1682,7 @@ void init_editor(void)
         Editor.dirty = 0;
         Editor.filename = NULL;
         Editor.syntax = NULL;
+	Editor.tab_length = TAB_LENGTH;
         Editor.colours.hl_comment_colour = 33;
         Editor.colours.hl_mlcomment_colour = 33;
         Editor.colours.hl_keyword_cond_colour = 36;
