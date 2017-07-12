@@ -2,6 +2,8 @@
 
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
+static int line_number_length = 3;
+const char* line_number_format = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
 // Low level terminal handling
 void disable_raw_mode(int fd)
@@ -435,6 +437,8 @@ void editor_insert_row(int at, char *s, size_t length)
         Editor.row[at].index = at;
         editor_update_row(Editor.row+at);
         Editor.num_of_rows++;
+	line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+	printf("%d", line_number_length);
         Editor.dirty++;
 }
 
@@ -923,7 +927,7 @@ void editor_refresh_screen(void)
 
                 if (Editor.line_numbers)
                 {
-                    sprintf(buf, LINE_NUMBER_FORMAT, filerow + 1);
+                    sprintf(buf, line_number_format[line_number_length - 3], filerow + 1);
                     ab_append(&ab, buf, strlen(buf));
                 }
                 if(filerow >= Editor.num_of_rows) {
@@ -1043,7 +1047,7 @@ void editor_refresh_screen(void)
         // put cursor at its current position
         int j;
         int cursor_x = 1;
-        if (Editor.line_numbers) cursor_x += LINE_NUMBER_LENGTH;
+        if (Editor.line_numbers) cursor_x += line_number_length;
         int filerow = Editor.row_offset+Editor.cursor_y;
         editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
         if(r) {
@@ -1787,7 +1791,7 @@ void init_editor(void)
         }
         if (Editor.line_numbers)
         {
-            Editor.screen_columns -= LINE_NUMBER_LENGTH;
+            Editor.screen_columns -= line_number_length;
         }
         Editor.prev_char = ' ';
         Editor.screen_rows -= 2; // get room for status bar
