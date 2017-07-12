@@ -18,6 +18,7 @@
 #include <time.h>
 #include <pwd.h>
 #include <assert.h>
+#include <math.h>
 
 #include "modules/syntax/syntax.h"
 
@@ -221,9 +222,9 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 
 #define BRIC_QUIT_TIMES 3
 
-#define LINE_NUMBER_LENGTH 7
+//#define LINE_NUMBER_LENGTH 7
 
-#define LINE_NUMBER_FORMAT "%5d: "
+//#define LINE_NUMBER_FORMAT "%5d: "
 
 #define TAB_LENGTH 4 // TODO: make it changable
 
