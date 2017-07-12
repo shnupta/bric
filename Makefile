@@ -1,5 +1,5 @@
 all:
-	$(CC) -o bric bric.c -Wall -W -pedantic -std=c99
+	$(CC) -g -o bric bric.c -Wall -W -pedantic -std=c99 -lm
 
 install: all
 	cp bric /usr/local/bin/bric
