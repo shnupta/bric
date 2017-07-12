@@ -3,7 +3,7 @@
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
-const char* line_number_format = {"%1d", "%2d", "%3d", "%4d", "%5d"};
+const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
 // Low level terminal handling
 void disable_raw_mode(int fd)
@@ -437,8 +437,9 @@ void editor_insert_row(int at, char *s, size_t length)
         Editor.row[at].index = at;
         editor_update_row(Editor.row+at);
         Editor.num_of_rows++;
-	line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
-	printf("%d", line_number_length);
+	if(Editor.num_of_rows)
+		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+//	printf("%d", line_number_length);
         Editor.dirty++;
 }
 
@@ -464,6 +465,12 @@ void editor_delete_row(int at)
         memmove(Editor.row+at, Editor.row+at+1, sizeof(Editor.row[0])*(Editor.num_of_rows-at-1));
         for(int j = at; j < Editor.num_of_rows-1; j++) Editor.row[j].index++;
         Editor.num_of_rows--;
+	if(Editor.num_of_rows) {
+		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+	}
+	else {
+		line_number_length = 3;
+	}
         Editor.dirty++;
 }
 
@@ -925,10 +932,14 @@ void editor_refresh_screen(void)
                 ab_append(&ab, "\x1b[49m", 5);
                 ab_append(&ab, "\x1b[39m", 5);
 
-                if (Editor.line_numbers)
+                if (Editor.line_numbers && filerow < Editor.num_of_rows)
                 {
-                    sprintf(buf, line_number_format[line_number_length - 3], filerow + 1);
-                    ab_append(&ab, buf, strlen(buf));
+			/*if(filerow) {
+				line_number_length = 3 + (int)log10((double)filerow);
+			}*/
+                    	sprintf(buf, line_number_format[line_number_length - 3], filerow + 1);
+                    	ab_append(&ab, buf, strlen(buf));
+			ab_append(&ab, ": ", 2);
                 }
                 if(filerow >= Editor.num_of_rows) {
                         if(Editor.num_of_rows == 0 && y == Editor.screen_rows/3) {
