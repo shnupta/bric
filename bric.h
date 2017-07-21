@@ -18,10 +18,11 @@
 #include <time.h>
 #include <pwd.h>
 #include <assert.h>
+#include <math.h>
 
 #include "modules/syntax/syntax.h"
 
-#define EDIT_MODE 0
+#define INSERT_MODE 0
 #define SELECTION_MODE 1
 #define NORMAL_MODE 2
 
@@ -79,6 +80,7 @@ struct editor_config {
         int selected_base_x;
         int selected_base_y;
         char *clipboard;
+        char prev_char;
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -213,7 +215,7 @@ void editor_set_status_message(const char *fmt, ...);
 
 void editor_find(int fd);
 
-void editor_goto(int fd);
+void editor_goto(int linenumber);
 
 // Editor events handling
 
@@ -221,9 +223,9 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 
 #define BRIC_QUIT_TIMES 3
 
-#define LINE_NUMBER_LENGTH 7
+//#define LINE_NUMBER_LENGTH 7
 
-#define LINE_NUMBER_FORMAT "%5d: "
+//#define LINE_NUMBER_FORMAT "%5d: "
 
 #define TAB_LENGTH 4 // TODO: make it changable
 
