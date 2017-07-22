@@ -8,6 +8,7 @@ WillDott - Find and replace feature
 
 sadboyzvone - Multiple language syntax implementations
 
-grikukan - line numbers, indentation level maintainer, basic config file setup, selection mode
+grikukan - lines numbers, indentation level maintainer, basic config file setup, selection mode
 
 Tacklebox - yank & paste
+
