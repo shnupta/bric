@@ -1,3 +1,5 @@
+# Please submit all changes to the vim-change branch.
+
 # bric
 bric is a text editor based on kilo.
 
