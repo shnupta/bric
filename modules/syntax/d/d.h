@@ -16,9 +16,6 @@ char *D_keywords[] = {
     "out", "body", "unittest", "template", "alias", "pragma",
     //property identifiers
     "@property", "@safe", "@trusted", "@system", "@disable", "@nogc",
-    //preprocessor
-    "#define|", "#elif|", "#else|", "#ifndef|", "#error|", "#if|", "#ifdef|",
-    "#pragma|", "#import|", "#include|", "#line|", "#undef|", "#using|", "#endif|",
     //conditionals
     "if~", "else~", "switch~", "case~", "try~", "throw~", "catch~", "version~",
     "debug~",
