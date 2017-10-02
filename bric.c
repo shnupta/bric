@@ -698,7 +698,7 @@ void editor_delete_char()
 
 void parse_argument(char *arg)
 {
-    int ptr = 0;
+    int ptr = 1;
     while (arg[ptr] != '\0')
     {
         switch (arg[ptr])
@@ -710,8 +710,8 @@ void parse_argument(char *arg)
                 Editor.indent = 1;
                 break;
             default:
-                // TODO: warning of unrecognised argument
-                break;
+                fprintf(stderr, "bric: invalid option -- '%c'\n", arg[ptr]);
+		exit(1);
         }
         ptr++;
     }
