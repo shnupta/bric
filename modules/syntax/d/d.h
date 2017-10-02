@@ -9,7 +9,7 @@ char *D_keywords[] = {
     "uint", "long", "ulong", "char", "wchar", "dchar", "float", "double",
     "real", "ifloat", "idouble", "ireal", "cfloat", "cdouble", "creal",
     "typeof", "true", "false", "this", "super", "null", "is", "struct",
-    "union", "class", "enum", "ref", "delegate", "function",
+    "union", "class", "enum", "ref", "delegate", "function", "string",
     "__vector", "new", "delete", "cast", "mixin", "import", "__traits",
     "default", "with", "finally", "asm", "scope", "auto", "extern",
     "shared", "__gshared", "nothrow", "pure", "lazy", "in", "invariant",
