@@ -71,7 +71,7 @@ struct editor_config {
         char *filename;                 // currently open filename
         char status_message[256];
         time_t status_message_time;
-        struct editor_syntax *syntax;   // current syntaxt highlighting
+        struct editor_syntax *syntax;   // current syntax highlighting
         int line_numbers;               // show line numbers
         int indent;                     // tabs and spaces indentation
         int tab_length;             //number of spaces when tab pressed
