@@ -759,6 +759,7 @@ int editor_open(char *filename)
 		/*Add a row if file is new*/
 		editor_insert_row(Editor.num_of_rows, "", 0);
 		Editor.dirty = 0;
+		Editor.newfile = 1;
                 return 1;
         }
 
@@ -793,6 +794,7 @@ int editor_save(void)
         close(fd);
         free(buf);
         Editor.dirty = 0;
+        Editor.newfile = 0;
         editor_set_status_message("%d bytes written on disk", len);
         return 0;
 
@@ -945,7 +947,7 @@ void editor_refresh_screen(void)
 			ab_append(&ab, ": ", 2);
                 }
                 if(filerow >= Editor.num_of_rows) {
-                        if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && !Editor.dirty) {
+                        if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && Editor.mode != INSERT_MODE && !Editor.dirty && Editor.newfile) {
                                 char welcome[80];
                                 int welcomelen = snprintf(welcome, sizeof(welcome), "Bric editor -- version %s\x1b[0K\r\n", BRIC_VERSION);
                                 int padding = (Editor.screen_columns-welcomelen)/2;
@@ -1793,6 +1795,7 @@ void init_editor(void)
         Editor.num_of_rows = 0;
         Editor.row = NULL;
         Editor.dirty = 0;
+        Editor.newfile = 0;
         Editor.filename = NULL;
         Editor.syntax = NULL;
 	Editor.tab_length = TAB_LENGTH;
