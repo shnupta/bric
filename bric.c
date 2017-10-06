@@ -724,7 +724,7 @@ void editor_delete_char()
 
 void parse_argument(char *arg)
 {
-    int ptr = 0;
+    int ptr = 1;
     while (arg[ptr] != '\0')
     {
         switch (arg[ptr])
@@ -736,13 +736,13 @@ void parse_argument(char *arg)
                 Editor.indent = 1;
                 break;
             default:
-                // TODO: warning of unrecognised argument
-                break;
+                fprintf(stderr, "bric: invalid option -- '%c'\n", arg[ptr]);
+                exit(1);
         }
         ptr++;
     }
 }
-// load the specified progam in the editor memory
+// load the specified program in the editor memory
 int editor_open(char *filename)
 {
         FILE *fp;
@@ -756,6 +756,10 @@ int editor_open(char *filename)
                         perror("Opening file");
                         exit(1);
                 }
+		/*Add a row if file is new*/
+		editor_insert_row(Editor.num_of_rows, "", 0);
+		Editor.dirty = 0;
+		Editor.newfile = 1;
                 return 1;
         }
 
@@ -790,6 +794,7 @@ int editor_save(void)
         close(fd);
         free(buf);
         Editor.dirty = 0;
+        Editor.newfile = 0;
         editor_set_status_message("%d bytes written on disk", len);
         return 0;
 
@@ -942,7 +947,7 @@ void editor_refresh_screen(void)
 			ab_append(&ab, ": ", 2);
                 }
                 if(filerow >= Editor.num_of_rows) {
-                        if(Editor.num_of_rows == 0 && y == Editor.screen_rows/3) {
+                        if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && Editor.mode != INSERT_MODE && !Editor.dirty && Editor.newfile) {
                                 char welcome[80];
                                 int welcomelen = snprintf(welcome, sizeof(welcome), "Bric editor -- version %s\x1b[0K\r\n", BRIC_VERSION);
                                 int padding = (Editor.screen_columns-welcomelen)/2;
@@ -1361,6 +1366,10 @@ void editor_move_cursor(int key)
                                         Editor.cursor_x += 1;
                                 }
                         } else if ( row && filecol == row->size) {
+				/*Do not go beyond last row*/
+				if(filerow == Editor.num_of_rows - 1) /*'filerow' indexing starts at 0*/ {
+					break;
+				}
                                 Editor.cursor_x = 0;
                                 Editor.column_offset = 0;
                                 if(Editor.cursor_y == Editor.screen_rows-1) {
@@ -1380,7 +1389,7 @@ void editor_move_cursor(int key)
                         break;
                 case 'j':
                 case ARROW_DOWN:
-                        if(filerow < Editor.num_of_rows) {
+                        if(filerow < Editor.num_of_rows - 1)/*Do not go beyond last row. 'filerow' indexing starts at 0*/ {
                                 if(Editor.cursor_y == Editor.screen_rows-1) {
                                         Editor.row_offset++;
                                 } else {
@@ -1588,6 +1597,7 @@ void editor_process_key_press(int fd)
 {
         static int quit_times = BRIC_QUIT_TIMES;
         int c = editor_read_key(fd);
+        int filerow = Editor.row_offset+Editor.cursor_y;
         switch(Editor.mode) {
         case INSERT_MODE:
                 switch(c) {
@@ -1726,6 +1736,12 @@ void editor_process_key_press(int fd)
                                 Editor.mode = INSERT_MODE;
                                 editor_set_status_message("Insert mode.");
                                 break;
+			case 'o':
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode.");
+				editor_insert_row(filerow + 1, "", 0);
+				editor_move_cursor(ARROW_DOWN);
+				break;
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
@@ -1785,6 +1801,7 @@ void init_editor(void)
         Editor.num_of_rows = 0;
         Editor.row = NULL;
         Editor.dirty = 0;
+        Editor.newfile = 0;
         Editor.filename = NULL;
         Editor.syntax = NULL;
 	Editor.tab_length = TAB_LENGTH;

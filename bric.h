@@ -68,13 +68,14 @@ struct editor_config {
         int dirty;                      // if the file is modified but not saved
         int yank_buffer_len;            // length of yank buffer
         char *yank_buffer;              // buffer to hold yanked/copied text
+        int newfile;			// is currently opened a new file?
         char *filename;                 // currently open filename
         char status_message[256];
         time_t status_message_time;
-        struct editor_syntax *syntax;   // current syntaxt highlighting
+        struct editor_syntax *syntax;   // current syntax highlighting
         int line_numbers;               // show line numbers
         int indent;                     // tabs and spaces indentation
-        int tab_length;             //number of spaces when tab pressed
+        int tab_length;             	//number of spaces when tab pressed
         colour_map colours;             // highlight colours
         int mode;                       // selection or normal mode
         int selected_base_x;
