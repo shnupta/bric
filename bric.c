@@ -1514,7 +1514,7 @@ void editor_check_quit(int fd)
 
 void editor_parse_command(int fd, char *query)
 {
-        if (numbers_only(query)) { 
+        if (numbers_only(query)) {
                 editor_goto(atoi(query));
                 return;
         } else if (strcmp(query, "q!") == 0) {
@@ -1545,6 +1545,12 @@ void editor_parse_command(int fd, char *query)
             Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
             Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
             editor_set_status_message(selection_mode_message);
+            return;
+        } else if (strcmp(query, "sp") == 0) {
+            Editor.indent = 0;
+            return;
+        } else if (strcmp(query, "up") == 0) {
+            Editor.indent = 1;
             return;
         }
 }
