@@ -53,7 +53,8 @@ struct editor_syntax highlight_db[] = {
   GO_syntax,
   RUBY_syntax,
   rust_syntax,
-  HTML_syntax
+  HTML_syntax,
+  brain_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
