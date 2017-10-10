@@ -14,6 +14,7 @@
 #include "ruby/ruby.h"
 #include "rust/rust.h"
 #include "html/html.h"
+#include "brain/brain.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
