@@ -1742,6 +1742,12 @@ void editor_process_key_press(int fd)
 				editor_insert_row(filerow + 1, "", 0);
 				editor_move_cursor(ARROW_DOWN);
 				break;
+                case 'G':
+                    editor_goto(Editor.num_of_rows);
+                    break;
+                case 'g':
+                    editor_goto(1);
+                    break;
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
