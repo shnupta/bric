@@ -3,7 +3,6 @@
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 
-
 // Low level terminal handling
 void disable_raw_mode(int fd)
 {
@@ -722,9 +721,10 @@ int editor_open(char *filename)
         FILE *fp;
         Editor.dirty = 0;
         free(Editor.filename);
-        Editor.filename = strdup(filename);
+        Editor.filename = malloc(sizeof(filename) / sizeof(char));
+        Editor.filename = strcpy(Editor.filename, filename);
 
-        fp = fopen(filename, "r");
+        fp = fopen(Editor.filename, "r");
         if(!fp) {
                 if(errno != ENOENT) {
                         perror("Opening file");
@@ -909,7 +909,7 @@ void editor_refresh_screen(void)
                 if (Editor.line_numbers)
                 {
                     sprintf(buf, LINE_NUMBER_FORMAT, filerow + 1);
-                    ab_append(&ab, buf, strlen(buf));
+                    ab_append(&ab, buf, 32);
                 }
                 if(filerow >= Editor.num_of_rows) {
                         if(Editor.num_of_rows == 0 && y == Editor.screen_rows/3) {
