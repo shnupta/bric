@@ -1676,13 +1676,14 @@ void editor_process_key_press(int fd)
                         case ESC:
                                 Editor.mode = NORMAL_MODE;
                                 editor_set_status_message("Normal mode.");
+				editor_move_cursor(ARROW_LEFT);
                                 break;
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
-        		        case END_KEY:
-                                editor_move_cursor(END_KEY);
-                               break;
+        		case END_KEY:
+                        	editor_move_cursor(END_KEY);
+                        	break;
 
                         case TAB:
                             {
@@ -1736,18 +1737,39 @@ void editor_process_key_press(int fd)
                                 Editor.mode = INSERT_MODE;
                                 editor_set_status_message("Insert mode.");
                                 break;
+			case 'I':
+				editor_move_cursor(HOME_KEY);
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				break;
 			case 'o':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode.");
 				editor_insert_row(filerow + 1, "", 0);
 				editor_move_cursor(ARROW_DOWN);
 				break;
-                case 'G':
-                    editor_goto(Editor.num_of_rows);
-                    break;
-                case 'g':
-                    editor_goto(1);
-                    break;
+			case 'O':
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				editor_insert_row(filerow, "", 0);
+				break;
+                	case 'G':
+                    		editor_goto(Editor.num_of_rows);
+                    		break;
+                	case 'g':
+                    		editor_goto(1);
+                    		break;
+			case 'a':
+				editor_move_cursor(ARROW_RIGHT);
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				break;
+			case 'A':
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				editor_move_cursor(END_KEY);
+				editor_move_cursor(ARROW_RIGHT);
+				break;
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
