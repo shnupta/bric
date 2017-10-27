@@ -1760,10 +1760,10 @@ void editor_process_key_press(int fd)
                     		editor_goto(1);
                     		break;
 			case '$':
-				editor_move_cursor(HOME_KEY);
+				editor_move_cursor(END_KEY);
 				break;
 			case '0':
-				editor_move_cursor(END_KEY);
+				editor_move_cursor(HOME_KEY);
 				break;
 			case 'a':
 				editor_move_cursor(ARROW_RIGHT);
