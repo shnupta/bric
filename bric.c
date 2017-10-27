@@ -1404,10 +1404,10 @@ void editor_move_cursor(int key)
                 case END_KEY:
                         if(row->size>Editor.screen_columns-1)
                         {
-                                Editor.cursor_x=Editor.screen_columns-1;
-                                Editor.column_offset=row->size-(Editor.screen_columns+1)+1;
+                                Editor.cursor_x=Editor.screen_columns;
+                                Editor.column_offset=row->size-Editor.screen_columns+1;
                         } else {
-                                Editor.cursor_x=row->size-1;
+                                Editor.cursor_x=row->size;
                         }
                         break;
                 case PAGE_UP:
