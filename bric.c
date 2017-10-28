@@ -316,7 +316,7 @@ void editor_update_syntax(editing_row *row)
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
                                         // keyword
                                         if(pp) memset(row->hl+i, HL_KEYWORD_PP, klen);
-					else if(cond) memset(row->hl+i, HL_KEYWORD_COND, klen);
+                                        else if(cond) memset(row->hl+i, HL_KEYWORD_COND, klen);
                                         else if(retu) memset(row->hl+i, HL_KEYWORD_RETURN, klen);
                                         else if(adapter) memset(row->hl+i, HL_KEYWORD_ADAPTER, klen);
                                         else if(loopy) memset(row->hl+i, HL_KEYWORD_LOOP, klen);
@@ -595,7 +595,8 @@ char *set_indent_prefix(char *text, char *prefix)
 /*
  * This function copies the current line to a separate buffer.
  */
-void editor_yank_row() {
+
+int editor_copy_row() {
     int filerow = Editor.row_offset+Editor.cursor_y;
 
     editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
@@ -617,7 +618,15 @@ void editor_yank_row() {
                 exit(1);
             }
         }
-        editor_delete_row(filerow);
+	return 1;
+    }
+    return 0;
+}
+
+void editor_yank_row() {
+    if(editor_copy_row()) {
+    	int filerow = Editor.row_offset+Editor.cursor_y;
+    	editor_delete_row(filerow);
     }
 }
 
@@ -1604,9 +1613,9 @@ void editor_process_key_press(int fd)
                         case ENTER:
                                 editor_insert_newline();
                                 break;
-        		case CTRL_G:
+                        case CTRL_G:
              			break;
-                      case CTRL_Q:
+                        case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
                                         editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit.", quit_times);
@@ -1619,17 +1628,17 @@ void editor_process_key_press(int fd)
                                 editor_save();
                                 break;
                         case CTRL_Y:
-                            editor_yank_row();
-                            break;
+                                editor_yank_row();
+                                break;
                         case CTRL_P:
-                          editor_paste_row();
-                            break;
+                                editor_paste_row();
+                                break;
                         case CTRL_F:
                                 editor_find(fd);
                                 break;
-        				case CTRL_R:
-        						editor_find_replace(fd);
-        						break;
+                        case CTRL_R:
+        			 editor_find_replace(fd);
+        			 break;
                         case BACKSPACE:
                                 editor_delete_char();
                                 break;
@@ -1676,12 +1685,12 @@ void editor_process_key_press(int fd)
                         case ESC:
                                 Editor.mode = NORMAL_MODE;
                                 editor_set_status_message("Normal mode.");
-				editor_move_cursor(ARROW_LEFT);
+                                editor_move_cursor(ARROW_LEFT);
                                 break;
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
-        		case END_KEY:
+                        case END_KEY:
                         	editor_move_cursor(END_KEY);
                         	break;
 
@@ -1710,8 +1719,10 @@ void editor_process_key_press(int fd)
         case NORMAL_MODE:
                 switch (c) {
                         case 'r':
+                            if (Editor.prev_char == 'c') editor_copy_row();
                             if (Editor.prev_char == 'y') editor_yank_row();
                             if (Editor.prev_char == 'p') editor_paste_row();
+                            if (Editor.prev_char == 'd') editor_delete_row(filerow);
                             break;
                         case 'p':
                             if (Editor.prev_char == 'c') paste_from_clipboard();
@@ -1737,34 +1748,34 @@ void editor_process_key_press(int fd)
                                 Editor.mode = INSERT_MODE;
                                 editor_set_status_message("Insert mode.");
                                 break;
-			case 'I':
+                        case 'I':
 				editor_move_cursor(HOME_KEY);
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				break;
-			case 'o':
+                        case 'o':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode.");
 				editor_insert_row(filerow + 1, "", 0);
 				editor_move_cursor(ARROW_DOWN);
 				break;
-			case 'O':
+                        case 'O':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				editor_insert_row(filerow, "", 0);
 				break;
-                	case 'G':
+                        case 'G':
                     		editor_goto(Editor.num_of_rows);
                     		break;
-                	case 'g':
+                        case 'g':
                     		editor_goto(1);
                     		break;
-			case 'a':
+                        case 'a':
 				editor_move_cursor(ARROW_RIGHT);
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				break;
-			case 'A':
+                        case 'A':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				editor_move_cursor(END_KEY);

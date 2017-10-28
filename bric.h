@@ -181,6 +181,8 @@ int editor_open(char *filename); // load the specified program in the editor mem
 
 int editor_save(void); //save the current file on the disk
 
+int editor_copy_row();
+
 void editor_yank_row();
 
 void editor_paste_row();
