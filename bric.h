@@ -19,6 +19,7 @@
 #include <pwd.h>
 #include <assert.h>
 #include <math.h>
+#include <signal.h>
 
 #include "modules/syntax/syntax.h"
 
