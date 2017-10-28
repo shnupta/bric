@@ -14,6 +14,7 @@ char *brain_keywords[] = {
         brain_keywords,      \
         "",                  \
         "",                  \
+        "",                  \
         HL_HIGHLIGHT_STRINGS \
 }
 
