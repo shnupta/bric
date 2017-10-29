@@ -505,6 +505,7 @@ void editor_insert_row(int at, char *s, size_t length)
 			Editor.row_tail->next = new;
 			new->prev = Editor.row_tail;
 			Editor.row_tail = Editor.row_tail->next;
+			new->next = NULL;
 		}
 	}
 	else
@@ -520,7 +521,8 @@ void editor_insert_row(int at, char *s, size_t length)
 			editing_row *row = find_row(at);
 			new->next = row;
 			new->prev = row->prev;
-			new->prev->next = new;
+			if (new->prev)
+				new->prev->next = new;
 			row->prev = new;	
 		}
 		for (editing_row *i = new->next; i != NULL; i = i->next)
