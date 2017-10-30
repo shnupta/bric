@@ -21,6 +21,7 @@
 #include <math.h>
 
 #include "modules/syntax/syntax.h"
+#include "modules/tag/tagfuncs.h"
 
 #define INSERT_MODE 0
 #define SELECTION_MODE 1
@@ -90,31 +91,33 @@ enum KEY_ACTION {
 	KEY_NULL = 0,
 	CTRL_G = CTRL_KEY('g'),
 	CTRL_R = CTRL_KEY('r'),
-  CTRL_Y = CTRL_KEY('y'),
-  CTRL_P = CTRL_KEY('p'),
-    CTRL_A = 1,
+        CTRL_Y = CTRL_KEY('y'),
+        CTRL_P = CTRL_KEY('p'),
+        CTRL_M = CTRL_KEY('m'),
+        CTRL_N = CTRL_KEY('n'),
+        CTRL_A = 1,
 	CTRL_C = 3,
 	CTRL_D = 4,
 	CTRL_F = 6,
-    CTRL_H = 8,
-    TAB = 9,
+        CTRL_H = 8,
+        TAB = 9,
 	CTRL_L = 12,
-    ENTER = 13,
-    CTRL_Q = 17,
-    CTRL_S = 19,
-    CTRL_U = 21,
-    CTRL_V = 22,
-    ESC = 27,
-    BACKSPACE = 127,
-    ARROW_LEFT = 1000,
-    ARROW_RIGHT,
-    ARROW_UP,
-    ARROW_DOWN,
-    DEL_KEY,
-    HOME_KEY,
-    END_KEY,
-    PAGE_UP,
-    PAGE_DOWN
+        ENTER = 13,
+        CTRL_Q = 17,
+        CTRL_S = 19,
+        CTRL_U = 21,
+        CTRL_V = 22,
+        ESC = 27,
+        BACKSPACE = 127,
+        ARROW_LEFT = 1000,
+        ARROW_RIGHT,
+        ARROW_UP,
+        ARROW_DOWN,
+        DEL_KEY,
+        HOME_KEY,
+        END_KEY,
+        PAGE_UP,
+        PAGE_DOWN
 };
 
 
@@ -238,6 +241,6 @@ int editor_file_was_modified(void);
 
 void init_editor(void);
 
-
+void editor_start(char *filename);
 
 #endif
