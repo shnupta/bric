@@ -5,6 +5,46 @@ static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
 const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
+void sigwinch_handler(int arg)
+{
+	int old_columns = Editor.screen_columns;
+	if (get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
+                perror("Unable to query the screen for size (columns / rows)");
+                exit(1);
+        }
+
+        if (Editor.line_numbers)
+        {
+            Editor.screen_columns -= line_number_length;
+        }
+        Editor.prev_char = ' ';
+        Editor.screen_rows -= 2; // get room for status bar
+
+	if (Editor.cursor_y >= Editor.screen_rows)
+	{
+			Editor.row_offset += Editor.cursor_y - Editor.screen_rows+1;
+			Editor.cursor_y = Editor.screen_rows-1;
+	}
+
+	if (Editor.cursor_x >= Editor.screen_columns)
+	{
+		Editor.column_offset += Editor.cursor_x - Editor.screen_columns+1;
+		Editor.cursor_x = Editor.screen_columns-1;
+	}
+	else
+	{
+		int delta = Editor.screen_columns - old_columns;
+		if (delta > 0 && Editor.column_offset > 0)
+		{
+			int change = (delta > Editor.column_offset) ? Editor.column_offset : delta;
+			Editor.column_offset -= change;
+			Editor.cursor_x += change;
+		}
+	}
+
+	editor_refresh_screen();
+}
+
 // Low level terminal handling
 void disable_raw_mode(int fd)
 {
@@ -1910,7 +1950,14 @@ void editor_process_key_press(int fd)
                         case 'g':
                     		editor_goto(1);
                     		break;
-                        case 'a':
+        case '$':
+				    editor_move_cursor(END_KEY);
+				    break;
+			  case '0':
+				    editor_move_cursor(HOME_KEY);
+				    break;
+                    
+			  case 'a':
 				editor_move_cursor(ARROW_RIGHT);
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
@@ -2138,6 +2185,7 @@ void editor_start(char *filename) {
 
 int main(int argc, char **argv)
 {
+	signal(SIGWINCH, sigwinch_handler);
         int file_arg = -1;
 	init(&tag_stack);
         for (int i = 1; i < argc; i++)
