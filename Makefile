@@ -5,6 +5,5 @@ all:
 install: all
 	cp bric /usr/local/bin/bric
 
-
 clean:
-	rm bric
+	rm -f bric
