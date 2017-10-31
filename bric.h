@@ -20,8 +20,14 @@
 #include <assert.h>
 #include <math.h>
 #include <signal.h>
+#include <libgen.h>
 
 #include "modules/syntax/syntax.h"
+
+// We avoid the "implicit declaration" warning
+extern char *strdup(const char *s);
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+extern int ftruncate(int fd, off_t length);
 
 #define INSERT_MODE 0
 #define SELECTION_MODE 1
@@ -123,6 +129,13 @@ enum KEY_ACTION {
     PAGE_DOWN
 };
 
+// Filename
+struct __file
+{
+    char *path;
+    char *name;
+    char *pathname;
+};
 
 
 
@@ -245,5 +258,12 @@ int editor_file_was_modified(void);
 void init_editor(void);
 
 editing_row *find_row(int at);
+
+// File Locking
+void set_current_file(char *filename);
+char *get_locker_name(char *filename);
+void lock_file(char *filename);
+void unlock_file(char *filename);
+int is_file_locked(char *filename);
 
 #endif

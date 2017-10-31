@@ -1,5 +1,6 @@
 #include "bric.h"
 
+static struct __file CurrentFile;
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
@@ -523,7 +524,7 @@ void editor_insert_row(int at, char *s, size_t length)
 			new->prev = row->prev;
 			if (new->prev)
 				new->prev->next = new;
-			row->prev = new;	
+			row->prev = new;
 		}
 		for (editing_row *i = new->next; i != NULL; i = i->next)
 		{
@@ -1444,13 +1445,13 @@ void editor_find_replace(int fd)
 	                         }
 				if (current == -1){
 				        current = Editor.num_of_rows - 1;
-				        tmp = Editor.row_tail;        
+				        tmp = Editor.row_tail;
 				 }
 				else if (current == Editor.num_of_rows){
 				        current = 0;
 				        tmp = Editor.row_head;
 				}
-				
+
 				match = strstr(tmp->rendered_chars, query);
 				if (match) {
 					match_offset = match - tmp->rendered_chars;
@@ -1651,7 +1652,13 @@ void editor_goto(int linenumber)
 
 void editor_harsh_quit()
 {
-        exit(0);
+
+        // We check if file is locked and we'll unlock it
+        if(is_file_locked(CurrentFile.pathname)){
+          unlock_file(CurrentFile.pathname);
+        }
+
+        exit(EXIT_SUCCESS);
 }
 
 void editor_check_quit(int fd)
@@ -1930,7 +1937,7 @@ void editor_process_key_press(int fd)
 			  case '0':
 				    editor_move_cursor(HOME_KEY);
 				    break;
-                    
+
 			  case 'a':
 				editor_move_cursor(ARROW_RIGHT);
 				Editor.mode = INSERT_MODE;
@@ -1973,13 +1980,13 @@ void editor_process_key_press(int fd)
                     case ESC:
                         Editor.mode = NORMAL_MODE;
                         break;
-                    
+
                     case CTRL_C:
                         copy_to_clipboard();
                         break;
                 }
         }
-        
+
         Editor.prev_char = c;
         quit_times = BRIC_QUIT_TIMES;
 }
@@ -2153,6 +2160,72 @@ void close_editor(void)
     free(Editor.clipboard);
 }
 
+void set_current_file(char *filename){
+
+        CurrentFile.path = dirname(filename);
+        CurrentFile.name = basename(filename);
+        CurrentFile.pathname = filename;
+
+        return;
+}
+
+char *get_locker_name(char *filename){
+
+        char *df = dirname(filename);
+        char *bf = basename(filename);
+
+        char locker[strlen(df) + strlen(bf) + strlen("./.lock")];
+
+        /* /PATH/.FILENAME.lock */
+        strcpy(locker, df);
+        strcat(locker, "/");
+        strcat(locker, ".");
+        strcat(locker, bf);
+        strcat(locker, ".lock");
+
+        return (char *) strdup(locker);
+}
+
+void lock_file(char *filename){
+
+        char *locker = get_locker_name(filename);
+        FILE *fp = fopen(locker, "w");
+
+        if(!fp){
+                perror("Could not created locker file");
+        }else{
+                fclose(fp);
+        }
+
+        return;
+}
+
+void unlock_file(char *filename){
+
+        char *locker = get_locker_name(filename);
+        FILE *fp = fopen(locker, "r");
+
+        if(fp){
+                fclose(fp);
+                remove(locker);
+        }
+
+        return;
+}
+
+int is_file_locked(char *filename){
+
+        char *locker = get_locker_name(filename);
+        FILE *fp = fopen(locker, "r");
+
+        if(fp){
+                fclose(fp);
+                return 1;
+        }
+
+        return 0;
+}
+
 int main(int argc, char **argv)
 {
 	signal(SIGWINCH, sigwinch_handler);
@@ -2168,6 +2241,18 @@ int main(int argc, char **argv)
                 fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
+
+        // We set the current file information
+        set_current_file(argv[file_arg]);
+
+        // We check if current file is locked
+        if(!is_file_locked(CurrentFile.pathname)){
+                lock_file(CurrentFile.pathname);
+        }else{
+                perror("The file has been locked, try to remove the locker!");
+                return EXIT_FAILURE;
+        }
+
         init_editor();
         load_config_file();
         for (int i = 1; i < argc; i++)
@@ -2185,6 +2270,7 @@ int main(int argc, char **argv)
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
         }
+        
         close_editor();
-        return 0;
+        return EXIT_SUCCESS;
 }
