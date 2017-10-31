@@ -2,7 +2,48 @@
 
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
+static int line_number_length = 3;
+const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
+void sigwinch_handler(int arg)
+{
+	int old_columns = Editor.screen_columns;
+	if (get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
+                perror("Unable to query the screen for size (columns / rows)");
+                exit(1);
+        }
+
+        if (Editor.line_numbers)
+        {
+            Editor.screen_columns -= line_number_length;
+        }
+        Editor.prev_char = ' ';
+        Editor.screen_rows -= 2; // get room for status bar
+
+	if (Editor.cursor_y >= Editor.screen_rows)
+	{
+			Editor.row_offset += Editor.cursor_y - Editor.screen_rows+1;
+			Editor.cursor_y = Editor.screen_rows-1;
+	}
+
+	if (Editor.cursor_x >= Editor.screen_columns)
+	{
+		Editor.column_offset += Editor.cursor_x - Editor.screen_columns+1;
+		Editor.cursor_x = Editor.screen_columns-1;
+	}
+	else
+	{
+		int delta = Editor.screen_columns - old_columns;
+		if (delta > 0 && Editor.column_offset > 0)
+		{
+			int change = (delta > Editor.column_offset) ? Editor.column_offset : delta;
+			Editor.column_offset -= change;
+			Editor.cursor_x += change;
+		}
+	}
+
+	editor_refresh_screen();
+}
 
 // Low level terminal handling
 void disable_raw_mode(int fd)
@@ -58,6 +99,15 @@ fatal:
         return -1;
 }
 
+
+int numbers_only(const char *s)
+{
+    while (*s) {
+        if (isdigit(*s++) == 0) return 0;
+    }
+
+    return 1;
+}
 
 // read a key from terminal input in raw mode and handle
 int editor_read_key(int fd)
@@ -306,7 +356,7 @@ void editor_update_syntax(editing_row *row)
                                 if(!memcmp(p, keywords[j], klen) && is_separator(*(p+klen))) {
                                         // keyword
                                         if(pp) memset(row->hl+i, HL_KEYWORD_PP, klen);
-					else if(cond) memset(row->hl+i, HL_KEYWORD_COND, klen);
+                                        else if(cond) memset(row->hl+i, HL_KEYWORD_COND, klen);
                                         else if(retu) memset(row->hl+i, HL_KEYWORD_RETURN, klen);
                                         else if(adapter) memset(row->hl+i, HL_KEYWORD_ADAPTER, klen);
                                         else if(loopy) memset(row->hl+i, HL_KEYWORD_LOOP, klen);
@@ -427,6 +477,9 @@ void editor_insert_row(int at, char *s, size_t length)
         Editor.row[at].index = at;
         editor_update_row(Editor.row+at);
         Editor.num_of_rows++;
+	if(Editor.num_of_rows)
+		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+//	printf("%d", line_number_length);
         Editor.dirty++;
 }
 
@@ -452,6 +505,12 @@ void editor_delete_row(int at)
         memmove(Editor.row+at, Editor.row+at+1, sizeof(Editor.row[0])*(Editor.num_of_rows-at-1));
         for(int j = at; j < Editor.num_of_rows-1; j++) Editor.row[j].index++;
         Editor.num_of_rows--;
+	if(Editor.num_of_rows) {
+		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+	}
+	else {
+		line_number_length = 3;
+	}
         Editor.dirty++;
 }
 
@@ -576,7 +635,8 @@ char *set_indent_prefix(char *text, char *prefix)
 /*
  * This function copies the current line to a separate buffer.
  */
-void editor_yank_row() {
+
+int editor_copy_row() {
     int filerow = Editor.row_offset+Editor.cursor_y;
 
     editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
@@ -598,7 +658,15 @@ void editor_yank_row() {
                 exit(1);
             }
         }
-        editor_delete_row(filerow);
+	return 1;
+    }
+    return 0;
+}
+
+void editor_yank_row() {
+    if(editor_copy_row()) {
+    	int filerow = Editor.row_offset+Editor.cursor_y;
+    	editor_delete_row(filerow);
     }
 }
 
@@ -614,6 +682,7 @@ void editor_insert_newline(void)
         int filerow = Editor.row_offset+Editor.cursor_y;
         int filecol = Editor.column_offset+Editor.cursor_x;
         editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        char *indent_prefix = NULL;
 
         if (!row) {
                 if(filerow == Editor.num_of_rows) {
@@ -622,7 +691,7 @@ void editor_insert_newline(void)
                 }
                 return;
         }
-        char *indent_prefix = NULL;
+
         if (Editor.indent)
         {
             indent_prefix = get_indent_prefix(row->chars, filecol + 1);
@@ -645,14 +714,20 @@ void editor_insert_newline(void)
                 row->size = filecol;
                 editor_update_row(row);
         }
+
 fixcursor:
         if(Editor.cursor_y == Editor.screen_rows-1)
                 Editor.row_offset++;
         else
                 Editor.cursor_y++;
-        Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
-        Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
-        free(indent_prefix);
+
+        if(indent_prefix) {
+
+            Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
+            Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
+            free(indent_prefix);
+
+        }
 }
 
 
@@ -698,7 +773,7 @@ void editor_delete_char()
 
 void parse_argument(char *arg)
 {
-    int ptr = 0;
+    int ptr = 1;
     while (arg[ptr] != '\0')
     {
         switch (arg[ptr])
@@ -710,13 +785,13 @@ void parse_argument(char *arg)
                 Editor.indent = 1;
                 break;
             default:
-                // TODO: warning of unrecognised argument
-                break;
+                fprintf(stderr, "bric: invalid option -- '%c'\n", arg[ptr]);
+                exit(1);
         }
         ptr++;
     }
 }
-// load the specified progam in the editor memory
+// load the specified program in the editor memory
 int editor_open(char *filename)
 {
         FILE *fp;
@@ -730,6 +805,10 @@ int editor_open(char *filename)
                         perror("Opening file");
                         exit(1);
                 }
+		/*Add a row if file is new*/
+		editor_insert_row(Editor.num_of_rows, "", 0);
+		Editor.dirty = 0;
+		Editor.newfile = 1;
                 return 1;
         }
 
@@ -764,6 +843,7 @@ int editor_save(void)
         close(fd);
         free(buf);
         Editor.dirty = 0;
+        Editor.newfile = 0;
         editor_set_status_message("%d bytes written on disk", len);
         return 0;
 
@@ -906,13 +986,17 @@ void editor_refresh_screen(void)
                 ab_append(&ab, "\x1b[49m", 5);
                 ab_append(&ab, "\x1b[39m", 5);
 
-                if (Editor.line_numbers)
+                if (Editor.line_numbers && filerow < Editor.num_of_rows)
                 {
-                    sprintf(buf, LINE_NUMBER_FORMAT, filerow + 1);
-                    ab_append(&ab, buf, strlen(buf));
+			/*if(filerow) {
+				line_number_length = 3 + (int)log10((double)filerow);
+			}*/
+                    	sprintf(buf, line_number_format[line_number_length - 3], filerow + 1);
+                    	ab_append(&ab, buf, strlen(buf));
+			ab_append(&ab, ": ", 2);
                 }
                 if(filerow >= Editor.num_of_rows) {
-                        if(Editor.num_of_rows == 0 && y == Editor.screen_rows/3) {
+                        if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && Editor.mode != INSERT_MODE && !Editor.dirty && Editor.newfile) {
                                 char welcome[80];
                                 int welcomelen = snprintf(welcome, sizeof(welcome), "Bric editor -- version %s\x1b[0K\r\n", BRIC_VERSION);
                                 int padding = (Editor.screen_columns-welcomelen)/2;
@@ -1028,7 +1112,7 @@ void editor_refresh_screen(void)
         // put cursor at its current position
         int j;
         int cursor_x = 1;
-        if (Editor.line_numbers) cursor_x += LINE_NUMBER_LENGTH;
+        if (Editor.line_numbers) cursor_x += line_number_length;
         int filerow = Editor.row_offset+Editor.cursor_y;
         editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
         if(r) {
@@ -1231,6 +1315,8 @@ void editor_find_replace(int fd)
 			{
 				editor_insert_char(replace_word[j]);
 			}
+                       editor_refresh_screen();
+                       return;
 		}
 		else if (isprint(c)) {
 			if (qlen < BRIC_QUERY_LENGTH) {
@@ -1329,6 +1415,10 @@ void editor_move_cursor(int key)
                                         Editor.cursor_x += 1;
                                 }
                         } else if ( row && filecol == row->size) {
+				/*Do not go beyond last row*/
+				if(filerow == Editor.num_of_rows - 1) /*'filerow' indexing starts at 0*/ {
+					break;
+				}
                                 Editor.cursor_x = 0;
                                 Editor.column_offset = 0;
                                 if(Editor.cursor_y == Editor.screen_rows-1) {
@@ -1348,12 +1438,44 @@ void editor_move_cursor(int key)
                         break;
                 case 'j':
                 case ARROW_DOWN:
-                        if(filerow < Editor.num_of_rows) {
+                        if(filerow < Editor.num_of_rows - 1)/*Do not go beyond last row. 'filerow' indexing starts at 0*/ {
                                 if(Editor.cursor_y == Editor.screen_rows-1) {
                                         Editor.row_offset++;
                                 } else {
                                         Editor.cursor_y += 1;
                                 }
+                        }
+                        break;
+                case HOME_KEY:
+                        Editor.cursor_x=0;
+                        Editor.column_offset=0;
+                        break;
+                case END_KEY:
+                        if(row->size>Editor.screen_columns-1)
+                        {
+                                Editor.cursor_x=Editor.screen_columns-1;
+                                Editor.column_offset=row->size-(Editor.screen_columns+1)+1;
+                        } else {
+                                Editor.cursor_x=row->size-1;
+                        }
+                        break;
+                case PAGE_UP:
+                        if(Editor.cursor_y != 0) Editor.cursor_y = 0;
+
+                        {
+                        int times = Editor.screen_rows-2; // keep last two rows from previous view (like in vim)
+                        while(times--)
+                                editor_move_cursor(ARROW_UP);
+                        }
+                        break;
+
+                case PAGE_DOWN:
+                        if (Editor.cursor_y != Editor.screen_rows-1) Editor.cursor_y = Editor.screen_rows-1;
+
+                        {
+                        int times = Editor.screen_rows-2; // keep last two rows from previous view (like in vim)
+                        while(times--)
+                                editor_move_cursor(ARROW_DOWN);
                         }
                         break;
         }
@@ -1375,60 +1497,43 @@ void editor_move_cursor(int key)
 
 
 // GOTO
-void editor_goto(int fd)
+void editor_goto(int linenumber)
 {
-	char query[BRIC_QUERY_LENGTH+1] = {0};
-	int qlen = 0;
-	int line_number;
+	int line_number = linenumber;
 	int current_line;
 
 	while(1) {
 		current_line = Editor.row_offset + Editor.cursor_y + 1;
-		editor_set_status_message("Goto line: %s (ESC/ENTER)", query);
 		editor_refresh_screen();
 
-		int c = editor_read_key(fd);
-		if(c == DEL_KEY || c == BACKSPACE) {
-			if(qlen != 0) query[--qlen] = '\0';
-		}else if(c == ENTER || c == ESC) {
-			if(c == ESC) {
-				editor_set_status_message("");
-				return;
-			}
-			if(line_number <= Editor.num_of_rows && line_number > 0) {
-				if (current_line > line_number) {
-					int diff = current_line - line_number;
+		if(line_number <= Editor.num_of_rows && line_number > 0) {
+			if (current_line > line_number) {
+				int diff = current_line - line_number;
 
-          				while(diff > 0) {
-						editor_move_cursor(ARROW_UP);
-						diff--;
-					}
-					editor_set_status_message("");
-				} else if(line_number > current_line) {
-					int diff = line_number - current_line;
-
-					while(diff > 0) {
-						editor_move_cursor(ARROW_DOWN);
-						diff--;
-					}
-					editor_set_status_message("");
+      				while(diff > 0) {
+					editor_move_cursor(ARROW_UP);
+					diff--;
 				}
-				editor_refresh_screen();
-				return;
-			} else {
-				editor_set_status_message("Out of bounds");
-				editor_refresh_screen();
-				return;
+				editor_set_status_message("");
+			} else if(line_number > current_line) {
+				int diff = line_number - current_line;
+
+				while(diff > 0) {
+					editor_move_cursor(ARROW_DOWN);
+					diff--;
+				}
+				editor_set_status_message("");
 			}
-		} else if(isprint(c)) {
-			if(qlen < BRIC_QUERY_LENGTH) {
-				query[qlen++] = c;
-				query[qlen] = '\0';
-				sscanf(query, "%d", &line_number);
-			}
+			editor_refresh_screen();
+			return;
+		} else {
+			editor_set_status_message("Out of bounds");
+			editor_refresh_screen();
+			return;
 		}
 	}
 }
+
 
 void editor_harsh_quit()
 {
@@ -1467,7 +1572,10 @@ void editor_check_quit(int fd)
 
 void editor_parse_command(int fd, char *query)
 {
-        if (strcmp(query, "q!") == 0) {
+        if (numbers_only(query)) {
+                editor_goto(atoi(query));
+                return;
+        } else if (strcmp(query, "q!") == 0) {
                 editor_harsh_quit();
                 return;
         } else if(strcmp(query, "w") == 0) {
@@ -1484,6 +1592,24 @@ void editor_parse_command(int fd, char *query)
                         editor_harsh_quit();
                 }
                 return;
+        } else if (strcmp(query, "f") == 0) {
+            editor_find(fd);
+            return;
+        } else if (strcmp(query, "fr") == 0) {
+            editor_find_replace(fd);
+            return;
+        } else if (strcmp(query, "sm") == 0) {
+            Editor.mode = SELECTION_MODE;
+            Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
+            Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
+            editor_set_status_message(selection_mode_message);
+            return;
+        } else if (strcmp(query, "sp") == 0) {
+            Editor.indent = 0;
+            return;
+        } else if (strcmp(query, "up") == 0) {
+            Editor.indent = 1;
+            return;
         }
 }
 
@@ -1519,18 +1645,17 @@ void enter_command(int fd)
 void editor_process_key_press(int fd)
 {
         static int quit_times = BRIC_QUIT_TIMES;
-
         int c = editor_read_key(fd);
+        int filerow = Editor.row_offset+Editor.cursor_y;
         switch(Editor.mode) {
-        case EDIT_MODE:
+        case INSERT_MODE:
                 switch(c) {
                         case ENTER:
                                 editor_insert_newline();
                                 break;
-        		case CTRL_G:
-        			editor_goto(fd);
-        			break;
-                      case CTRL_Q:
+                        case CTRL_G:
+             			break;
+                        case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
                                         editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit.", quit_times);
@@ -1543,17 +1668,17 @@ void editor_process_key_press(int fd)
                                 editor_save();
                                 break;
                         case CTRL_Y:
-                            editor_yank_row();
-                            break;
+                                editor_yank_row();
+                                break;
                         case CTRL_P:
-                          editor_paste_row();
-                            break;
+                                editor_paste_row();
+                                break;
                         case CTRL_F:
                                 editor_find(fd);
                                 break;
-        				case CTRL_R:
-        						editor_find_replace(fd);
-        						break;
+                        case CTRL_R:
+        			 editor_find_replace(fd);
+        			 break;
                         case BACKSPACE:
                                 editor_delete_char();
                                 break;
@@ -1563,16 +1688,10 @@ void editor_process_key_press(int fd)
                                 editor_delete_char();
                                 break;
                         case PAGE_UP:
+                                editor_move_cursor(PAGE_UP);
+                                break;
                         case PAGE_DOWN:
-                                if(c == PAGE_UP && Editor.cursor_y != 0)
-                                        Editor.cursor_y = 0;
-                                else if (c == PAGE_DOWN && Editor.cursor_y != Editor.screen_rows-1)
-                                        Editor.cursor_y = Editor.screen_rows-1;
-                                {
-                                        int times = Editor.screen_rows;
-                                        while(times--)
-        									editor_move_cursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
-                                }
+                                editor_move_cursor(PAGE_DOWN);
                                 break;
                         case ARROW_UP:
                         case ARROW_DOWN:
@@ -1583,7 +1702,7 @@ void editor_process_key_press(int fd)
                         case CTRL_L: // means refresh screen
                                 break;
                         case CTRL_D:
-                                if (Editor.mode == EDIT_MODE)
+                                if (Editor.mode == INSERT_MODE)
                                 {
                                     Editor.mode = SELECTION_MODE;
                                     Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
@@ -1598,7 +1717,7 @@ void editor_process_key_press(int fd)
                                 }
                                 break;
                         case CTRL_V:
-                                if (Editor.mode == EDIT_MODE)
+                                if (Editor.mode == INSERT_MODE)
                                 {
                                     paste_from_clipboard();
                                 }
@@ -1606,14 +1725,14 @@ void editor_process_key_press(int fd)
                         case ESC:
                                 Editor.mode = NORMAL_MODE;
                                 editor_set_status_message("Normal mode.");
+                                editor_move_cursor(ARROW_LEFT);
                                 break;
-        		case END_KEY:
-                            {
-        					   int times = Editor.row->size - Editor.row->index;
-                               while (times--)
-                                    editor_move_cursor(ARROW_RIGHT);
-                            }
-                               break;
+                        case HOME_KEY:
+                                editor_move_cursor(HOME_KEY);
+                                break;
+                        case END_KEY:
+                        	editor_move_cursor(END_KEY);
+                        	break;
 
                         case TAB:
                             {
@@ -1639,6 +1758,18 @@ void editor_process_key_press(int fd)
                 break;
         case NORMAL_MODE:
                 switch (c) {
+                        case 'r':
+                            if (Editor.prev_char == 'c') editor_copy_row();
+                            if (Editor.prev_char == 'y') editor_yank_row();
+                            if (Editor.prev_char == 'p') editor_paste_row();
+                            if (Editor.prev_char == 'd') editor_delete_row(filerow);
+                            break;
+                        case 'p':
+                            if (Editor.prev_char == 'c') paste_from_clipboard();
+                            break;
+                        case 'c':
+                            if (Editor.prev_char == 'c') Editor.clipboard = "";
+                            break;
                         case 'h':
                         case 'j':
                         case 'k':
@@ -1653,13 +1784,89 @@ void editor_process_key_press(int fd)
                         case ':':
                                 enter_command(fd);
                                 break;
-                        case 'e':
-                                Editor.mode = EDIT_MODE;
+                        case 'i':
+                                Editor.mode = INSERT_MODE;
+                                editor_set_status_message("Insert mode.");
+                                break;
+                        case 'I':
+				editor_move_cursor(HOME_KEY);
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				break;
+                        case 'o':
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode.");
+				editor_insert_row(filerow + 1, "", 0);
+				editor_move_cursor(ARROW_DOWN);
+				break;
+                        case 'O':
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				editor_insert_row(filerow, "", 0);
+				break;
+                        case 'G':
+                    		editor_goto(Editor.num_of_rows);
+                    		break;
+                        case 'g':
+                    		editor_goto(1);
+                    		break;
+        case '$':
+				    editor_move_cursor(END_KEY);
+				    break;
+			  case '0':
+				    editor_move_cursor(HOME_KEY);
+				    break;
+                    
+			  case 'a':
+				editor_move_cursor(ARROW_RIGHT);
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				break;
+                        case 'A':
+				Editor.mode = INSERT_MODE;
+				editor_set_status_message("Insert mode. ");
+				editor_move_cursor(END_KEY);
+				editor_move_cursor(ARROW_RIGHT);
+				break;
+                        case HOME_KEY:
+                                editor_move_cursor(HOME_KEY);
+                                break;
+                        case END_KEY:
+                                editor_move_cursor(END_KEY);
+                                break;
+                        case PAGE_UP:
+                                editor_move_cursor(PAGE_UP);
+                                break;
+                        case PAGE_DOWN:
+                                editor_move_cursor(PAGE_DOWN);
                                 break;
 
                 }
                 break;
+            case SELECTION_MODE:
+                switch(c) {
+                    case 'h':
+                    case 'j':
+                    case 'k':
+                    case 'l':
+                    case ARROW_UP:
+                    case ARROW_DOWN:
+                    case ARROW_RIGHT:
+                    case ARROW_LEFT:
+                        editor_move_cursor(c);
+                        break;
+
+                    case ESC:
+                        Editor.mode = NORMAL_MODE;
+                        break;
+                    
+                    case CTRL_C:
+                        copy_to_clipboard();
+                        break;
+                }
         }
+        
+        Editor.prev_char = c;
         quit_times = BRIC_QUIT_TIMES;
 }
 
@@ -1680,8 +1887,10 @@ void init_editor(void)
         Editor.num_of_rows = 0;
         Editor.row = NULL;
         Editor.dirty = 0;
+        Editor.newfile = 0;
         Editor.filename = NULL;
         Editor.syntax = NULL;
+	Editor.tab_length = TAB_LENGTH;
         Editor.colours.hl_comment_colour = 33;
         Editor.colours.hl_mlcomment_colour = 33;
         Editor.colours.hl_keyword_cond_colour = 36;
@@ -1702,8 +1911,9 @@ void init_editor(void)
         }
         if (Editor.line_numbers)
         {
-            Editor.screen_columns -= LINE_NUMBER_LENGTH;
+            Editor.screen_columns -= line_number_length;
         }
+        Editor.prev_char = ' ';
         Editor.screen_rows -= 2; // get room for status bar
 }
 
@@ -1820,6 +2030,7 @@ void close_editor(void)
 
 int main(int argc, char **argv)
 {
+	signal(SIGWINCH, sigwinch_handler);
         int file_arg = -1;
         for (int i = 1; i < argc; i++)
         {

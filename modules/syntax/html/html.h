@@ -35,7 +35,17 @@ char *HTML_keywords[] = {
   "</select>", "</small>", "</span>", "</strike>", "</strong>", "</style>",
   "</sub>", "</sup>", "</table>", "</td>", "</th>", "</tr>", "</tbody>",
   "</textarea>", "</tfoot>", "</thead>", "</title>", "</tt>", "</u>",
-  "</ul>", "</var>"
+  "</ul>", "</var>",
+  //start tokens (HTML5 only):
+  "<article>", "<aside>", "<bdi>", "<details>", "<dialog>", "<figcaption>",
+  "<figure>", "<footer>", "<header>", "<main>", "<mark>", "<menuitem>",
+  "<meter>", "<nav>", "<progress>", "<rp>", "<rt>", "<ruby>", "<section>",
+  "<summary>", "<time>", "<wbr>",
+  //end tokens (HTML5 only):
+  "</article>", "</aside>", "</bdi>", "</details>", "</dialog>",
+  "</figcaption>", "</figure>", "</footer>", "</header>", "</main>", "</mark>",
+  "</menuitem>", "</meter>", "</nav>", "</progress>", "</rp>", "</rt>",
+  "</ruby>", "</section>", "</summary>", "</time>", "</wbr>"
 };
 
 #define HTML_syntax { \

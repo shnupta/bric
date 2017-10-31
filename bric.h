@@ -18,10 +18,12 @@
 #include <time.h>
 #include <pwd.h>
 #include <assert.h>
+#include <math.h>
+#include <signal.h>
 
 #include "modules/syntax/syntax.h"
 
-#define EDIT_MODE 0
+#define INSERT_MODE 0
 #define SELECTION_MODE 1
 #define NORMAL_MODE 2
 
@@ -67,18 +69,20 @@ struct editor_config {
         int dirty;                      // if the file is modified but not saved
         int yank_buffer_len;            // length of yank buffer
         char *yank_buffer;              // buffer to hold yanked/copied text
+        int newfile;			// is currently opened a new file?
         char *filename;                 // currently open filename
         char status_message[256];
         time_t status_message_time;
-        struct editor_syntax *syntax;   // current syntaxt highlighting
+        struct editor_syntax *syntax;   // current syntax highlighting
         int line_numbers;               // show line numbers
         int indent;                     // tabs and spaces indentation
-        int tab_length;             //number of spaces when tab pressed
+        int tab_length;             	//number of spaces when tab pressed
         colour_map colours;             // highlight colours
         int mode;                       // selection or normal mode
         int selected_base_x;
         int selected_base_y;
         char *clipboard;
+        char prev_char;
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -178,6 +182,8 @@ int editor_open(char *filename); // load the specified program in the editor mem
 
 int editor_save(void); //save the current file on the disk
 
+int editor_copy_row();
+
 void editor_yank_row();
 
 void editor_paste_row();
@@ -213,7 +219,7 @@ void editor_set_status_message(const char *fmt, ...);
 
 void editor_find(int fd);
 
-void editor_goto(int fd);
+void editor_goto(int linenumber);
 
 // Editor events handling
 
@@ -221,9 +227,9 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 
 #define BRIC_QUIT_TIMES 3
 
-#define LINE_NUMBER_LENGTH 7
+//#define LINE_NUMBER_LENGTH 7
 
-#define LINE_NUMBER_FORMAT "%5d: "
+//#define LINE_NUMBER_FORMAT "%5d: "
 
 #define TAB_LENGTH 4 // TODO: make it changable
 
