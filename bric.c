@@ -5,7 +5,7 @@ static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
 const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
-void sigwinch_handler(int arg)
+void sigwinch_handler()
 {
 	int old_columns = Editor.screen_columns;
 	if (get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
