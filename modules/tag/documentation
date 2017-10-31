@@ -1,0 +1,28 @@
+TAGS FUNCTIONALITY USAGE DOCUMENTATION v0.0.1
+
+Ctags is a UNIX tool, that along with a text editor which can use it, makes it easy to navigate large source code projects.
+It provides features such as the ability to jump from the current source file to definitions of functions and structures in other files.  
+Ctags also supports many languages besides C.
+
+Ctags is first run on its own to generate a "tags" file, then it is invoked from within the editor.
+
+First of all cd into your project source code directory.
+
+Run the command :  
+	ctags -R *
+
+This should generate the "tags" file.
+
+Open the source code file and place cursor over the function, structure, structure member, class member or macro whose definition you want to navigate to.
+
+CTRL_M : Navigates you to the definition of the identifier under the cursor.
+
+CTRL_N : Brings you back.
+
+You can use CTRL_M multiple times, in nested way, for functions using other functions and then use CTRL_N equal number of times, to come back.
+
+This functionality heavily relies on the "tags" file which in turn depends on the UNIX tool "ctags".
+Reading manual page of ctags (run 'man ctags') will help user understanding this in more depth. 
+
+-Original writer - Yash Jakhotiya <mailsforyashj@gmail.com>
+-Date : 31st October 2017
