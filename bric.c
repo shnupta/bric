@@ -5,7 +5,7 @@ static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
 const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
-void sigwinch_handler(int arg)
+void sigwinch_handler()
 {
 	int old_columns = Editor.screen_columns;
 	if (get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
@@ -15,15 +15,15 @@ void sigwinch_handler(int arg)
 
         if (Editor.line_numbers)
         {
-            Editor.screen_columns -= line_number_length;
+		Editor.screen_columns -= line_number_length;
         }
         Editor.prev_char = ' ';
         Editor.screen_rows -= 2; // get room for status bar
 
 	if (Editor.cursor_y >= Editor.screen_rows)
 	{
-			Editor.row_offset += Editor.cursor_y - Editor.screen_rows+1;
-			Editor.cursor_y = Editor.screen_rows-1;
+		Editor.row_offset += Editor.cursor_y - Editor.screen_rows+1;
+		Editor.cursor_y = Editor.screen_rows-1;
 	}
 
 	if (Editor.cursor_x >= Editor.screen_columns)
@@ -269,7 +269,7 @@ void editor_update_syntax(editing_row *row)
         in_comment = 0; // is the char in an open multiline comment
 
         //if the previous line has open open comment then this line start with an open comment state
-        if(row->index > 0 && editing_row_has_open_comment(&Editor.row[row->index-1])) in_comment = 1;
+        if(row->index > 0 && editing_row_has_open_comment(row->prev)) in_comment = 1;
 
         while (*p) {
                  //handle single line comments
@@ -379,7 +379,7 @@ void editor_update_syntax(editing_row *row)
 
         // propagate a syntax change to the next row if the open comment state is changed
         int oc = editing_row_has_open_comment(row);
-        if(row->hl_open_comment != oc && row->index+1 < Editor.num_of_rows) editor_update_syntax(&Editor.row[row->index+1]);
+        if(row->hl_open_comment != oc && row->index+1 < Editor.num_of_rows) editor_update_syntax(row->next);
         row->hl_open_comment = oc;
 }
 
@@ -456,31 +456,96 @@ void editor_update_row(editing_row *row)
         editor_update_syntax(row);
 }
 
+editing_row *find_row(int at)
+{
+	editing_row *ret;
+	if (Editor.current != NULL)
+		ret = Editor.current;
+	else
+		ret = Editor.row_head;
+    while (ret != NULL && ret->index != at)
+    {
+        if (ret->index > at)
+		ret = ret->prev;
+        else if (ret->index < at)
+		ret = ret->next;
+    }
+    if (ret != NULL)
+	    Editor.current = ret;
+    return ret;
+}
 
 // insert row
 void editor_insert_row(int at, char *s, size_t length)
 {
         if(at > Editor.num_of_rows) return;
-        Editor.row = realloc(Editor.row, sizeof(editing_row)*(Editor.num_of_rows+1));
-        if(at != Editor.num_of_rows) {
-                memmove(Editor.row + at + 1, Editor.row + at, sizeof(Editor.row[0])*(Editor.num_of_rows-at));
-                for(int j = at+1; j <= Editor.num_of_rows; j++) Editor.row[j].index++;
-        }
+         //Editor.row = realloc(Editor.row, sizeof(editing_row)*(Editor.num_of_rows+1));
 
-        Editor.row[at].size = length;
-        Editor.row[at].chars = malloc(length+1);
-        memcpy(Editor.row[at].chars, s, length+1);
-        Editor.row[at].hl = NULL;
-        Editor.row[at].hl_open_comment = 0;
-        Editor.row[at].rendered_chars = NULL;
-        Editor.row[at].rendered_size = 0;
-        Editor.row[at].index = at;
-        editor_update_row(Editor.row+at);
-        Editor.num_of_rows++;
+        editing_row *new = (editing_row*)malloc(sizeof(editing_row));
+
+	/*memmove(Editor.row + at + 1, Editor.row + at, sizeof(Editor.row[0])*(Editor.num_of_rows-at));
+	  for(int j = at+1; j <= Editor.num_of_rows; j++) Editor.row[j].index++;*/
+	if (Editor.num_of_rows == 0)
+	{
+		Editor.row_head = new;
+		Editor.row_tail = NULL;
+		Editor.row_head->prev = Editor.row_head->next = NULL;
+	}
+	else if (at == Editor.num_of_rows)
+	{
+		if (Editor.row_tail == NULL)
+		{
+			Editor.row_tail = new;
+			new->prev = Editor.row_head;
+			new->next = NULL;
+			Editor.row_head->next = new;
+		}
+		else
+		{
+			Editor.row_tail->next = new;
+			new->prev = Editor.row_tail;
+			Editor.row_tail = Editor.row_tail->next;
+			new->next = NULL;
+		}
+	}
+	else
+	{
+		if (at == 0)
+		{
+			Editor.row_head->prev = new;
+			new->next = Editor.row_head;
+			Editor.row_head = Editor.row_head->prev;
+		}
+		else
+		{
+			editing_row *row = find_row(at);
+			new->next = row;
+			new->prev = row->prev;
+			if (new->prev)
+				new->prev->next = new;
+			row->prev = new;	
+		}
+		for (editing_row *i = new->next; i != NULL; i = i->next)
+		{
+			++i->index;
+		}
+	}
+
+        new->size = length;
+        new->chars = malloc(length+1);
+        memcpy(new->chars, s, length+1);
+        new->hl = NULL;
+        new->hl_open_comment = 0;
+        new->rendered_chars = NULL;
+        new->rendered_size = 0;
+        new->index = at;
+        editor_update_row(new/*Editor.row+at*/);
+        ++Editor.num_of_rows;
 	if(Editor.num_of_rows)
 		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
 //	printf("%d", line_number_length);
         Editor.dirty++;
+        Editor.current = new;
 }
 
 
@@ -500,18 +565,39 @@ void editor_delete_row(int at)
         editing_row *row;
 
         if(at >= Editor.num_of_rows) return;
-        row = Editor.row+at;
+        //row = Editor.row+at;
+        row = find_row(at);
+
+        //memmove(Editor.row+at, Editor.row+at+1, sizeof(Editor.row[0])*(Editor.num_of_rows-at-1));
+        if (Editor.row_head == row)
+        {
+                Editor.row_head = row->next;
+        }
+        if (Editor.row_tail == row)
+        {
+                Editor.row_tail = row->prev;
+        }
+        if (row->prev)
+                row->prev->next = row->next;
+        if (row->next)
+                row->next->prev = row->prev;
+
+        for (editing_row *i = row->next; i != NULL; i = i->next)
+        {
+                --i->index;
+        }
+
         editor_free_row(row);
-        memmove(Editor.row+at, Editor.row+at+1, sizeof(Editor.row[0])*(Editor.num_of_rows-at-1));
-        for(int j = at; j < Editor.num_of_rows-1; j++) Editor.row[j].index++;
-        Editor.num_of_rows--;
+        //for(int j = at; j < Editor.num_of_rows-1; j++) Editor.row[j].index++;
+
+        --Editor.num_of_rows;
 	if(Editor.num_of_rows) {
 		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
 	}
 	else {
 		line_number_length = 3;
 	}
-        Editor.dirty++;
+        ++Editor.dirty;
 }
 
 
@@ -520,18 +606,18 @@ char *editor_rows_to_string(int *buflen)
 {
         char *buf = NULL, *p;
         int totlen = 0;
-        int j;
+        editing_row *j;
 
         // compute count of bytes
-        for(j = 0; j < Editor.num_of_rows; j++)
-                totlen += Editor.row[j].size+1; // +1 is for \n at end of every row
+        for(j = Editor.row_head; j != NULL; j = j->next)
+                totlen += j->size+1; // +1 is for \n at end of every row
         *buflen = totlen;
         totlen++; // make space for null terminator
 
         p = buf = malloc(totlen);
-        for(j = 0; j < Editor.num_of_rows; j++) {
-                memcpy(p, Editor.row[j].chars, Editor.row[j].size);
-                p += Editor.row[j].size;
+        for(j = Editor.row_head; j != NULL; j = j->next) {
+                memcpy(p, j->chars, j->size);
+                p += j->size;
                 *p = '\n';
                 p++;
         }
@@ -591,15 +677,15 @@ void editor_insert_char(int c)
 {
         int filerow = Editor.row_offset+Editor.cursor_y;
         int filecol = Editor.column_offset+Editor.cursor_x;
-        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
 
-        // if the row where rthe cursor is currently located does not exist, add enough empty rows as needed
+        // if the row where the cursor is currently located does not exist, add enough empty rows as needed
         if(!row) {
                 while(Editor.num_of_rows <= filerow)
                         editor_insert_row(Editor.num_of_rows, "", 0);
+                row = find_row(filerow);
         }
 
-        row = &Editor.row[filerow];
         editor_row_insert_char(row, filecol, c);
         if(Editor.cursor_x == Editor.screen_columns-1)
                 Editor.column_offset++;
@@ -639,7 +725,7 @@ char *set_indent_prefix(char *text, char *prefix)
 int editor_copy_row() {
     int filerow = Editor.row_offset+Editor.cursor_y;
 
-    editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+    editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
 
     if (row) {
         Editor.yank_buffer_len = row->size+1;
@@ -681,7 +767,7 @@ void editor_insert_newline(void)
 {
         int filerow = Editor.row_offset+Editor.cursor_y;
         int filecol = Editor.column_offset+Editor.cursor_x;
-        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
         char *indent_prefix = NULL;
 
         if (!row) {
@@ -709,7 +795,7 @@ void editor_insert_newline(void)
                 char *new_row = set_indent_prefix(row->chars+filecol, indent_prefix);
                 editor_insert_row(filerow+1, new_row, strlen(new_row));
                 free(new_row);
-                row = &Editor.row[filerow];
+                row = find_row(filerow);
                 row->chars[filecol] = '\0';
                 row->size = filecol;
                 editor_update_row(row);
@@ -726,7 +812,6 @@ fixcursor:
             Editor.cursor_x = strlen(indent_prefix) % Editor.screen_columns;
             Editor.column_offset = strlen(indent_prefix) / Editor.screen_columns;
             free(indent_prefix);
-
         }
 }
 
@@ -737,14 +822,14 @@ void editor_delete_char()
 {
         int filerow = Editor.row_offset+Editor.cursor_y;
         int filecol = Editor.column_offset+Editor.cursor_x;
-        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
 
         if(!row || (filecol == 0 && filerow == 0)) return;
         if(filecol == 0) {
                 /* Handle the case of column 0, we need to move the current line
                  *          * on the right of the previous one. */
-                filecol = Editor.row[filerow-1].size;
-                editor_row_append_string(&Editor.row[filerow-1], row->chars, row->size);
+                filecol = row->prev->size;
+                editor_row_append_string(row->prev, row->chars, row->size);
                 editor_delete_row(filerow);
                 row = NULL;
                 if(Editor.cursor_y == 0)
@@ -890,24 +975,27 @@ void copy_to_clipboard(void)
         ry = t;
     }
     int clipboard_length = 1;
+    editing_row *row = find_row(ly);
     for (int i = ly; i <= ry; i++)
     {
-        int left_border = 0, right_border = Editor.row[i].size - 1;
+        int left_border = 0, right_border = row->size - 1;
         if (i == ly) left_border = lx;
         if (i == ry && rx < right_border) right_border = rx;
         clipboard_length += right_border - left_border + 1;
         if (i != ry) clipboard_length++;
+        row = row->next;
     }
     Editor.clipboard = (char*)malloc(clipboard_length * sizeof(char));
     int ptr = 0;
+    row = find_row(ly);
     for (int i = ly; i <= ry; i++)
     {
-        int left_border = 0, right_border = Editor.row[i].size - 1;
+        int left_border = 0, right_border = row->size - 1;
         if (i == ly) left_border = lx;
         if (i == ry && rx < right_border) right_border = rx;
         for (int j = left_border; j <= right_border; j++)
         {
-            Editor.clipboard[ptr] = Editor.row[i].chars[j];
+            Editor.clipboard[ptr] = row->chars[j];
             ptr++;
         }
         if (i != ry)
@@ -1010,7 +1098,7 @@ void editor_refresh_screen(void)
 
                         continue;
                 }
-                row = &Editor.row[filerow];
+                row = find_row(filerow);
                 int len = row->rendered_size - Editor.column_offset;
                 int current_colour = -1, background_colour = -1;
                 if(len > 0) {
@@ -1111,7 +1199,7 @@ void editor_refresh_screen(void)
         int cursor_x = 1;
         if (Editor.line_numbers) cursor_x += line_number_length;
         int filerow = Editor.row_offset+Editor.cursor_y;
-        editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        editing_row *r = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
         if(r) {
                 int was_tab = 0;
                 for(j = Editor.column_offset; j < (Editor.cursor_x+Editor.column_offset); j++) {
@@ -1158,7 +1246,7 @@ void editor_find(int fd)
 
 #define FIND_RESTORE_HL do { \
         if(saved_hl) { \
-                memcpy(Editor.row[saved_hl_line].hl, saved_hl, Editor.row[saved_hl_line].rendered_size); \
+                memcpy(find_row(saved_hl_line)->hl, saved_hl, find_row(saved_hl_line)->rendered_size); \
                 saved_hl = NULL; \
         } \
 } while (0)
@@ -1202,13 +1290,27 @@ void editor_find(int fd)
                         int match_offset = 0;
                         int i, current = last_match;
 
+                        editing_row *tmp = Editor.row_head;
                         for (i = 0; i < Editor.num_of_rows; i++) {
                                 current += find_next;
-                                if(current == -1) current = Editor.num_of_rows-1;
-                                else if (current == Editor.num_of_rows) current = 0;
-                                match = strstr(Editor.row[current].rendered_chars, query);
+                                for (int j = 0; j < find_next; ++j)
+                                {
+                                        if ((tmp = tmp->next) == NULL)
+                                                assert(0);
+                                }
+                                if(current == -1)
+                                {
+                                        current = Editor.num_of_rows-1;
+                                        tmp = Editor.row_tail;
+                                }
+                                else if (current == Editor.num_of_rows)
+                                {
+                                        current = 0;
+                                        tmp = Editor.row_head;
+                                }
+                                match = strstr(tmp->rendered_chars, query);
                                 if(match) {
-                                        match_offset = match-Editor.row[current].rendered_chars;
+                                        match_offset = match-tmp->rendered_chars;
                                         break;
                                 }
                         }
@@ -1219,7 +1321,7 @@ void editor_find(int fd)
                         FIND_RESTORE_HL;
 
                         if(match) {
-                                editing_row *row = &Editor.row[current];
+                                editing_row *row = find_row(current);
                                 last_match = current;
                                 if(row->hl) {
                                         saved_hl_line = current;
@@ -1260,7 +1362,7 @@ void editor_find_replace(int fd)
 
 #define FIND_RESTORE_HL do { \
         if(saved_hl) { \
-                memcpy(Editor.row[saved_hl_line].hl, saved_hl, Editor.row[saved_hl_line].rendered_size); \
+                memcpy(find_row(saved_hl_line)->hl, saved_hl, find_row(saved_hl_line)->rendered_size); \
                 saved_hl = NULL; \
         } \
 } while (0)
@@ -1330,13 +1432,25 @@ void editor_find_replace(int fd)
 			int match_offset = 0;
 			int i, current = last_match;
 
+                       editing_row *tmp = Editor.row_head;
 			for (i = 0; i < Editor.num_of_rows; i++) {
 				current += find_next;
-				if (current == -1) current = Editor.num_of_rows - 1;
-				else if (current == Editor.num_of_rows) current = 0;
-				match = strstr(Editor.row[current].rendered_chars, query);
+	                         for(int j = 0; j < find_next; ++j)
+	                         {
+	                                 tmp = tmp->next;
+	                         }
+				if (current == -1){
+				        current = Editor.num_of_rows - 1;
+				        tmp = Editor.row_tail;        
+				 }
+				else if (current == Editor.num_of_rows){
+				        current = 0;
+				        tmp = Editor.row_head;
+				}
+				
+				match = strstr(tmp->rendered_chars, query);
 				if (match) {
-					match_offset = match - Editor.row[current].rendered_chars;
+					match_offset = match - tmp->rendered_chars;
 					break;
 				}
 			}
@@ -1347,7 +1461,7 @@ void editor_find_replace(int fd)
 			FIND_RESTORE_HL;
 
 			if (match) {
-				editing_row *row = &Editor.row[current];
+				editing_row *row = find_row(current);
 				last_match = current;
 				if (row->hl) {
 					saved_hl_line = current;
@@ -1381,7 +1495,7 @@ void editor_move_cursor(int key)
         int filerow = Editor.row_offset + Editor.cursor_y;
         int filecol = Editor.column_offset + Editor.cursor_x;
         int rowlen;
-        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        editing_row *row = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
 
         switch(key) {
                 case 'h':
@@ -1392,7 +1506,7 @@ void editor_move_cursor(int key)
                                 else {
                                         if(filerow > 0) {
                                                 Editor.cursor_y--;
-                                                Editor.cursor_x = Editor.row[filerow-1].size;
+                                                Editor.cursor_x = row->prev->size;
                                                 if(Editor.cursor_x > Editor.screen_columns-1) {
                                                         Editor.column_offset = Editor.cursor_x-Editor.screen_columns+1;
                                                         Editor.cursor_x = Editor.screen_columns-1;
@@ -1480,7 +1594,7 @@ void editor_move_cursor(int key)
         //fix cursor_x if the current line doesn't have enough chars
         filerow = Editor.row_offset+Editor.cursor_y;
         filecol = Editor.column_offset+Editor.cursor_x;
-        row = (filerow >= Editor.num_of_rows) ? NULL : &Editor.row[filerow];
+        row = (filerow >= Editor.num_of_rows) ? NULL : find_row(filerow);
         rowlen = row ? row->size : 0;
         if(filecol > rowlen) {
                 Editor.cursor_x -= filecol-rowlen;
@@ -2028,7 +2142,9 @@ void init_editor(void)
         Editor.row_offset = 0;
         Editor.column_offset = 0;
         Editor.num_of_rows = 0;
-        Editor.row = NULL;
+        Editor.row_head = NULL;
+	Editor.row_tail = NULL;
+	Editor.current = NULL;
         Editor.dirty = 0;
         Editor.newfile = 0;
         Editor.filename = NULL;
@@ -2161,13 +2277,22 @@ void load_config_file(void)
 void close_editor(void)
 {
     free(Editor.filename);
-    for (int i = 0; i < Editor.num_of_rows; i++)
+
+    //free(Editor.row);
+    editing_row *i = Editor.row_head;
+    editing_row *prev;
+    while (i != NULL)
     {
-        free(Editor.row[i].chars);
-        free(Editor.row[i].rendered_chars);
-        free(Editor.row[i].hl);
+            prev = i;
+            i = i->next;
+            if (prev)
+            {
+                    free(prev->chars);
+                    free(prev->rendered_chars);
+                    free(prev->hl);
+                    free(prev);
+            }
     }
-    free(Editor.row);
     free(Editor.clipboard);
 }
 

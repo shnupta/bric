@@ -39,6 +39,8 @@ typedef struct editing_row {
         char *rendered_chars;    // the content of the rendered row
         unsigned char *hl;      // syntax highlighting for each character in the rendered row
         int hl_open_comment;    // the row had an open comment
+	struct editing_row *prev;
+	struct editing_row *next;
 } editing_row;
 
 
@@ -66,7 +68,10 @@ struct editor_config {
         int screen_columns;             // number of columns that can be shown
         int num_of_rows;                // number of rows
         int rawmode;                    // is terminal raw mode enabled?
-        editing_row *row;               // the rows
+        //editing_row *row;               // the rows
+        editing_row *row_head;
+        editing_row *row_tail;
+        editing_row *current;
         int dirty;                      // if the file is modified but not saved
         int yank_buffer_len;            // length of yank buffer
         char *yank_buffer;              // buffer to hold yanked/copied text
@@ -159,6 +164,8 @@ void editor_select_syntax_highlight(char *filename); // select the correct highl
 
 // Editor Rows Implementation
 
+editing_row *find_row(int at);
+
 void editor_update_row(editing_row *row); //update the rendered version and the syntax highlighting of a row
 
 void editor_insert_row(int at, char *s, size_t length); // insert a row at the specified position, shifting the other rows to the bottom if needed
@@ -243,5 +250,6 @@ int editor_file_was_modified(void);
 void init_editor(void);
 
 void editor_start(char *filename);
+
 
 #endif
