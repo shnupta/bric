@@ -881,6 +881,9 @@ int editor_open(char *filename)
 {
         FILE *fp;
         Editor.dirty = 0;
+        free(Editor.filename);
+        Editor.filename = strdup(filename);
+
         fp = fopen(filename, "r");
         if(!fp) {
                 if(errno != ENOENT) {
@@ -1173,7 +1176,7 @@ void editor_refresh_screen(void)
         ab_append(&ab, "\x1b[0K", 4);
         ab_append(&ab, "\x1b[7m", 4);
         char status[80], rstatus[80];
-        int len = snprintf(status, sizeof(status), "%.50s =- %d lines %s", Editor.filename, Editor.num_of_rows, Editor.dirty ? "(modified)" : "");
+        int len = snprintf(status, sizeof(status), "%.20s =- %d lines %s", Editor.filename, Editor.num_of_rows, Editor.dirty ? "(modified)" : "");
         int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", Editor.row_offset+Editor.cursor_y+1, Editor.num_of_rows);
         if(len > Editor.screen_columns) len = Editor.screen_columns;
         ab_append(&ab, status, len);
@@ -1681,147 +1684,6 @@ void editor_check_quit(int fd)
         }
 }
 
-// TAG MOVEMENT FUNCTIONS
-
-// Function to differentiate identifier names with language syntax
-int char_check(char c) {
-	if(c == ' ' || c == '\n' || c == '\t' || c == '(' || c == ')' || c == '{' || c == '}')
-		return 0;
-	if(c == '&' || c == '|' || c == '+' || c == '-' || c == '*' || c == '\\' || c == '/' )
-		return 0;
-	if(c == '^' || c == '%' || c == '=' || c == '[' || c == ']' || c == ';' || c == '>' || c == '<')
-		return 0;
-	if(c == '?' || c == ':' || c == '\'' || c == '\"' || c == '.' || c == ',' || c == '!')
-		return 0;
-	return 1;
-}
-
-// Function to get the key word (identifier) on which the cursor is positioned
-char* get_key(void) {
-	int i = 0;
-	int filerow = Editor.row_offset + Editor.cursor_y;
-	int filecol = Editor.column_offset + Editor.cursor_x;
-	if(!char_check(Editor.row[filerow].chars[filecol]))
-		return "";
-	while(filecol != -1 && char_check(Editor.row[filerow].chars[filecol]))
-		filecol--;
-	filecol++;
-	char *key = (char*)malloc(128 * sizeof(char));
-	while(char_check(Editor.row[filerow].chars[filecol])) {
-		key[i] = Editor.row[filerow].chars[filecol];
-		i++; 
-		filecol++;
-	}
-	key[i] = '\0';
-	return key;
-}
-
-// Function to parse the tags file ex command and search for the required line in the file
-int tagsearch(char *tosearch) {
-	int dest_index = 0, source_index = 2, i = 0;
-	char *parsedsearch = (char*)malloc(strlen(tosearch) * sizeof(char));
-	while(tosearch[source_index] != '$') {
-		if(tosearch[source_index] == '\\') {
-			source_index++;
-			continue;
-		}
-		parsedsearch[dest_index] = tosearch[source_index];
-		source_index++;
-		dest_index++;
-	}
-	parsedsearch[dest_index] = '\0';
-	for(i = 0; i < Editor.num_of_rows; i++) {
-		if(strstr(Editor.row[i].chars, parsedsearch) != NULL)
-			return i + 1;
-	}
-	return 0;
-}
-
-// Main function to handle tag movements
-int handle_tag_movement(int where) {
-	int linenumber = 0, i = 0;
-	char *key = get_key();
-	char tag_line[256], *tagname, *filename, *tosearch, *orig_filename;
-	FILE *fp;
-	int cursor_pos = Editor.cursor_y, cursor_offset = Editor.row_offset;
-	tagdata tag_data;
-	orig_filename = strdup(Editor.filename);
-	if(where == MOVE_BACK) {
-		if(isempty(&tag_stack)) {
-			editor_set_status_message("at bottom of tag stack");
-			return 1;
-		}
-		tag_data = pop(&tag_stack);
-		linenumber = tag_data.linenumber;
-		filename = strdup(tag_data.filename);
-		if(strcmp(filename, Editor.filename)) {
-                        if(Editor.dirty) {
-                                editor_set_status_message("Unsaved changes. Can't proceed");
-                                return 0;
-                        }
-                        editor_start(filename);
-                }
-		editor_goto(linenumber);
-		/*Position the page so that the cursor remains in the same line*/
-                for(i = 0; i < cursor_pos && Editor.cursor_y < Editor.num_of_rows - 1; i++)
-			editor_move_cursor(ARROW_DOWN);
-                for(; i > 0; i--)
-			editor_move_cursor(ARROW_UP);
-                for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y > 0; i++)
-			editor_move_cursor(ARROW_UP);
-                for(; i > 0; i--)
-			editor_move_cursor(ARROW_DOWN);
-                return 1;		
-	}
-	if(key[0] == '\0') {
-		editor_set_status_message("No identifier under cursor");
-		return 0;
-	}
-	fp = fopen("tags", "r");
-	if(!fp) {
-		editor_set_status_message("tag not found: %s", key);
-		free(key);
-		return 0;
-	}
-	while(fgets(tag_line, 256, fp) != NULL) {
-		tagname = strtok(tag_line, "\t");
-		if(strcmp(tagname, key))
-			continue;
-		filename = strtok(NULL, "\t");
-		tosearch = strtok(NULL, "\t");
-		if(strcmp(filename, Editor.filename)) {
-			if(Editor.dirty) {
-				editor_set_status_message("Unsaved changes. Can't proceed");
-				return 0;				
-			}
-			editor_start(filename);
-		}
-		if(tosearch[0] == '/') {
-			linenumber = tagsearch(tosearch);
-		}
-		else {
-			sscanf(tosearch, "%d", &linenumber);
-		}
-		tag_data.linenumber = cursor_offset + cursor_pos + 1;
-		strcpy(tag_data.filename, orig_filename);
-		push(&tag_stack, tag_data);
-		editor_goto(linenumber);
-		/*Position the page so that the cursor remains in the same line*/
-                for(i = 0; i < cursor_pos && Editor.cursor_y < Editor.num_of_rows - 1; i++)
-			editor_move_cursor(ARROW_DOWN);
-                for(; i > 0; i--)
-			editor_move_cursor(ARROW_UP);
-                for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y > 0; i++)
-			editor_move_cursor(ARROW_UP);
-                for(; i > 0; i--)
-			editor_move_cursor(ARROW_DOWN);
-		return 1;
-	}
-	editor_set_status_message("tag not found: %s", key);
-	free(key);
-	return 0;
-}
-
 void editor_parse_command(int fd, char *query)
 {
         if (numbers_only(query)) {
@@ -1899,7 +1761,6 @@ void editor_process_key_press(int fd)
         static int quit_times = BRIC_QUIT_TIMES;
         int c = editor_read_key(fd);
         int filerow = Editor.row_offset+Editor.cursor_y;
-	int filecol = Editor.column_offset+Editor.cursor_x;
         switch(Editor.mode) {
         case INSERT_MODE:
                 switch(c) {
@@ -1978,8 +1839,7 @@ void editor_process_key_press(int fd)
                         case ESC:
                                 Editor.mode = NORMAL_MODE;
                                 editor_set_status_message("Normal mode.");
-				if(filecol != 0)
-                                	editor_move_cursor(ARROW_LEFT);
+                                editor_move_cursor(ARROW_LEFT);
                                 break;
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
@@ -2094,12 +1954,7 @@ void editor_process_key_press(int fd)
                         case PAGE_DOWN:
                                 editor_move_cursor(PAGE_DOWN);
                                 break;
-			case CTRL_M:
-				handle_tag_movement(MOVE_AHEAD);
-				break;
-			case CTRL_N:
-				handle_tag_movement(MOVE_BACK);
-				break;
+
                 }
                 break;
             case SELECTION_MODE:
@@ -2128,6 +1983,8 @@ void editor_process_key_press(int fd)
         Editor.prev_char = c;
         quit_times = BRIC_QUIT_TIMES;
 }
+
+
 
 int editor_file_was_modified(void)
 {
@@ -2296,23 +2153,10 @@ void close_editor(void)
     free(Editor.clipboard);
 }
 
-// Given a filename, start editor with that file opened
-void editor_start(char *filename) {
-	free(Editor.filename);
-        init_editor();
-        Editor.filename = strdup(filename);
-        load_config_file();
-        editor_select_syntax_highlight(filename);
-        editor_open(filename);
-        enable_raw_mode(STDIN_FILENO);
-        editor_set_status_message(help_message);
-}
-
 int main(int argc, char **argv)
 {
 	signal(SIGWINCH, sigwinch_handler);
         int file_arg = -1;
-	init(&tag_stack);
         for (int i = 1; i < argc; i++)
         {
             if (argv[i][0] != '-')
@@ -2324,6 +2168,8 @@ int main(int argc, char **argv)
                 fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
+        init_editor();
+        load_config_file();
         for (int i = 1; i < argc; i++)
         {
             if (argv[i][0] == '-')
@@ -2331,7 +2177,10 @@ int main(int argc, char **argv)
                 parse_argument(argv[i]);
             }
         }
-	editor_start(argv[file_arg]);
+        editor_select_syntax_highlight(argv[file_arg]);
+        editor_open(argv[file_arg]);
+        enable_raw_mode(STDIN_FILENO);
+        editor_set_status_message(help_message);
         while(1) {
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
