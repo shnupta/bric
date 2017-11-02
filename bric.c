@@ -2171,10 +2171,14 @@ void set_current_file(char *filename){
 
 char *get_locker_name(char *filename){
 
+				char *buf = NULL;
         char *df = dirname(filename);
         char *bf = basename(filename);
 
-        char locker[strlen(df) + strlen(bf) + strlen("./.lock")];
+				int buflen = strlen(df) + strlen(bf) + strlen("./.lock");
+
+        char locker[buflen];
+				buf = malloc(buflen);
 
         /* /PATH/.FILENAME.lock */
         strcpy(locker, df);
@@ -2183,7 +2187,9 @@ char *get_locker_name(char *filename){
         strcat(locker, bf);
         strcat(locker, ".lock");
 
-        return (char *) strdup(locker);
+				strcpy(buf, locker);
+
+        return buf;
 }
 
 void lock_file(char *filename){
@@ -2224,10 +2230,12 @@ int is_file_locked(char *filename){
         }
 
         return 0;
+}
 
 // Given a filename, start editor with that file opened
 void editor_start(char *filename) {
-	free(Editor.filename);
+	
+				free(Editor.filename);
         init_editor();
         Editor.filename = strdup(filename);
         load_config_file();
@@ -2238,7 +2246,6 @@ void editor_start(char *filename) {
 
 }
 
-  
 int main(int argc, char **argv)
 {
 	signal(SIGWINCH, sigwinch_handler);
@@ -2276,7 +2283,7 @@ int main(int argc, char **argv)
                 parse_argument(argv[i]);
             }
         }
-  
+
 	      editor_start(argv[file_arg]);
         editor_select_syntax_highlight(argv[file_arg]);
         editor_open(argv[file_arg]);
@@ -2287,7 +2294,7 @@ int main(int argc, char **argv)
                 editor_refresh_screen();
                 editor_process_key_press(STDIN_FILENO);
         }
-        
+
         close_editor();
         return EXIT_SUCCESS;
 }
