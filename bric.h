@@ -259,6 +259,8 @@ void init_editor(void);
 
 editing_row *find_row(int at);
 
+void editor_start(char *filename);
+
 // File Locking
 void set_current_file(char *filename);
 char *get_locker_name(char *filename);
