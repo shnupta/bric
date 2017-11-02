@@ -1745,7 +1745,8 @@ int handle_tag_movement(int where) {
 	FILE *fp;
 	int cursor_pos = Editor.cursor_y, cursor_offset = Editor.row_offset;
 	tagdata tag_data;
-	orig_filename = strdup(Editor.filename);
+	orig_filename = (char*)malloc(sizeof(char) * strlen(Editor.filename));
+	strcpy(orig_filename, Editor.filename);
 	if(where == MOVE_BACK) {
 		if(isempty(&tag_stack)) {
 			editor_set_status_message("at bottom of tag stack");
@@ -1753,7 +1754,8 @@ int handle_tag_movement(int where) {
 		}
 		tag_data = pop(&tag_stack);
 		linenumber = tag_data.linenumber;
-		filename = strdup(tag_data.filename);
+		filename = (char*)malloc(sizeof(char) * strlen(tag_data.filename));
+		strcpy(filename, tag_data.filename);
 		if(strcmp(filename, Editor.filename)) {
                         if(Editor.dirty) {
                                 editor_set_status_message("Unsaved changes. Can't proceed");
@@ -2301,7 +2303,8 @@ void close_editor(void)
 void editor_start(char *filename) {
         free(Editor.filename);
         init_editor();
-        Editor.filename = strdup(filename);
+        Editor.filename = (char*)malloc(sizeof(char) * strlen(filename));
+	strcpy(Editor.filename, filename);
         load_config_file();
         editor_select_syntax_highlight(filename);
         editor_open(filename);
