@@ -1,6 +1,6 @@
 #include "bric.h"
 
-static struct __file CurrentFile;
+static struct __current_file CurrentFile;
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
@@ -2177,7 +2177,7 @@ int main(int argc, char **argv)
         }
 
         // We set the current file information
-        set_current_file(argv[file_arg]);
+        set_current_file(argv[file_arg], &CurrentFile);
 
         // We check if current file is locked
         if(!is_file_locked(CurrentFile.pathname)){
@@ -2198,7 +2198,6 @@ int main(int argc, char **argv)
             }
         }
 
-        editor_start(argv[file_arg]);
         editor_select_syntax_highlight(argv[file_arg]);
         editor_open(argv[file_arg]);
         enable_raw_mode(STDIN_FILENO);

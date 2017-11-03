@@ -21,6 +21,9 @@
 #include <math.h>
 #include <signal.h>
 
+// FILE LOCKING
+#include "src/locking.h"
+
 #include "modules/syntax/syntax.h"
 
 #define INSERT_MODE 0
@@ -245,7 +248,5 @@ int editor_file_was_modified(void);
 void init_editor(void);
 
 editing_row *find_row(int at);
-
-void editor_start(char *filename);
 
 #endif
