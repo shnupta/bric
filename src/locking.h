@@ -25,7 +25,7 @@ struct __current_file
 };
 
 /* Functions */
-void set_current_file(char *filename);
+void set_current_file(char *filename, struct __current_file *current_file);
 char *get_locker_name(char *filename);
 
 void lock_file(char *filename);

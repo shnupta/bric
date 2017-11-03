@@ -13,11 +13,11 @@
  * Return:      N/A
  * 
  */
-void set_current_file(char *filename)
+void set_current_file(char *filename, struct __current_file *current_file)
 {
-    CurrentFile.path = dirname(filename);
-    CurrentFile.name = basename(filename);
-    CurrentFile.pathname = filename;
+    current_file->path = dirname(filename);
+    current_file->name = basename(filename);
+    current_file->pathname = filename;
 
     return;
 }
