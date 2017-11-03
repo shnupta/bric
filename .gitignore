@@ -3,3 +3,6 @@ bric
 .bric.h.swp
 .DS_Store
 tags
+
+# Objects
+*.o
