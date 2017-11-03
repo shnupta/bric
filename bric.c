@@ -1,6 +1,6 @@
 #include "bric.h"
 
-static struct __file CurrentFile;
+static struct __current_file CurrentFile;
 static struct editor_config Editor;
 static struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
@@ -2160,92 +2160,6 @@ void close_editor(void)
     free(Editor.clipboard);
 }
 
-void set_current_file(char *filename){
-
-        CurrentFile.path = dirname(filename);
-        CurrentFile.name = basename(filename);
-        CurrentFile.pathname = filename;
-
-        return;
-}
-
-char *get_locker_name(char *filename){
-
-				char *buf = NULL;
-        char *df = dirname(filename);
-        char *bf = basename(filename);
-
-				int buflen = strlen(df) + strlen(bf) + strlen("./.lock");
-
-        char locker[buflen];
-				buf = malloc(buflen);
-
-        /* /PATH/.FILENAME.lock */
-        strcpy(locker, df);
-        strcat(locker, "/");
-        strcat(locker, ".");
-        strcat(locker, bf);
-        strcat(locker, ".lock");
-
-				strcpy(buf, locker);
-
-        return buf;
-}
-
-void lock_file(char *filename){
-
-        char *locker = get_locker_name(filename);
-        FILE *fp = fopen(locker, "w");
-
-        if(!fp){
-                perror("Could not created locker file");
-        }else{
-                fclose(fp);
-        }
-
-        return;
-}
-
-void unlock_file(char *filename){
-
-        char *locker = get_locker_name(filename);
-        FILE *fp = fopen(locker, "r");
-
-        if(fp){
-                fclose(fp);
-                remove(locker);
-        }
-
-        return;
-}
-
-int is_file_locked(char *filename){
-
-        char *locker = get_locker_name(filename);
-        FILE *fp = fopen(locker, "r");
-
-        if(fp){
-                fclose(fp);
-                return 1;
-        }
-
-        return 0;
-}
-
-// Given a filename, start editor with that file opened
-void editor_start(char *filename) {
-	
-				free(Editor.filename);
-        init_editor();
-        Editor.filename = strdup(filename);
-        load_config_file();
-        editor_select_syntax_highlight(filename);
-        editor_open(filename);
-        enable_raw_mode(STDIN_FILENO);
-        editor_set_status_message(help_message);
-
-}
-
 int main(int argc, char **argv)
 {
 	signal(SIGWINCH, sigwinch_handler);
@@ -2263,7 +2177,7 @@ int main(int argc, char **argv)
         }
 
         // We set the current file information
-        set_current_file(argv[file_arg]);
+        set_current_file(argv[file_arg], &CurrentFile);
 
         // We check if current file is locked
         if(!is_file_locked(CurrentFile.pathname)){
@@ -2284,7 +2198,6 @@ int main(int argc, char **argv)
             }
         }
 
-	      editor_start(argv[file_arg]);
         editor_select_syntax_highlight(argv[file_arg]);
         editor_open(argv[file_arg]);
         enable_raw_mode(STDIN_FILENO);
