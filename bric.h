@@ -21,6 +21,9 @@
 #include <math.h>
 #include <signal.h>
 
+// FILE LOCKING
+#include "src/locking.h"
+
 #include "modules/syntax/syntax.h"
 #include "modules/tag/tagfuncs.h"
 

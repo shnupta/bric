@@ -2,4 +2,8 @@ bric
 .bric.c.swp
 .bric.h.swp
 .DS_Store
+bric.dSYM
 tags
+
+# Objects
+*.o

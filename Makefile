@@ -1,10 +1,16 @@
-all:
+CC=gcc
+CFLAGS=-Wall -g -W -pedantic -std=gnu99 -lm
+DEPENDENCIES=src/locking.o
 
-	$(CC) -g -o bric bric.c tagstack.c -Wall -W -pedantic -std=gnu99 -lm
+all: $(DEPENDENCIES)
+	$(CC) bric.c tagstack.c $(DEPENDENCIES) $(CFLAGS) -o bric
 
 install: all
 	cp bric /usr/local/bin/bric
 
-
 clean:
-	rm bric
+	rm -f bric
+	find src/ -type f -iname "*.o" -exec rm {} +
+
+.c.o:
+	$(CC) -c $< -o $@
