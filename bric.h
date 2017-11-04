@@ -18,10 +18,16 @@
 #include <time.h>
 #include <pwd.h>
 #include <assert.h>
+#include <math.h>
+#include <signal.h>
+
+// FILE LOCKING
+#include "src/locking.h"
 
 #include "modules/syntax/syntax.h"
+#include "modules/tag/tagfuncs.h"
 
-#define EDIT_MODE 0
+#define INSERT_MODE 0
 #define SELECTION_MODE 1
 #define NORMAL_MODE 2
 
@@ -36,6 +42,8 @@ typedef struct editing_row {
         char *rendered_chars;    // the content of the rendered row
         unsigned char *hl;      // syntax highlighting for each character in the rendered row
         int hl_open_comment;    // the row had an open comment
+	struct editing_row *prev;
+	struct editing_row *next;
 } editing_row;
 
 
@@ -63,22 +71,27 @@ struct editor_config {
         int screen_columns;             // number of columns that can be shown
         int num_of_rows;                // number of rows
         int rawmode;                    // is terminal raw mode enabled?
-        editing_row *row;               // the rows
+        //editing_row *row;               // the rows
+        editing_row *row_head;
+        editing_row *row_tail;
+        editing_row *current;
         int dirty;                      // if the file is modified but not saved
         int yank_buffer_len;            // length of yank buffer
         char *yank_buffer;              // buffer to hold yanked/copied text
+        int newfile;			// is currently opened a new file?
         char *filename;                 // currently open filename
         char status_message[256];
         time_t status_message_time;
-        struct editor_syntax *syntax;   // current syntaxt highlighting
+        struct editor_syntax *syntax;   // current syntax highlighting
         int line_numbers;               // show line numbers
         int indent;                     // tabs and spaces indentation
-        int tab_length;             //number of spaces when tab pressed
+        int tab_length;             	//number of spaces when tab pressed
         colour_map colours;             // highlight colours
         int mode;                       // selection or normal mode
         int selected_base_x;
         int selected_base_y;
         char *clipboard;
+        char prev_char;
 };
 
 #define CTRL_KEY(k) ((k) & 0x1f)
@@ -87,31 +100,33 @@ enum KEY_ACTION {
 	KEY_NULL = 0,
 	CTRL_G = CTRL_KEY('g'),
 	CTRL_R = CTRL_KEY('r'),
-  CTRL_Y = CTRL_KEY('y'),
-  CTRL_P = CTRL_KEY('p'),
-    CTRL_A = 1,
-	CTRL_C = 3,
-	CTRL_D = 4,
-	CTRL_F = 6,
-    CTRL_H = 8,
-    TAB = 9,
-	CTRL_L = 12,
-    ENTER = 13,
-    CTRL_Q = 17,
-    CTRL_S = 19,
-    CTRL_U = 21,
-    CTRL_V = 22,
-    ESC = 27,
-    BACKSPACE = 127,
-    ARROW_LEFT = 1000,
-    ARROW_RIGHT,
-    ARROW_UP,
-    ARROW_DOWN,
-    DEL_KEY,
-    HOME_KEY,
-    END_KEY,
-    PAGE_UP,
-    PAGE_DOWN
+        CTRL_Y = CTRL_KEY('y'),
+        CTRL_P = CTRL_KEY('p'),
+        CTRL_M = CTRL_KEY('m'),
+        CTRL_N = CTRL_KEY('n'),
+        CTRL_A = 1,
+        CTRL_C = 3,
+        CTRL_D = 4,
+        CTRL_F = 6,
+        CTRL_H = 8,
+        TAB = 9,
+        CTRL_L = 12,
+        ENTER = 13,
+        CTRL_Q = 17,
+        CTRL_S = 19,
+        CTRL_U = 21,
+        CTRL_V = 22,
+        ESC = 27,
+        BACKSPACE = 127,
+        ARROW_LEFT = 1000,
+        ARROW_RIGHT,
+        ARROW_UP,
+        ARROW_DOWN,
+        DEL_KEY,
+        HOME_KEY,
+        END_KEY,
+        PAGE_UP,
+        PAGE_DOWN
 };
 
 
@@ -152,6 +167,8 @@ void editor_select_syntax_highlight(char *filename); // select the correct highl
 
 // Editor Rows Implementation
 
+editing_row *find_row(int at);
+
 void editor_update_row(editing_row *row); //update the rendered version and the syntax highlighting of a row
 
 void editor_insert_row(int at, char *s, size_t length); // insert a row at the specified position, shifting the other rows to the bottom if needed
@@ -177,6 +194,8 @@ void editor_delete_char(); // delete the char at the current prompt position
 int editor_open(char *filename); // load the specified program in the editor memory
 
 int editor_save(void); //save the current file on the disk
+
+int editor_copy_row();
 
 void editor_yank_row();
 
@@ -213,7 +232,7 @@ void editor_set_status_message(const char *fmt, ...);
 
 void editor_find(int fd);
 
-void editor_goto(int fd);
+void editor_goto(int linenumber);
 
 // Editor events handling
 
@@ -221,9 +240,9 @@ void editor_move_cursor(int key); // handle cursor position change due to arrow 
 
 #define BRIC_QUIT_TIMES 3
 
-#define LINE_NUMBER_LENGTH 7
+//#define LINE_NUMBER_LENGTH 7
 
-#define LINE_NUMBER_FORMAT "%5d: "
+//#define LINE_NUMBER_FORMAT "%5d: "
 
 #define TAB_LENGTH 4 // TODO: make it changable
 
@@ -233,6 +252,6 @@ int editor_file_was_modified(void);
 
 void init_editor(void);
 
-
+void editor_start(char *filename);
 
 #endif
