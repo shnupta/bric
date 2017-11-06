@@ -5,7 +5,7 @@ bric does not depend on any library (not even curses). It uses fairly standard V
 
 [My blog post](https://shnupta.github.io/blog/17/04/bric.html)
 
-### Here is a screencast of bric on Linux:
+### Here is a screencast of bric on macOS:
 ![Screencast](https://github.com/shnupta/bric/blob/master/screencast_low.gif)
 
 ### Installation:
