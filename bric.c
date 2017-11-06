@@ -1294,7 +1294,7 @@ void editor_find(int fd)
                         editing_row *tmp = Editor.row_head;
                         for (i = 0; i < Editor.num_of_rows; i++) {
                                 current += find_next;
-				tmp = find_row(current);
+                                tmp = find_row(current);
                                 if(current == -1)
                                 {
                                         current = Editor.num_of_rows-1;
@@ -1432,10 +1432,7 @@ void editor_find_replace(int fd)
                        editing_row *tmp = Editor.row_head;
 			for (i = 0; i < Editor.num_of_rows; i++) {
 				current += find_next;
-	                         for(int j = 0; j < find_next; ++j)
-	                         {
-	                                 tmp = tmp->next;
-	                         }
+        tmp = find_row(current);
 				if (current == -1){
 				        current = Editor.num_of_rows - 1;
 				        tmp = Editor.row_tail;
