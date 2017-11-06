@@ -1294,11 +1294,7 @@ void editor_find(int fd)
                         editing_row *tmp = Editor.row_head;
                         for (i = 0; i < Editor.num_of_rows; i++) {
                                 current += find_next;
-                                for (int j = 0; j < find_next; ++j)
-                                {
-                                        if ((tmp = tmp->next) == NULL)
-                                                assert(0);
-                                }
+				tmp = find_row(current);
                                 if(current == -1)
                                 {
                                         current = Editor.num_of_rows-1;
