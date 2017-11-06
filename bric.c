@@ -1644,8 +1644,8 @@ void editor_harsh_quit()
 {
 
         // We check if file is locked and we'll unlock it
-        if(is_file_locked(CurrentFile.pathname)){
-          unlock_file(CurrentFile.pathname);
+        if(is_file_locked(CurrentFile)){
+          unlock_file(CurrentFile);
         }
 
         exit(EXIT_SUCCESS);
@@ -2332,10 +2332,10 @@ int main(int argc, char **argv)
         set_current_file(argv[file_arg], &CurrentFile);
 
         // We check if current file is locked
-        if(!is_file_locked(CurrentFile.pathname)){
-                lock_file(CurrentFile.pathname);
+        if(!is_file_locked(CurrentFile)){
+                lock_file(CurrentFile);
         }else{
-                perror("The file has been locked, try to remove the locker!");
+                fprintf(stderr, "The file has been locked, try to remove the locker!\n");
                 return EXIT_FAILURE;
         }
         for (int i = 1; i < argc; i++)

@@ -19,18 +19,16 @@
 /* Structures */
 struct __current_file
 {
-    char *path;
-    char *name;
-    char *pathname;
+    char pathname[512];
 };
 
 /* Functions */
 void set_current_file(char *filename, struct __current_file *current_file);
-char *get_locker_name(char *filename);
+char *get_locker_name(struct __current_file current_file);
 
-void lock_file(char *filename);
-void unlock_file(char *filename);
+void lock_file(struct __current_file current_file);
+void unlock_file(struct __current_file current_file);
 
-int is_file_locked(char *filename);
+int is_file_locked(struct __current_file current_file);
 
 #endif

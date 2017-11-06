@@ -15,10 +15,7 @@
  */
 void set_current_file(char *filename, struct __current_file *current_file)
 {
-    current_file->path = dirname(filename);
-    current_file->name = basename(filename);
-    current_file->pathname = filename;
-
+    strcpy(current_file->pathname, filename);
     return;
 }
 
@@ -37,30 +34,12 @@ void set_current_file(char *filename, struct __current_file *current_file)
  * Return:      <char *> Name of the locker file.
  * 
  */
-char *get_locker_name(char *filename)
+char *get_locker_name(struct __current_file current_file)
 {
-    // Retrive the path and the name for the current file
-    char *dir_filename = dirname(filename);
-    char *base_filename = basename(filename);
+    char locker[512];
+    char *buffer = malloc(512);
 
-    // We will store the locker name in the buffer
-    char *buffer = NULL;
-
-    // Get the string size
-    int length = strlen(dir_filename) + strlen(base_filename) + strlen("./.lock");
-
-    // Set the string and buffer size
-    char locker[length];
-    buffer = malloc(length);
-
-    // Create the locker name
-    strcpy(locker, dir_filename);
-    strcat(locker, "/");
-    strcat(locker, ".");
-    strcat(locker, base_filename);
-    strcat(locker, ".lock");
-
-    // Copy the name to buffer
+    sprintf(locker, "%s/.%s.lock", dirname(current_file.pathname), basename(current_file.pathname));
     strcpy(buffer, locker);
 
     return buffer;
@@ -76,9 +55,9 @@ char *get_locker_name(char *filename)
  * Return:      N/A
  * 
  */
-void lock_file(char *filename)
+void lock_file(struct __current_file current_file)
 {
-    char *locker = get_locker_name(filename);
+    char *locker = get_locker_name(current_file);
     FILE *locker_file = fopen(locker, "w");
 
     if (!locker_file)
@@ -103,9 +82,9 @@ void lock_file(char *filename)
  * Return:      N/A
  * 
  */
-void unlock_file(char *filename)
+void unlock_file(struct __current_file current_file)
 {
-    char *locker = get_locker_name(filename);
+    char *locker = get_locker_name(current_file);
     FILE *locker_file = fopen(locker, "r");
 
     if (locker_file)
@@ -128,9 +107,9 @@ void unlock_file(char *filename)
  * Return:      1 if the current file is locked, 0 otherwise.
  * 
  */
-int is_file_locked(char *filename)
+int is_file_locked(struct __current_file current_file)
 {
-    char *locker = get_locker_name(filename);
+    char *locker = get_locker_name(current_file);
     FILE *locker_file = fopen(locker, "r");
 
     if (locker_file)
