@@ -55,10 +55,10 @@ struct editor_syntax highlight_db[] = {
   JAVASCRIPT_syntax,
   GO_syntax,
   RUBY_syntax,
-  rust_syntax,
+  RUST_syntax,
   HTML_syntax,
   D_syntax,
-  brain_syntax,
+  BRAIN_syntax,
   BASH_syntax,
   MAKEFILE_syntax
 };

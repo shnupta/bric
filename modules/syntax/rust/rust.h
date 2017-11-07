@@ -1,9 +1,9 @@
 #ifndef _SYNTAX_RUST_H
 #define _SYNTAX_RUST_H
 
-//rust
-char *rust_extensions[] = {".rs", ".rlib", NULL};
-char *rust_keywords[] = {
+//RUST
+char *RUST_extensions[] = {".rs", ".rlib", NULL};
+char *RUST_keywords[] = {
   // types and misc
   "str", "bool", "char", "i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "isize", "usize", "f32", "f64", "struct", "enum", "true", "false",
   // cargo stuff
@@ -24,9 +24,9 @@ char *rust_keywords[] = {
   NULL
 };
 
-#define rust_syntax { \
-	rust_extensions, \
-	rust_keywords, \
+#define RUST_syntax { \
+	RUST_extensions, \
+	RUST_keywords, \
 	"//", \
 	"/*", \
 	"*/", \
