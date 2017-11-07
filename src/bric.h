@@ -22,7 +22,7 @@
 #include <signal.h>
 
 // FILE LOCKING
-#include "src/locking.h"
+#include "locking.h"
 
 #include "modules/syntax/syntax.h"
 #include "modules/tag/tagfuncs.h"

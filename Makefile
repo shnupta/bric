@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -g -W -pedantic -std=gnu99 -lm
-DEPENDENCIES=src/locking.o
+DEPENDENCIES=src/locking.o src/tagstack.o src/bric.o
 
 all: $(DEPENDENCIES)
-	$(CC) bric.c tagstack.c $(DEPENDENCIES) $(CFLAGS) -o bric
+	$(CC) $(DEPENDENCIES) $(CFLAGS) -o bric
 
 install: all
 	cp bric /usr/local/bin/bric
