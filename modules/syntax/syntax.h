@@ -16,6 +16,8 @@
 #include "html/html.h"
 #include "d/d.h"
 #include "brain/brain.h"
+#include "bash/bash.h"
+#include "makefile/makefile.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -56,7 +58,9 @@ struct editor_syntax highlight_db[] = {
   rust_syntax,
   HTML_syntax,
   D_syntax,
-  brain_syntax
+  brain_syntax,
+  BASH_syntax,
+  MAKEFILE_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
