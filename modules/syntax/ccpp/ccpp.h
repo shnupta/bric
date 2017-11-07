@@ -2,7 +2,7 @@
 #define _SYNTAX_CCPP_H
 
 // C and C++
-char *CCPP_extensions[] = {".c", ".cpp", ".h" ,NULL};
+char *CCPP_extensions[] = {".c", ".cpp", ".h" , ".hpp", NULL};
 char *CCPP_keywords[] = {
 	//types and misc
 	"char", "bool", "short", "int", "__int8", "__int16", "__int32", "__int64",
