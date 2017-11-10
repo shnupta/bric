@@ -171,6 +171,7 @@ int editor_read_key(int fd)
 /* Use the ESC [6n escape sequence to query the horizontal cursor position
  *  * and return it. On error -1 is returned, on success the position of the
  *   * cursor is stored at *rows and *cols and 0 is returned. */
+/*
 int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
 {
         char buf[32];
@@ -193,6 +194,7 @@ int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
         return 0;
 
 }
+*/
 
 
 // try to get the number of columns in the window
