@@ -1,3 +1,12 @@
+/**
+ * File:        handling.h
+ * 
+ * Description: This file contents the functions used to handle the low-level terminal.
+ * 
+ * Author:      Casey Williams <williamshoops96@gmail.com>
+ * Rewritter:   Ivan Botero <ivan.botero@protonmail.ch>
+ */
+
 #ifndef HANDLING_H
 #define HANDLING_H
 
