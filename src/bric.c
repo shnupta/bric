@@ -112,6 +112,7 @@ int numbers_only(const char *s)
     return 1;
 }
 
+/*
 // read a key from terminal input in raw mode and handle
 int editor_read_key(int fd)
 {
@@ -165,6 +166,7 @@ int editor_read_key(int fd)
                 }
         }
 }
+*/
 
 /* Use the ESC [6n escape sequence to query the horizontal cursor position
  *  * and return it. On error -1 is returned, on success the position of the
