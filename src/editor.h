@@ -1,6 +1,8 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include <time.h>
+
 #define CTRL_KEY(k) ((k)&0x1f)
 
 /* Editing ROW */
