@@ -58,7 +58,7 @@ int enable_raw_mode(int fd); // lets us use terminal in raw mode
 int editor_read_key(int fd); // read a key from the terminal put in raw mode
 */
 
-int get_cursor_pos(int ifd, int ofd, int *rows, int *columns); //using the ESC [6n escape sequence to query the cursor position and return it in *rows and *columns.
+//int get_cursor_pos(int ifd, int ofd, int *rows, int *columns); //using the ESC [6n escape sequence to query the cursor position and return it in *rows and *columns.
 
 int get_window_size(int ifd, int ofd, int *rows, int *columns); // try to get the number of columns in the current terminal
 
