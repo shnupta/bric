@@ -47,6 +47,7 @@ void sigwinch_handler()
 }
 
 // Low level terminal handling
+/*
 void disable_raw_mode(int fd)
 {
         // dont bother checking the return value as its too late
@@ -56,10 +57,11 @@ void disable_raw_mode(int fd)
                 Editor.rawmode = 0;
         }
 }
+*/
 
 void editor_at_exit(void)
 {
-        disable_raw_mode(STDIN_FILENO);
+        disable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
 }
 
 int enable_raw_mode(int fd)

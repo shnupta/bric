@@ -26,6 +26,9 @@
 // FILE LOCKING
 #include "locking.h"
 
+// LOW-LEVEL TERMINAL HANDLING
+#include "handling.h"
+
 #include "modules/syntax/syntax.h"
 #include "modules/tag/tagfuncs.h"
 
@@ -45,7 +48,7 @@ const char selection_mode_message[] = "Selection mode: ESC = exit | arrows = sel
 // Low level terminal handling
 
 
-void disable_raw_mode(int fd);
+//void disable_raw_mode(int fd);
 
 void editor_at_exit(void); // called at exit to avoid remaining in raw mode
 
