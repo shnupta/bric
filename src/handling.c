@@ -1,5 +1,17 @@
 #include "handling.h"
 
+/**
+ * Function:    disable_raw_mode()
+ * 
+ * Objective:   TODO: Write this item.
+ * 
+ * Arguments:   fd      <int>                       STDIN File descriptor.
+ *              termios <struct termios *>          Original termios structure.
+ *              editor  <struct editor_config *>    Editor configuration structure.
+ * 
+ * Return:      N/A
+ * 
+ */
 void disable_raw_mode(int fd, struct termios *termios, struct editor_config *editor)
 {
     // Don't bother checking the return value as its too late
@@ -13,6 +25,16 @@ void disable_raw_mode(int fd, struct termios *termios, struct editor_config *edi
     return;
 }
 
+/**
+ * Function:    editor_read_key()
+ * 
+ * Objective:   Read a key from the terminal put in raw mode.
+ * 
+ * Arguments:   fd      <int>                       STDIN File descriptor.
+ * 
+ * Return:      <int>   TODO: Write this item.
+ * 
+ */
 int editor_read_key(int fd)
 {
     int nread;
@@ -103,6 +125,19 @@ int editor_read_key(int fd)
     return c;
 }
 
+/**
+ * Function:    get_cursor_pos()
+ * 
+ * Objective:   TODO: Write this item.
+ * 
+ * Arguments:   ifd     <int *>     TODO: Write this item.
+ *              ofd     <int *>     TODO: Write this item.
+ *              rows    <int *>     TODO: Write this item.
+ *              columns <int *>     TODO: Write this item.
+ * 
+ * Return:      <int>   TODO: Write this item.
+ * 
+ */
 int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
 {
     char buf[32];
@@ -138,6 +173,19 @@ int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
     return 0;
 }
 
+/**
+ * Function:    get_window_size()
+ * 
+ * Objective:   TODO: Write this item.
+ * 
+ * Arguments:   ifd     <int *>     TODO: Write this item.
+ *              ofd     <int *>     TODO: Write this item.
+ *              rows    <int *>     TODO: Write this item.
+ *              columns <int *>     TODO: Write this item.
+ * 
+ * Return:      <int>   TODO: Write this item.
+ * 
+ */
 int get_window_size(int ifd, int ofd, int *rows, int *columns)
 {
     struct winsize ws;
