@@ -134,6 +134,55 @@ int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
     {
         return -1;
     }
-    
+
     return 0;
+}
+
+int get_window_size(int ifd, int ofd, int *rows, int *columns)
+{
+    struct winsize ws;
+
+    if (ioctl(1, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0)
+    {
+        // ioctl() failed so query the terminal itself
+        int original_row, original_column, retval;
+
+        // get the initail position to store for later
+        retval = get_cursor_pos(ifd, ofd, &original_row, &original_column);
+        if (retval == -1)
+        {
+            goto failed;
+        }
+
+        // go to the right bottom margin and get position
+        if (write(ofd, "\x1b[999C\x1b[999B", 12) != 12)
+        {
+            goto failed;
+        }
+
+        retval = get_cursor_pos(ifd, ofd, rows, columns);
+        if (retval == -1)
+        {
+            goto failed;
+        }
+
+        // restore the cursor position
+        char seq[32];
+        snprintf(seq, 32, "\x1b[%d;%dH", original_row, original_column);
+        if (write(ofd, seq, strlen(seq)) == -1)
+        {
+            // cant recover the cursor pos ....
+        }
+
+        return 0;
+    }
+    else
+    {
+        *columns = ws.ws_col;
+        *rows = ws.ws_row;
+        return 0;
+    }
+
+failed:
+    return -1;
 }

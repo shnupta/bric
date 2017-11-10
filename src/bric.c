@@ -197,6 +197,7 @@ int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
 */
 
 
+/*
 // try to get the number of columns in the window
 int get_window_size(int ifd, int ofd, int *rows, int *columns)
 {
@@ -230,7 +231,7 @@ int get_window_size(int ifd, int ofd, int *rows, int *columns)
 failed:
         return -1;
 }
-
+*/
 
 /// SYNTAX HIGHLIGHTING!!
 
