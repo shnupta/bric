@@ -1701,7 +1701,8 @@ char* get_key(void) {
 	int i = 0;
 	int filerow = Editor.row_offset + Editor.cursor_y;
 	int filecol = Editor.column_offset + Editor.cursor_x;
-	if(!char_check(find_row(filerow)->chars[filecol]))
+	editing_row *row = find_row(filerow);
+	if (row == NULL || !char_check(row->chars[filecol]))
 		return "";
 	while(filecol != -1 && char_check(find_row(filerow)->chars[filecol]))
 		filecol--;
