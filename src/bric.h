@@ -104,6 +104,7 @@ enum KEY_ACTION {
         CTRL_P = CTRL_KEY('p'),
         CTRL_M = CTRL_KEY('m'),
         CTRL_N = CTRL_KEY('n'),
+	CTRL_Z = CTRL_KEY('z'),
         CTRL_A = 1,
         CTRL_C = 3,
         CTRL_D = 4,
@@ -253,5 +254,48 @@ int editor_file_was_modified(void);
 void init_editor(void);
 
 void editor_start(char *filename);
+
+void editor_row_insert_string(editing_row *row, int at, int size, const char *str);
+void editor_row_delete_string(editing_row *row, int at, int size);
+
+//UNDO
+
+#define NR_UNDOS 50
+
+#define DELETE 0
+#define INSERT 1
+#define INSERT_LINE 2
+#define DELETE_LINE 4
+
+
+typedef struct
+{
+	int type;
+	int start_line;
+	int end_line;
+	int start_offset;
+	int end_offset;
+	int len;
+	int add_offset;
+} undo;
+
+typedef struct
+{
+	int undo_count;
+	undo undo_stack[NR_UNDOS];
+        struct append_buf text;
+} undo_header;
+
+void editor_row_insert_string(editing_row *row, int at, int size, const char *str);
+void editor_row_delete_string(editing_row *row, int at, int size);
+
+void init_undo(void);
+undo *pop_undo(void);
+void push_undo(undo *new);
+int undo_save_insert(int lineno, int line_offset, int len);
+int undo_save_delete(int lineno, int line_offset, int len);
+int undo_save_insert_line(int lineno);
+int undo_save_delete_line(int lineno);
+int process_undo(void);
 
 #endif

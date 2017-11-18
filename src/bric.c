@@ -547,6 +547,7 @@ void editor_insert_row(int at, char *s, size_t length)
 //	printf("%d", line_number_length);
         Editor.dirty++;
         Editor.current = new;
+	undo_save_insert_line(at);
 }
 
 
@@ -563,6 +564,8 @@ void editor_free_row(editing_row *row)
 // remove row at specified position
 void editor_delete_row(int at)
 {
+	if (at < 0)
+		return;
         editing_row *row;
 
         if(at >= Editor.num_of_rows) return;
@@ -599,6 +602,7 @@ void editor_delete_row(int at)
 		line_number_length = 3;
 	}
         ++Editor.dirty;
+	undo_save_delete_line(at);
 }
 
 
@@ -648,6 +652,7 @@ void editor_row_insert_char(editing_row *row, int at, int c)
         row->chars[at] = c;
         editor_update_row(row);
         Editor.dirty++;
+	undo_save_insert(row->index, at, 1);
 }
 
 
@@ -667,6 +672,7 @@ void editor_row_append_string(editing_row *row, char *s, size_t len)
 void editor_row_delete_char(editing_row *row, int at)
 {
         if(row->size <= at) return;
+	undo_save_delete(row->index, at, 1);
         memmove(row->chars+at, row->chars+at+1, row->size-at);
         editor_update_row(row);
         row->size--;
@@ -830,8 +836,10 @@ void editor_delete_char()
                 /* Handle the case of column 0, we need to move the current line
                  *          * on the right of the previous one. */
                 filecol = row->prev->size;
+		undo_save_delete_line(filerow);
                 editor_row_append_string(row->prev, row->chars, row->size);
                 editor_delete_row(filerow);
+		pop_undo();
                 row = NULL;
                 if(Editor.cursor_y == 0)
                         Editor.row_offset--;
@@ -1701,7 +1709,8 @@ char* get_key(void) {
 	int i = 0;
 	int filerow = Editor.row_offset + Editor.cursor_y;
 	int filecol = Editor.column_offset + Editor.cursor_x;
-	if(!char_check(find_row(filerow)->chars[filecol]))
+        editing_row *row = find_row(filerow);
+	if (row == NULL || !char_check(row->chars[filecol]))
 		return "";
 	while(filecol != -1 && char_check(find_row(filerow)->chars[filecol]))
 		filecol--;
@@ -1910,6 +1919,10 @@ void editor_process_key_press(int fd)
                                 break;
                         case CTRL_G:
              			break;
+		case CTRL_Z:
+			process_undo();
+			editor_set_status_message("Undo!");
+			break;
                         case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
@@ -2277,6 +2290,288 @@ void load_config_file(void)
     fclose(config);
 }
 
+void editor_row_insert_string(editing_row *row, int at, int size, const char *str)
+{
+        if (row->size < at)
+		return;
+	row->chars = realloc(row->chars, row->size+size+size);
+	memmove(row->chars+at+size, row->chars+at, row->size-at);
+	row->size += size;
+	//memcpy(&row->chars[at], str, size);
+	for (int i = 0; i < size; ++i)
+	{
+		row->chars[at+i] = *(str+size-i-1);
+	}
+	editor_update_row(row);
+	++Editor.dirty;
+}
+
+void editor_row_delete_string(editing_row *row, int at, int size)
+{
+	if (row->size+1<= at + size)
+		return;
+
+	if (row->size == size)
+	        memset(row->chars, 0, row->size);
+	else
+		memmove(row->chars+at, row->chars+at+size, row->size-at-size+1);
+	row->size -= size;
+	editor_update_row(row);
+
+	++Editor.dirty;
+}
+
+
+/*
+  UNDO CODE
+*/
+static undo_header undos;
+
+void init_undo(void)
+{
+        undos.undo_count = 0;
+        memset(undos.undo_stack, 0, sizeof(undo) * NR_UNDOS);
+}
+
+undo *pop_undo(void)
+{
+        undo *ret = NULL;
+
+        if (undos.undo_count > 0)
+        {
+                ret = &undos.undo_stack[--undos.undo_count];
+        }
+
+        return ret;
+}
+	
+void push_undo(undo *new)
+{
+        if (undos.undo_count >= NR_UNDOS)
+        {
+                memmove(undos.undo_stack, &undos.undo_stack[1], NR_UNDOS-1);
+                --undos.undo_count;
+        }
+        memcpy(&undos.undo_stack[undos.undo_count++], new, sizeof(undo));
+}
+
+int undo_save_insert(int lineno, int line_offset, int len)
+{
+        undo *new = (undos.undo_count>0) ? &undos.undo_stack[undos.undo_count-1] : NULL;
+
+	editing_row *current_line;
+	
+        if (new && new->type == INSERT &&
+	    ((new->end_line == lineno && new->end_offset == line_offset - 1) ||
+	     (new->end_line == lineno - 1 && new->end_offset == find_row(new->end_line)->size-1
+	      && line_offset == 0)))
+	{
+		new->len += len;
+		goto standard;
+        }
+        else
+        {
+                new = (undo*)malloc(sizeof(undo));
+
+                new->type = INSERT;
+                new->start_line = new->end_line = lineno;
+                new->start_offset = new->end_offset = line_offset;
+                new->len = len;
+		push_undo(new);
+        standard:
+	        current_line = find_row(lineno);
+		if (current_line == NULL)
+                        return -1;
+                while (len > 0)
+                {
+                        if (len + line_offset > current_line->size)
+                        {
+                                len -= current_line->size - line_offset;
+                                current_line = find_row(++new->end_line);
+                                if (current_line == NULL)
+                                        return -1;
+                                line_offset = 0;
+                        }
+                        else
+                        {
+                                new->end_offset = line_offset + len - 1;
+                                len = 0;
+                        }
+                }
+        }
+        return 0;
+}
+
+int undo_save_delete(int lineno, int line_offset, int len)
+{
+        undo *new = (undos.undo_count>0) ? &undos.undo_stack[undos.undo_count-1] : NULL;
+
+	if (new && new->type == DELETE && new->start_line == lineno && new->start_offset == line_offset+1)
+	{
+		new->len += len;
+		--new->start_offset;
+		goto standard;
+	}
+	else
+        {
+                new = (undo*)malloc(sizeof(undo));
+                editing_row *current_line;                
+                new->type = DELETE;
+                new->start_line = new->end_line = lineno;
+                new->start_offset = new->end_offset = line_offset;
+                new->len = len;
+		new->add_offset = undos.text.length;
+		push_undo(new);
+	standard:
+		current_line = find_row(lineno);
+		if (current_line == NULL)
+                        return -1;
+                while (len > 0)
+                {
+                        if (len + line_offset >= current_line->size)
+                        {
+                                ab_append(&undos.text,current_line->chars+line_offset,current_line->size-line_offset);
+                                len -= current_line->size - line_offset;
+                                line_offset = 0;
+                                current_line = find_row(++new->end_line);
+                                if (current_line == NULL)
+                                        return -1;
+                        }
+                        else
+                        {
+                                ab_append(&undos.text,current_line->chars+line_offset,len);
+                                new->start_offset = line_offset - len + 1;
+                                len = 0;
+                        }
+                }
+        }
+        return 0;
+}
+
+/* only for when cursor is at the end of the line*/
+int undo_save_insert_line(int lineno)
+{
+	undo *new = (undo*)malloc(sizeof(undo));
+
+	new->type = INSERT_LINE;
+	new->start_line = lineno;
+	push_undo(new);
+	return 0;
+}
+
+int undo_save_delete_line(int lineno)
+{
+	editing_row *row = find_row(lineno);
+	if (row == NULL)
+		return -1;
+	undo *new = (undo*)malloc(sizeof(undo));
+	new->type = DELETE_LINE;
+	new->start_line = lineno-1;
+	new->len = row->size;
+	if (row->prev != NULL)
+		new->start_offset = row->prev->size;
+	else
+		new->start_offset = -1;
+	push_undo(new);
+	return 0;
+}
+
+int process_undo(void)
+{
+        undo *cur = pop_undo();
+	if (cur == NULL)
+                return -1;
+	undo tmp_undo;
+	memcpy(&tmp_undo, cur, sizeof(undo));/*to prevent it from being overwritten*/
+	editing_row *current_line = find_row(cur->start_line);
+	if (current_line == NULL)
+		return -1;
+	register int len = tmp_undo.len;
+	int line_offset = tmp_undo.start_offset;
+        if (tmp_undo.type == INSERT)
+        {
+                while (len > 0 && current_line != NULL)
+                {
+                        if (len + line_offset > current_line->size)
+                        {
+                                len -= current_line->size - line_offset;
+                                editing_row *tmp = find_row(current_line->index+1);
+                                if (line_offset > 0)
+                                {
+                                        editor_row_delete_string(current_line,line_offset,
+								 current_line->size-line_offset);
+                                }
+                                else
+                                {
+                                        editor_delete_row(current_line->index);
+                                }
+                                line_offset = 0;
+                                current_line = tmp;
+                        }
+                        else
+                        {
+                                editor_row_delete_string(current_line,line_offset,
+							 tmp_undo.end_offset-line_offset+1);
+                                len = 0;
+                        }
+                }
+		editor_goto(tmp_undo.start_line + 1);
+        }
+        else if (tmp_undo.type == DELETE)
+        {
+		int a_off = tmp_undo.add_offset;
+		while (len > 0  && current_line != NULL)
+		{
+			/*	if (len + line_offset > current_line->size)
+			{
+				len -= current_line->size - line_offset;
+				editor_row_insert_string(current_line,line_offset,
+							 current_line->size-line_offset, undos.text.b+a_off);
+				a_off += current_line->size - line_offset;
+				line_offset = 0;
+			}
+			else*/
+			{
+			        editor_row_insert_string(current_line,line_offset,
+							 len, undos.text.b+a_off);
+				len = 0;
+			}
+		}
+		editor_goto(tmp_undo.start_line + 1);
+        }
+	else if (tmp_undo.type == INSERT_LINE)
+	{
+		editing_row *tmp = find_row(tmp_undo.start_line);
+		if (tmp == NULL)
+			return -1;
+		editing_row *tmp2 = find_row(tmp_undo.start_line-1);
+		if (tmp2 != NULL)
+			editor_row_append_string(tmp2, tmp->chars, tmp->size);
+		editor_delete_row(tmp_undo.start_line);
+		pop_undo();
+		editor_goto(tmp_undo.start_line);
+	}
+	else if (tmp_undo.type == DELETE_LINE)
+	{
+		if (tmp_undo.start_offset != -1)
+		{
+			editing_row *tmp = find_row(tmp_undo.start_line);
+			if (tmp == NULL)
+				return -1;
+			editor_insert_row(tmp_undo.start_line+1, tmp->chars+tmp_undo.start_offset, tmp_undo.len);
+			tmp->size -= tmp_undo.len;
+			tmp->chars = (char*)realloc(tmp->chars, tmp->size);
+			editor_update_row(tmp);
+		}
+		else
+			editor_insert_row(tmp_undo.start_line+1, "", 0);
+		pop_undo();
+		editor_goto(tmp_undo.start_line + 2);
+	}
+        return 0;
+}
+
+
 void close_editor(void)
 {
     free(Editor.filename);
@@ -2316,6 +2611,7 @@ int main(int argc, char **argv)
 {
         signal(SIGWINCH, sigwinch_handler);
         init(&tag_stack);
+	init_undo();
         int file_arg = -1;
         for (int i = 1; i < argc; i++)
         {
