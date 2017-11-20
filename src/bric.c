@@ -47,6 +47,7 @@ void sigwinch_handler()
 }
 
 // Low level terminal handling
+/*
 void disable_raw_mode(int fd)
 {
         // dont bother checking the return value as its too late
@@ -56,10 +57,11 @@ void disable_raw_mode(int fd)
                 Editor.rawmode = 0;
         }
 }
+*/
 
 void editor_at_exit(void)
 {
-        disable_raw_mode(STDIN_FILENO);
+        disable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
 }
 
 int enable_raw_mode(int fd)
@@ -110,6 +112,7 @@ int numbers_only(const char *s)
     return 1;
 }
 
+/*
 // read a key from terminal input in raw mode and handle
 int editor_read_key(int fd)
 {
@@ -163,10 +166,12 @@ int editor_read_key(int fd)
                 }
         }
 }
+*/
 
 /* Use the ESC [6n escape sequence to query the horizontal cursor position
  *  * and return it. On error -1 is returned, on success the position of the
  *   * cursor is stored at *rows and *cols and 0 is returned. */
+/*
 int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
 {
         char buf[32];
@@ -189,8 +194,10 @@ int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
         return 0;
 
 }
+*/
 
 
+/*
 // try to get the number of columns in the window
 int get_window_size(int ifd, int ofd, int *rows, int *columns)
 {
@@ -224,7 +231,7 @@ int get_window_size(int ifd, int ofd, int *rows, int *columns)
 failed:
         return -1;
 }
-
+*/
 
 /// SYNTAX HIGHLIGHTING!!
 
