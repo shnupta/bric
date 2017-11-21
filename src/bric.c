@@ -65,7 +65,7 @@ void editor_at_exit(void)
         disable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
 }
 */
-
+/*
 int enable_raw_mode(int fd)
 {
         struct termios raw;
@@ -75,10 +75,10 @@ int enable_raw_mode(int fd)
         atexit(editor_at_exit);
         if(tcgetattr(fd, &orig_termios) == -1) goto fatal;
 
-        raw = orig_termios; // modify the original mode
+        raw = orig_termios; // modify the original mode*/
         /* input modes: no break, no CR to NL, no parity check, no strip char,
          *      * no start/stop output control. */
-        raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+ /*       raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
 
         // output modes - disable post processing
         raw.c_oflag &= ~(OPOST);
@@ -103,7 +103,7 @@ fatal:
         errno = ENOTTY;
         return -1;
 }
-
+*/
 
 int numbers_only(const char *s)
 {
