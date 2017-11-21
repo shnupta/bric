@@ -1,5 +1,8 @@
 #include "handling.h"
 
+extern struct editor_config Editor;
+extern struct termios orig_termios; 
+
 /**
  * Function:    disable_raw_mode()
  * 
@@ -23,6 +26,11 @@ void disable_raw_mode(int fd, struct termios *termios, struct editor_config *edi
     }
 
     return;
+}
+
+void editor_at_exit(void)
+{
+    disable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
 }
 
 /**
