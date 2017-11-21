@@ -13,7 +13,7 @@ SOURCE_DIRECTORY=src
 # Objective:	Build the $(BRIC_EXECUTABLE).
 #
 all: src
-	$(CC) $(SOURCE_DIRECTORY)/*.o $(CFLAGS) -o $(BRIC_EXECUTABLE)
+	$(CC) $(SOURCE_DIRECTORY)/*.o $(CFLAGS) -o $(BRIC_EXECUTABLE) -g
 
 # Rule:			install
 #
