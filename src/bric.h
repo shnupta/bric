@@ -50,7 +50,7 @@ const char selection_mode_message[] = "Selection mode: ESC = exit | arrows = sel
 
 //void disable_raw_mode(int fd);
 
-void editor_at_exit(void); // called at exit to avoid remaining in raw mode
+//void editor_at_exit(void); // called at exit to avoid remaining in raw mode
 
 int enable_raw_mode(int fd); // lets us use terminal in raw mode
 

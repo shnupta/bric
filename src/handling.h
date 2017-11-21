@@ -20,6 +20,8 @@
 #include "editor.h"
 
 void disable_raw_mode(int fd, struct termios *termios, struct editor_config *editor);
+void editor_at_exit(void);
+// Enable
 int editor_read_key(int fd);
 int get_cursor_pos(int ifd, int ofd, int *rows, int *columns);
 int get_window_size(int ifd, int ofd, int *rows, int *columns);

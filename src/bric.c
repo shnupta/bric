@@ -1,8 +1,8 @@
 #include "bric.h"
 
 static struct __current_file CurrentFile;
-static struct editor_config Editor;
-static struct termios orig_termios; // so we can restore original at exit
+struct editor_config Editor;
+struct termios orig_termios; // so we can restore original at exit
 static int line_number_length = 3;
 const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
@@ -59,10 +59,12 @@ void disable_raw_mode(int fd)
 }
 */
 
+/*
 void editor_at_exit(void)
 {
         disable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
 }
+*/
 
 int enable_raw_mode(int fd)
 {
