@@ -1,6 +1,7 @@
 # GLOBAL VARIABLES
 export CC=gcc
-export CFLAGS=-Wall -g -W -pedantic -std=gnu99 -lm
+export CFLAGS=-Wall -g -W -pedantic -std=gnu99
+export LDFLAGS=-lm
 
 export BRIC_EXECUTABLE=bric
 export BRIC_DIRECTORY=/usr/local/bin/
@@ -13,7 +14,7 @@ SOURCE_DIRECTORY=src
 # Objective:	Build the $(BRIC_EXECUTABLE).
 #
 all: src
-	$(CC) $(SOURCE_DIRECTORY)/*.o $(CFLAGS) -o $(BRIC_EXECUTABLE)
+	$(CC) $(SOURCE_DIRECTORY)/*.o $(CFLAGS) $(LDFLAGS) -o $(BRIC_EXECUTABLE)
 
 # Rule:			install
 #
