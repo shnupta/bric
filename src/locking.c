@@ -8,7 +8,8 @@
  *              we could use this information to create a locker file based in
  *              the filename and the path.
  * 
- * Arguments:   filename    <char *>    Path to the current file.
+ * Arguments:   filename        <char *>                    Path to the current file.
+ *              current_file    <struct __current_file>     Struct with the current file information.
  * 
  * Return:      N/A
  * 
@@ -29,9 +30,9 @@ void set_current_file(char *filename, struct __current_file *current_file)
  *              (E.J) Current File: /var/www/index.html
  *              (E.J) Locker File:  /var/www/.index.html.lock
  * 
- * Arguments:   filename    <char *>    Path to the current file.
+ * Arguments:   current_file    <struct __current_file>     Struct with the current file information.
  * 
- * Return:      <char *> Name of the locker file.
+ * Return:      <char *>    Name of the locker file.
  * 
  */
 char *get_locker_name(struct __current_file current_file)
@@ -50,7 +51,7 @@ char *get_locker_name(struct __current_file current_file)
  * 
  * Objective:   Create the locker file used to lock the current file.
  * 
- * Arguments:   filename    <char *>    Path to the current file.
+ * Arguments:   current_file    <struct __current_file>     Struct with the current file information.
  * 
  * Return:      N/A
  * 
@@ -77,7 +78,7 @@ void lock_file(struct __current_file current_file)
  * 
  * Objective:   Delete the locker file used to lock the current file.
  * 
- * Arguments:   filename    <char *>    Path to the current file.
+ * Arguments:   current_file    <struct __current_file>     Struct with the current file information.
  * 
  * Return:      N/A
  * 
@@ -102,9 +103,9 @@ void unlock_file(struct __current_file current_file)
  * Objective:   Check if the current file is locked. 
  *              It checks if the locker file exists.
  * 
- * Arguments:   filename    <char *>    Path to the current file.
+ * Arguments:   current_file    <struct __current_file>     Struct with the current file information.
  * 
- * Return:      1 if the current file is locked, 0 otherwise.
+ * Return:      <int>           If the current file is locked 1, otherwise 0.
  * 
  */
 int is_file_locked(struct __current_file current_file)
