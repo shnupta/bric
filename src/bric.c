@@ -2138,7 +2138,7 @@ void editor_start(char *filename) {
         load_config_file();
         editor_select_syntax_highlight(filename);
         editor_open(filename);
-        enable_raw_mode(STDIN_FILENO);
+        enable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
         editor_set_status_message(help_message);
 }
 
