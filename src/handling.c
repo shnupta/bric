@@ -1,7 +1,7 @@
 #include "handling.h"
 
 extern struct editor_config Editor;
-extern struct termios orig_termios; 
+extern struct termios orig_termios;
 
 /**
  * Function:    disable_raw_mode()
@@ -28,34 +28,56 @@ void disable_raw_mode(int fd, struct termios *termios, struct editor_config *edi
     return;
 }
 
+/**
+ * Function:    editor_at_exit()
+ * 
+ * Objective:   TODO: Write this item.
+ * 
+ * Arguments:   N/A
+ * 
+ * Return:      N/A
+ * 
+ */
 void editor_at_exit(void)
 {
     disable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
 }
 
+/**
+ * Function:    enable_raw_mode()
+ * 
+ * Objective:   Read a key from the terminal put in raw mode.
+ * 
+ * Arguments:   fd      <int>                       STDIN File descriptor.
+ *              termios <struct termios *>          TODO: Write this item.
+ *              editor  <struct editor_config *>    TODO: Write this item.
+ * 
+ * Return:      <int>   TODO: Write this item.
+ * 
+ */
 int enable_raw_mode(int fd, struct termios *termios, struct editor_config *editor)
 {
     struct termios raw;
 
-    if(editor->rawmode)
+    if (editor->rawmode)
     {
         return 0; //already enabled
     }
-    
-    if(!isatty(fd))
+
+    if (!isatty(fd))
     {
         goto fatal;
     }
-    
+
     atexit(editor_at_exit);
-    
-    if(tcgetattr(fd, termios) == -1)
+
+    if (tcgetattr(fd, termios) == -1)
     {
         goto fatal;
-    } 
+    }
 
     raw = *termios; // modify the original mode
-    
+
     /* input modes: no break, no CR to NL, no parity check, no strip char,
      *      * no start/stop output control. 
      */
@@ -71,14 +93,14 @@ int enable_raw_mode(int fd, struct termios *termios, struct editor_config *edito
     raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
 
     //control chars - set return condition: min number of bytes and a timer
-    raw.c_cc[VMIN] = 0; // return each byte, or zero for a timeout
+    raw.c_cc[VMIN] = 0;  // return each byte, or zero for a timeout
     raw.c_cc[VTIME] = 1; //100ms timeout
 
     //put terminal in raw mode after flushing
-    if(tcsetattr(fd, TCSAFLUSH, &raw) < 0)
+    if (tcsetattr(fd, TCSAFLUSH, &raw) < 0)
     {
-        goto fatal;  
-    } 
+        goto fatal;
+    }
 
     editor->rawmode = 1;
     return 0;
@@ -86,7 +108,6 @@ int enable_raw_mode(int fd, struct termios *termios, struct editor_config *edito
 fatal:
     errno = ENOTTY;
     return -1;
-    
 }
 
 /**
