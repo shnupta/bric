@@ -24,4 +24,4 @@ all: $(DEPENDENCIES)
 # Objective:	Build source files base in its object name.
 #
 %.o: %.c
-	$(CC) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $^ -o $@
