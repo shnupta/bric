@@ -18,6 +18,7 @@
 #include "brain/brain.h"
 #include "bash/bash.h"
 #include "makefile/makefile.h"
+#include "dockerfile/dockerfile.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -60,7 +61,8 @@ struct editor_syntax highlight_db[] = {
   D_syntax,
   BRAIN_syntax,
   BASH_syntax,
-  MAKEFILE_syntax
+  MAKEFILE_syntax,
+  DOCKERFILE_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
