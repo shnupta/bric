@@ -5,7 +5,7 @@
 4. Make your changes.
 5. Commit your changes. [git-cola](https://git-cola.github.io/) is a nice GUI front-end for adding files and entering commit messages (git-cola is probably available from your OS repository).
 6. Push the working branch (e.g. issue_32) to your remote fork.
-7. Make the pull request (on the [upstream **master** branch](https://github.com/shnupta/bric/tree/master))
+7. Make the pull request (on the [upstream **development** branch](https://github.com/shnupta/bric/tree/development))
     * Do not merge it with the master branch on your fork. That would result in multiple, or unrelated patches being included in a single PR.
 
 ## Syncing ##
