@@ -1,4 +1,5 @@
 bric
+bric.exe
 .bric.c.swp
 .bric.h.swp
 .DS_Store
@@ -7,3 +8,6 @@ tags
 
 # Objects
 *.o
+
+# NetBeans
+nbproject/
