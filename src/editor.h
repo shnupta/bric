@@ -80,6 +80,7 @@ enum KEY_ACTION
     CTRL_P = CTRL_KEY('p'),
     CTRL_M = CTRL_KEY('m'),
     CTRL_N = CTRL_KEY('n'),
+    CTRL_Z = CTRL_KEY('z'),
     CTRL_A = 1,
     CTRL_C = 3,
     CTRL_D = 4,
