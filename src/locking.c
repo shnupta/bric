@@ -69,6 +69,7 @@ void lock_file(struct __current_file current_file)
         fclose(locker_file);
     }
 
+    free(locker);
     return;
 }
 
@@ -93,6 +94,7 @@ void unlock_file(struct __current_file current_file)
         remove(locker);
     }
 
+    free(locker);
     return;
 }
 
@@ -115,8 +117,9 @@ int is_file_locked(struct __current_file current_file)
     if (locker_file)
     {
         fclose(locker_file);
+        free(locker);
         return 1;
     }
-
+    free(locker);
     return 0;
 }
