@@ -1248,7 +1248,8 @@ void editor_find(int fd)
 #define FIND_RESTORE_HL do { \
         if(saved_hl) { \
                 memcpy(find_row(saved_hl_line)->hl, saved_hl, find_row(saved_hl_line)->rendered_size); \
-                saved_hl = NULL; \
+                free(saved_hl); \
+		saved_hl = NULL; \
         } \
 } while (0)
 
