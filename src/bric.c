@@ -668,7 +668,7 @@ void editor_delete_char()
                         Editor.cursor_y--;
                 Editor.cursor_x = filecol;
                 if(Editor.cursor_x >= Editor.screen_columns) {
-                        int shift = (Editor.screen_columns-Editor.cursor_x)+1;
+                        int shift = (Editor.cursor_x - Editor.screen_columns)+1;
                         Editor.cursor_x -= shift;
                         Editor.column_offset += shift;
                 }
