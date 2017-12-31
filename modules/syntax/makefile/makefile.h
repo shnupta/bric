@@ -2,20 +2,8 @@
 #define _SYNTAX_MAKEFILE_H
 
 // MAKEFILE
-char *MAKEFILE_extensions[] = {"Makefile", NULL};
-char *MAKEFILE_keywords[] = {
-
-	// Keyword: Misc
-	"$(CC)@", "CC@", "$(CFLAGS)@", "CFLAGS@", "$(MAKE)@",
-
-	// Keyword: Stuff
-	".PHONY:", "export",
-
-	// Keyword: Basic Rules
-	"all:~", "clean:~", "install:~",
-
-	NULL
-};
+extern char *MAKEFILE_extensions[] ;
+extern char *MAKEFILE_keywords[];
 
 #define MAKEFILE_syntax { \
 	MAKEFILE_extensions, \

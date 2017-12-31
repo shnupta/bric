@@ -1,6 +1,6 @@
 #ifndef _SYNTAX_STANDARD_H
 #define _SYNTAX_STANDARD_H
-
+/* *Need to include all these language files in syntax.c as well! */
 #include "editor_syntax.h"
 #include "ccpp/ccpp.h"
 #include "csharp/csharp.h"
@@ -44,26 +44,9 @@ typedef struct hlcolour {
 } hlcolour;
 
 // here is an array of syntax highlights by extensions, keywords, comments, del
-struct editor_syntax highlight_db[] = {
-  CCPP_syntax,
-  CSHARP_syntax,
-  Python_syntax,
-  PHP_syntax,
-  PAS_syntax,
-  SQL_syntax,
-  JAVA_syntax,
-  JAVASCRIPT_syntax,
-  GO_syntax,
-  RUBY_syntax,
-  RUST_syntax,
-  HTML_syntax,
-  D_syntax,
-  BRAIN_syntax,
-  BASH_syntax,
-  MAKEFILE_syntax
-};
-
-#define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
-
+extern struct editor_syntax highlight_db[];
+extern size_t __H_DB_ENTRIES;
+//#define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
+#define HIGHLIGHT_DB_ENTRIES __H_DB_ENTRIES
 
 #endif

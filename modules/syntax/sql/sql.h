@@ -2,13 +2,8 @@
 #define _SYNTAX_SQL_H
 
 // MySQL, just the beginning
-char *SQL_extensions[] = {".sql" ,NULL};
-char *SQL_keywords[] = {
-	"create","insert","from","values","select","alter","orderby",
-	"table~","database~","column~",
-	"asc@","desc@",
-	NULL
-};
+extern char *SQL_extensions[];
+extern char *SQL_keywords[];
 
 #define SQL_syntax { \
 	SQL_extensions, \

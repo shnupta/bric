@@ -1,11 +1,8 @@
 #ifndef _SYNTAX_BRAIN_H
 #define _SYNTAX_BRAIN_H
 
-char *BRAIN_extensions[] = {".brain", ".b", NULL};
-char *BRAIN_keywords[] = {
-    "+", "-", "#", ".", ",", ">", "<", "*", "[", "]", "{", "}",
-    "$", "/", "%", "!", "?", ":", ";", "^", NULL
-};
+extern char *BRAIN_extensions[];
+extern char *BRAIN_keywords[];
 
 // Anything else than those keywords are considered comments in BRAIN.
 
