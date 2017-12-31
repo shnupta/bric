@@ -7,3 +7,11 @@ tags
 
 # Objects
 *.o
+
+# cmake
+cmake-build-debug/*
+CMakeLists.txt
+
+#vscode, idea
+.vscode
+.idea
