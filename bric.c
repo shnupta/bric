@@ -2303,7 +2303,10 @@ void close_editor(void)
 void editor_start(char *filename) {
         free(Editor.filename);
         init_editor();
-        Editor.filename = (char*)malloc(sizeof(char) * strlen(filename));
+        /*  add +1 here because strlen computes the length of the string up
+        /   to, but not including the terminating null character.
+         */
+        Editor.filename = (char*)malloc(sizeof(char) * strlen(filename)+1);
 	strcpy(Editor.filename, filename);
         load_config_file();
         editor_select_syntax_highlight(filename);
