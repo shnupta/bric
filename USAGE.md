@@ -4,23 +4,23 @@ This document is intended to be a guide and index of the commands and functions 
 
 ## Contents:
 
-- Normal mode
-	- Movement
-	- Edit
-	- Misc
+- [Normal mode](#normal-mode)
+	- [Movement](#movement)
+	- [Edit](#edit)
+	- [Misc](#misc)
 
-- Insert mode 
-	- Movement
-	- Edit
-	- Misc
+- [Insert mode](#insert-mode) 
+	- [Movement](#movement-1)
+	- [Edit](#edit-1)
+	- [Misc](#misc-1)
 
-- Selection mode
-	- Movement 
-	- Misc
+- [Selection mode](#selection-mode)
+	- [Movement](#movement-2)
+	- [Misc](#misc-2)
 
-- Command mode
-	- Movement
-	- Misc
+- [Command mode](#command-mode)
+	- [Movement](#movement-3)
+	- [Misc](#misc-3)
 
 ## Normal mode
 
@@ -47,11 +47,11 @@ This document is intended to be a guide and index of the commands and functions 
 >	- __ctrl + n__ - Jump back to previous position after __ctrl + m__ .
 
 2. ### Edit
->	- __rc__ - Copy current row.
->	- __ry__ - Cut current row.
->	- __rp__ - Paste row from editor buffer.
->	- __rd__ - Delete current row.
->	- __pc__ - Paste from clipboard.
+>	- __cr__ - Copy current row.
+>	- __yr__ - Cut current row.
+>	- __pr__ - Paste row from editor buffer.
+>	- __dr__ - Delete current row.
+>	- __cp__ - Paste from clipboard.
 
 3. ### Misc
 >	- __cc__ - ???.
@@ -111,7 +111,7 @@ This document is intended to be a guide and index of the commands and functions 
 2. ### Misc
 >	- __q!__ - Force quit without saving changes.
 >	- __w__ - Save changes.
->	- __wp__ - Save changes and quit.
+>	- __wq__ - Save changes and quit.
 >	- __q__ - Quit.
 >	- __f__ - Find.
 >	- __fr__ - Find and replace. 
