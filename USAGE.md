@@ -49,12 +49,12 @@ This document is intended to be a guide and index of the commands and functions 
 2. ### Edit
 >	- __cr__ - Copy current row.
 >	- __yr__ - Cut current row.
->	- __pr__ - Paste row from editor buffer.
+>	- __pr__ - Paste row from clipboard.
 >	- __dr__ - Delete current row.
 >	- __cp__ - Paste from clipboard.
 
 3. ### Misc
->	- __cc__ - ???.
+>	- __cc__ - Clears the clipboard  
 >	- __:__ - Enter command mode.
 >	- __i__ - Enter insert mode.
 >	- __I__ - Enter insert mode.
@@ -75,7 +75,7 @@ This document is intended to be a guide and index of the commands and functions 
 
 2. ### Edit
 >	- __ctrl + y__ - Cut current row.
->	- __ctrl + p__ - Paste row from editor buffer.
+>	- __ctrl + p__ - Paste row from clipboard.
 >	- __ctrl + h__ - Delete character under cursor
 >	- __ctrl + v__ - Paste from clipboard.
 
