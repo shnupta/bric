@@ -528,7 +528,7 @@ void editor_insert_row(int at, char *s, size_t length)
 		}
 		for (editing_row *i = new->next; i != NULL; i = i->next)
 		{
-			++i->index;
+			i->index++;
 		}
 	}
 
@@ -541,7 +541,7 @@ void editor_insert_row(int at, char *s, size_t length)
         new->rendered_size = 0;
         new->index = at;
         editor_update_row(new/*Editor.row+at*/);
-        ++Editor.num_of_rows;
+        Editor.num_of_rows++;
 	if(Editor.num_of_rows)
 		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
 //	printf("%d", line_number_length);
@@ -598,7 +598,7 @@ void editor_delete_row(int at)
 	else {
 		line_number_length = 3;
 	}
-        ++Editor.dirty;
+        Editor.dirty++;
 }
 
 
