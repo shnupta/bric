@@ -1872,22 +1872,26 @@ void enter_command(int fd)
         char query[BRIC_QUERY_LENGTH+1] = {0};
 	int qlen = 0;
 
-	while(1) {
+	while(1)
+    {
 		editor_set_status_message(":%s", query);
 		editor_refresh_screen();
 
 		int c = editor_read_key(fd);
-		if(c == DEL_KEY || c == BACKSPACE) {
+		if(c == DEL_KEY || c == BACKSPACE)
+        {
 			if(qlen != 0) query[--qlen] = '\0';
-		}else if(c == ENTER || c == ESC) {
-			if(c == ENTER) {
-				editor_parse_command(fd, query);
-				return;
-			} else {
-                                editor_set_status_message("");
-                                return;
-                        }
-		} else if(isprint(c)) {
+		}
+        else if(c == ENTER)
+        {
+			editor_parse_command(fd, query);
+        }
+        else if(c == ESC)
+        {
+            editor_set_status_message("");
+		} 
+        else if(isprint(c))
+        {
 			if(qlen < BRIC_QUERY_LENGTH) {
 				query[qlen++] = c;
 				query[qlen] = '\0';
@@ -2103,27 +2107,27 @@ void editor_process_key_press(int fd)
                                 break;
                 }
                 break;
-            case SELECTION_MODE:
-                switch(c) {
-                    case 'h':
-                    case 'j':
-                    case 'k':
-                    case 'l':
-                    case ARROW_UP:
-                    case ARROW_DOWN:
-                    case ARROW_RIGHT:
-                    case ARROW_LEFT:
-                        editor_move_cursor(c);
-                        break;
+        case SELECTION_MODE:
+            switch(c) {
+                case 'h':
+                case 'j':
+                case 'k':
+                case 'l':
+                case ARROW_UP:
+                case ARROW_DOWN:
+                case ARROW_RIGHT:
+                case ARROW_LEFT:
+                    editor_move_cursor(c);
+                    break;
 
-                    case ESC:
-                        Editor.mode = NORMAL_MODE;
-                        break;
+                case ESC:
+                    Editor.mode = NORMAL_MODE;
+                    break;
 
-                    case CTRL_C:
-                        copy_to_clipboard();
-                        break;
-                }
+                case CTRL_C:
+                    copy_to_clipboard();
+                    break;
+            }
         }
 
         Editor.prev_char = c;
@@ -2146,13 +2150,13 @@ void init_editor(void)
         Editor.column_offset = 0;
         Editor.num_of_rows = 0;
         Editor.row_head = NULL;
-	Editor.row_tail = NULL;
-	Editor.current = NULL;
+        Editor.row_tail = NULL;
+	    Editor.current = NULL;
         Editor.dirty = 0;
         Editor.newfile = 0;
         Editor.filename = NULL;
         Editor.syntax = NULL;
-	Editor.tab_length = TAB_LENGTH;
+        Editor.tab_length = TAB_LENGTH;
         Editor.colours.hl_comment_colour = 33;
         Editor.colours.hl_mlcomment_colour = 33;
         Editor.colours.hl_keyword_cond_colour = 36;
