@@ -1743,11 +1743,11 @@ void editor_process_key_press(int fd)
                         case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
-                                        editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit.", quit_times);
+                                        editor_set_status_message("WARNING! File has unsaved changes. " "Press Ctrl-Q %d more times to quit.", quit_times);
                                         quit_times--;
                                         return;
                                 }
-                                exit(0);
+                                editor_harsh_quit();
                                 break;
                         case CTRL_S:
                                 editor_save();
