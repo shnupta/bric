@@ -2021,8 +2021,18 @@ void load_config_file(void)
     {
         return;
     }
-    char variable_name[60], value[60];
-    while (fscanf(config, "set %s %s\n", variable_name, value) == 2)
+
+		/*
+			input_conf will be allocated by getline() but we have to free it afterward.
+			Same with the scanf family, %m allocate a buffer but we have to free it
+		*/
+		char *input_conf = NULL;
+		char *variable_name = NULL;
+		char *value = NULL;
+		size_t len_line = 0;
+
+    while (getline(&input_conf, &len_line, config) != -1){
+			if(sscanf(input_conf, "set %ms %ms\n", &variable_name, &value) == 2)
     {
         if (strcmp(variable_name, "linenumbers") == 0)
         {
@@ -2104,6 +2114,16 @@ void load_config_file(void)
         }
 
     }
+	}
+
+		//free variables from getline and sscanf
+		if(input_conf)
+			free(input_conf);
+		if(variable_name)
+			free(variable_name);
+		if(value)
+			free(value);
+
     fclose(config);
 }
 
