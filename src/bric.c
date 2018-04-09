@@ -2188,13 +2188,13 @@ int main(int argc, char **argv)
                 parse_argument(argv[i]);
             }
         }
-				// We check if current file is locked
-				if(!is_file_locked(CurrentFile)){
-								lock_file(CurrentFile);
-				}else{
-								fprintf(stderr, "The file has been locked, try to remove the locker!\n");
-								return EXIT_FAILURE;
-				}
+	// We check if current file is locked
+	if(!is_file_locked(CurrentFile)){
+		lock_file(CurrentFile);
+	}else{
+		fprintf(stderr, "The file has been locked, try to remove the locker!\n");
+		return EXIT_FAILURE;
+	}
         editor_start(argv[file_arg]);
         while(1) {
                 editor_refresh_screen();
