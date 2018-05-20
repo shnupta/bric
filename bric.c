@@ -2012,8 +2012,10 @@ void editor_process_key_press(int fd)
                                 break;
                 }
                 break;
+
         case NORMAL_MODE:
-                switch (c) {
+                switch (c)
+		{
                         case 'r':
                             if (Editor.prev_char == 'c') editor_copy_row();
                             if (Editor.prev_char == 'y') editor_yank_row();
@@ -2040,52 +2042,64 @@ void editor_process_key_press(int fd)
                         case ':':
                                 enter_command(fd);
                                 break;
+			//Activates Insert Mode in the current cursor location
                         case 'i':
                                 Editor.mode = INSERT_MODE;
                                 editor_set_status_message("Insert mode.");
                                 break;
+			//Activates Insert Mode in the begin of the current line
                         case 'I':
 				editor_move_cursor(HOME_KEY);
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				break;
+			//Create and move the cursor to the new line
                         case 'o':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode.");
 				editor_insert_row(filerow + 1, "", 0);
 				editor_move_cursor(ARROW_DOWN);
 				break;
+			//Create a new line in the current cursor location
                         case 'O':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				editor_insert_row(filerow, "", 0);
 				break;
+			//Jump to the last text line
                         case 'G':
                     		editor_goto(Editor.num_of_rows);
                     		break;
+			//Jump to the first text line
                         case 'g':
                     		editor_goto(1);
                     		break;
+			//Move the cursor to the last column of the current line
                         case '$':
 				editor_move_cursor(END_KEY);
 				break;
+			//Move the cursor to the first column of the current line
                         case '0':
 				editor_move_cursor(HOME_KEY);
 				break;
+			//Activates Insert Mode one character of the current cursor location
                         case 'a':     
 				editor_move_cursor(ARROW_RIGHT);
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				break;
+			//Activates Insert Mode at the end of the current line
                         case 'A':
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
 				editor_move_cursor(END_KEY);
 				editor_move_cursor(ARROW_RIGHT);
 				break;
+			//Move the cursor to the first column of the current line
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
+			//Move the cursor to the last column of the currnt line
                         case END_KEY:
                                 editor_move_cursor(END_KEY);
                                 break;
@@ -2103,8 +2117,10 @@ void editor_process_key_press(int fd)
                                 break;
                 }
                 break;
+
             case SELECTION_MODE:
-                switch(c) {
+                switch(c) 
+		{
                     case 'h':
                     case 'j':
                     case 'k':
@@ -2167,14 +2183,18 @@ void init_editor(void)
         Editor.colours.hl_background_colour = 49;
         Editor.colours.hl_default_colour = 37;
         Editor.mode = NORMAL_MODE;
-        if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
+
+        if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1)
+	{
                 perror("Unable to query the screen for size (columns / rows)");
                 exit(1);
         }
+
         if (Editor.line_numbers)
         {
             Editor.screen_columns -= line_number_length;
         }
+
         Editor.prev_char = ' ';
         Editor.screen_rows -= 2; // get room for status bar
 }
@@ -2183,17 +2203,19 @@ void load_config_file(void)
 {
     struct passwd *user = getpwuid(getuid());
     char config_file[80];
+    char variable_name[60], value[60];
     config_file[0] = 0;
     strcat(config_file, user->pw_dir);
     strcat(config_file, "/.bricrc");
+
     FILE *config = fopen(config_file, "r");
     if (config == NULL)
     {
         return;
     }
-    char variable_name[60], value[60];
-    while (fscanf(config, "set %s %s\n", variable_name, value) == 2)
-    {
+
+   while (fscanf(config, "set %s %s\n", variable_name, value) == 2)
+   {
         if (strcmp(variable_name, "linenumbers") == 0)
         {
             if (strcmp(value, "true") == 0)
@@ -2274,6 +2296,7 @@ void load_config_file(void)
         }
 
     }
+
     fclose(config);
 }
 
@@ -2284,6 +2307,7 @@ void close_editor(void)
     //free(Editor.row);
     editing_row *i = Editor.row_head;
     editing_row *prev;
+
     while (i != NULL)
     {
             prev = i;
@@ -2296,6 +2320,7 @@ void close_editor(void)
                     free(prev);
             }
     }
+
     free(Editor.clipboard);
 }
 
@@ -2317,6 +2342,7 @@ int main(int argc, char **argv)
         signal(SIGWINCH, sigwinch_handler);
         init(&tag_stack);
         int file_arg = -1;
+
         for (int i = 1; i < argc; i++)
         {
             if (argv[i][0] != '-')
@@ -2324,10 +2350,12 @@ int main(int argc, char **argv)
                 file_arg = i;
             }
         }
+
         if(file_arg == -1) {
                 fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
+
         // We set the current file information
         set_current_file(argv[file_arg], &CurrentFile);
 
@@ -2338,6 +2366,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "The file has been locked, try to remove the locker!\n");
                 return EXIT_FAILURE;
         }
+
         for (int i = 1; i < argc; i++)
         {
             if (argv[i][0] == '-')
@@ -2345,6 +2374,7 @@ int main(int argc, char **argv)
                 parse_argument(argv[i]);
             }
         }
+
         editor_start(argv[file_arg]);
         while(1) {
                 editor_refresh_screen();
