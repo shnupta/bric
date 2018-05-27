@@ -130,11 +130,7 @@ enum KEY_ACTION {
 };
 
 
-
-
-
 // Low level terminal handling
-
 
 void disable_raw_mode(int fd);
 
@@ -149,8 +145,6 @@ int get_cursor_pos(int ifd, int ofd, int *rows, int *columns); //using the ESC [
 int get_window_size(int ifd, int ofd, int *rows, int *columns); // try to get the number of columns in the current terminal
 
 
-
-
 // Syntax highlighting!!!
 
 int is_separator(int c);
@@ -162,7 +156,6 @@ void editor_update_syntax(editing_row *row);
 int editor_syntax_to_colour(int highlight); //maps the syntax highlight to the terminal colours
 
 void editor_select_syntax_highlight(char *filename); // select the correct highlight scheme based on filetype
-
 
 
 // Editor Rows Implementation
@@ -201,8 +194,8 @@ void editor_yank_row();
 
 void editor_paste_row();
 
-// Terminal updating stuff
 
+// Terminal updating stuff
 
 // this is a very simple append buffer struct, it is a heap allocated
 // string where we can append to. this is useful in order to write all
@@ -222,8 +215,6 @@ void ab_free(struct append_buf *ab);
 void editor_refresh_screen(void); // this writes the whole screen using VT100 escape characters
 
 void editor_set_status_message(const char *fmt, ...);
-
-
 
 
 // Find Mode!!
