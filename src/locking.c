@@ -20,7 +20,6 @@ void set_current_file(char *filename, struct __current_file *current_file)
     return;
 }
 
-
 /**
  * Funcao:  get_locker_name ()
  *
@@ -47,7 +46,6 @@ char *get_locker_name(struct __current_file current_file)
 
     return buffer;
 }
-
 
 /**
  * Função: lock_file ()
@@ -76,15 +74,15 @@ void lock_file(struct __current_file current_file)
     return;
 }
 
-
 /**
- * Função: unlock_file ()
+ * Função: is_file_locked ()
  *
- * Objetivo: Excluir o arquivo do armário usado para bloquear o arquivo atual.
+ * Objetivo: verificar se o arquivo atual está bloqueado.
+ * Verifica se o arquivo do armário existe.
  *
  * Argumentos: filename <char *> Caminho para o arquivo atual.
  *
- * Retorno: N / A
+ * Retorno: 1 se o arquivo atual estiver bloqueado, 0 caso contrário.
  *
  */
 void unlock_file(struct __current_file current_file)
@@ -102,15 +100,15 @@ void unlock_file(struct __current_file current_file)
 }
 
 /**
- * Função: is_file_locked ()
- *
- * Objetivo: verificar se o arquivo atual está bloqueado.
- * Verifica se o arquivo do armário existe.
- *
- * Argumentos: filename <char *> Caminho para o arquivo atual.
- *
- * Retorno: 1 se o arquivo atual estiver bloqueado, 0 caso contrário.
- *
+ * Function:    is_file_locked()
+ * 
+ * Objective:   Check if the current file is locked. 
+ *              It checks if the locker file exists.
+ * 
+ * Arguments:   current_file    <struct __current_file>     Struct with the current file information.
+ * 
+ * Return:      <int>           If the current file is locked 1, otherwise 0.
+ * 
  */
 int is_file_locked(struct __current_file current_file)
 {

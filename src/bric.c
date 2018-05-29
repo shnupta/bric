@@ -1,8 +1,8 @@
 #include "bric.h"
 
 static struct __current_file CurrentFile;
-static struct editor_config Editor;
-static struct termios orig_termios; // para poder restaurar o original ao sair
+struct editor_config Editor;
+struct termios orig_termios; // para poder restaurar o original ao sair
 static int line_number_length = 3;
 const char* line_number_format[] = {"%1d", "%2d", "%3d", "%4d", "%5d"};
 
@@ -47,65 +47,6 @@ void sigwinch_handler()
 	editor_refresh_screen();
 }
 
-// Tratamento do terminal a baixo nivel
-void disable_raw_mode(int fd)
-{   
-
-    // nao se preocupar em checar o valor de retorno
-    if (Editor.rawmode) {
-        tcsetattr(fd, TCSAFLUSH, &orig_termios);
-        write(fd, "\033[2J\033[H\033[?1049l", 15);
-        Editor.rawmode = 0;
-    }
-}
-
-// Acoes a serem realizadas ao fechar o editor
-void editor_at_exit(void)
-{
-        disable_raw_mode(STDIN_FILENO);
-}
-
-// Habilita o modo de edicao raw (cru)
-int enable_raw_mode(int fd)
-{
-    struct termios raw;
-
-    if(Editor.rawmode) return 0; // ja habilitado
-    if(!isatty(fd)) {
-        errno = ENOTTY;
-        return -1;
-    }
-    atexit(editor_at_exit);
-    if(tcgetattr(fd, &orig_termios) == -1) {
-        errno = ENOTTY;
-        return -1;
-    }
-
-    raw = orig_termios; // modifica o modo original
-    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-
-    // output modes - disabilitar pos-processamento
-    raw.c_oflag &= ~(OPOST);
-
-    //control modes - set 8 bit chars
-    raw.c_cflag |= (CS8);
-
-    //local modes, choing off, canonical off, no extended functions, no signal chars (, etc)
-    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
-
-    //control chars - set return condition: min number of bytes and a timer
-    raw.c_cc[VMIN] = 0; // return each byte, or zero for a timeout
-    raw.c_cc[VTIME] = 1; //100ms timeout
-
-    // coloca o terminal em modo raw apos realiar flush
-    if(tcsetattr(fd, TCSAFLUSH, &raw) < 0) {
-        errno = ENOTTY;
-        return -1;
-    }
-    Editor.rawmode = 1;
-    return 0;
-}
-
 // Verifica se uma string so' contem numeros
 int numbers_only(const char *s)
 {
@@ -116,131 +57,14 @@ int numbers_only(const char *s)
     return 1;
 }
 
-// Le uma tecla do input no modo eaw e realiza o tratamento
-int editor_read_key(int fd)
-{
-    int nread;
-    char c, seq[3];
-    while((nread = read(fd, &c, 1)) == 0);
-    if(nread == -1) exit(1);
-
-    while(1) {
-        switch(c) {
-            case ESC: // sequencia de escape
-                // se for um escape, entao timeout
-                if(read(fd, seq, 1) == 0) return ESC;
-                if(read(fd, seq+1, 1) == 0) return ESC;
-
-                // ESC [ sequencias
-                if(seq[0] == '[') {
-                    if(seq[1] >= '0' && seq[1] <= '9') {
-                        // escape estenddo, entao ler um byte adicional 
-                        if(read(fd, seq+2, 1) == 0) return ESC;
-                        if(seq[2] == '~') {
-                            switch(seq[1]) {
-                                case '3': return DEL_KEY;
-                                case '5': return PAGE_UP;
-                                case '6': return PAGE_DOWN;
-                            }
-                        }
-                    } else {
-                        switch(seq[1]) {
-                            case 'A': return ARROW_UP;
-                            case 'B': return ARROW_DOWN;
-                            case 'C': return ARROW_RIGHT;
-                            case 'D': return ARROW_LEFT;
-                            case 'H': return HOME_KEY;
-                            case 'F': return END_KEY;
-                        }
-                    }
-                }
-
-                // ESC 0 sequencias
-                else if(seq[0] == 'O') {
-                    switch (seq[1]) {
-                        case 'H': return HOME_KEY;
-                        case 'F': return END_KEY;
-                    }
-                }
-                break;
-
-            default:
-                return c;
-        }
-    }
-}
-
-// Usa o ESC [6n para procurar pela posicao horizontal do cursor e retorna-la.
-// Em caso de erro, -1 e' retornado. Em caso de sucesso, a posicao do cursor
-// e' armazenada em *rows, *columns e 0 e' retornado.
-int get_cursor_pos(int ifd, int ofd, int *rows, int *columns)
-{
-    char buf[32];
-    unsigned int i = 0;
-
-    // informa a localizacao do cursor
-    if (write(ofd, "\x1b[6n", 4) != 4) return -1;
-
-    // le a resposta: ESC [ linhas; R colunas
-    while(i < sizeof(buf)-1) {
-        if( read(ifd, buf+i, 1) != 1) break;
-        if(buf[i] == 'R') break;
-        i++;
-    }
-    buf[i] = '\0';
-
-    // parse
-    if (buf[0] != ESC || buf[1] != '[') return -1;
-    if (sscanf(buf+2,"%d;%d",rows,columns) != 2) return -1;
-    
-    return 0;
-}
-
-
-// Pega o numero de linhas na janela
-int get_window_size(int ifd, int ofd, int *rows, int *columns)
-{
-    struct winsize ws;
-
-    if(ioctl(1, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
-        // ioctl() falhou, entao buscar no terminal 
-        int original_row, original_column, retval;
-
-        // pega a posicao inicial e armazena para posteriormente
-        retval = get_cursor_pos(ifd, ofd, &original_row, &original_column);
-        if(retval == -1) {
-            return -1;
-        }
-
-        // vai para a margem inferior direita e pega a posicao
-        if(write(ofd, "\x1b[999C\x1b[999B", 12) != 12) return -1;
-        retval = get_cursor_pos(ifd, ofd, rows, columns);
-        if(retval == -1) {
-            return -1;
-        }
-
-        // restaura a posicao do cursor
-        char seq[32];
-        snprintf(seq, 32, "\x1b[%d;%dH", original_row, original_column);
-        if(write(ofd, seq, strlen(seq)) == -1) {
-            // nao conseguiu recuperar a posicao do cursor
-        }
-        return 0;
-    } else {
-        *columns = ws.ws_col;
-        *rows = ws.ws_row;
-        return 0;
-    }
-}
-
-// SYNTAX HIGHLIGHTING
+/*** SYNTAX HIGHLIGHTING ***/
 
 int is_separator(int c)
 {
     return c == '\0' || isspace(c) || strchr(",.()+_/*=%[];", c) != NULL;
 }
 
-// retorna TRUE se o ultimo caracter da linha especificada e' parte de um comentario multi-linha que engloba a proxima linha
+// Retorna TRUE se o ultimo caracter da linha especificada e' parte de um comentario multi-linha que engloba a proxima linha
 int editing_row_has_open_comment(editing_row *row)
 {
     if(row->hl && row->rendered_size && row->hl[row->rendered_size-1] == HL_MLCOMMENT && 
@@ -249,7 +73,7 @@ int editing_row_has_open_comment(editing_row *row)
     return 0;
 }
 
-// coloca cada byte de row->hl (todos os caracteres na linha) para a sintaxe correta definida por HL_*
+// Coloca cada byte de row->hl (todos os caracteres na linha) para a sintaxe correta definida por HL_*
 void editor_update_syntax(editing_row *row)
 {
     row->hl = realloc(row->hl, row->rendered_size);
@@ -409,7 +233,6 @@ int editor_syntax_to_colour(int highlight)
     }
 }
 
-
 // Seleciona o highlight de sintaxe de acordo com o nome do arquivo 
 void editor_select_syntax_highlight(char *filename)
 {
@@ -430,7 +253,7 @@ void editor_select_syntax_highlight(char *filename)
     }
 }
 
-// IMPLEMENTACAO DAS LINHAS DO EDITOR
+/*** IMPLEMENTACAO DAS LINHAS DO EDITOR ***/
 
 // Atualiza a versao renderizada e o highlight de sintaxe da linha 
 void editor_update_row(editing_row *row)
@@ -462,76 +285,78 @@ void editor_update_row(editing_row *row)
 // Procura por um numero de linha e retorna esta linha caso encontre
 editing_row *find_row(int at)
 {
-	editing_row *ret;
-	if (Editor.current != NULL)
-		ret = Editor.current;
-	else
-		ret = Editor.row_head;
+    editing_row *ret;
+    if (Editor.current != NULL)
+        ret = Editor.current;
+    else
+        ret = Editor.row_head;
     while (ret != NULL && ret->index != at)
     {
         if (ret->index > at)
-		ret = ret->prev;
+        ret = ret->prev;
         else if (ret->index < at)
-		ret = ret->next;
+        ret = ret->next;
     }
     if (ret != NULL)
-	    Editor.current = ret;
+        Editor.current = ret;
     return ret;
 }
 
 // Insere linha
 void editor_insert_row(int at, char *s, size_t length)
 {
-    if(at > Editor.num_of_rows) return;
+        if(at > Editor.num_of_rows) return;
+         //Editor.row = realloc(Editor.row, sizeof(editing_row)*(Editor.num_of_rows+1));
 
-    editing_row *new = (editing_row*)malloc(sizeof(editing_row));
+        editing_row *new = (editing_row*)malloc(sizeof(editing_row));
 
-	  for(int j = at+1; j <= Editor.num_of_rows; j++) Editor.row[j].index++;*/
-	if (Editor.num_of_rows == 0)
-	{
-		Editor.row_head = new;
-		Editor.row_tail = NULL;
-		Editor.row_head->prev = Editor.row_head->next = NULL;
-	}
-	else if (at == Editor.num_of_rows)
-	{
-		if (Editor.row_tail == NULL)
-		{
-			Editor.row_tail = new;
-			new->prev = Editor.row_head;
-			new->next = NULL;
-			Editor.row_head->next = new;
-		}
-		else
-		{
-			Editor.row_tail->next = new;
-			new->prev = Editor.row_tail;
-			Editor.row_tail = Editor.row_tail->next;
-			new->next = NULL;
-		}
-	}
-	else
-	{
-		if (at == 0)
-		{
-			Editor.row_head->prev = new;
-			new->next = Editor.row_head;
-			Editor.row_head = Editor.row_head->prev;
-		}
-		else
-		{
-			editing_row *row = find_row(at);
-			new->next = row;
-			new->prev = row->prev;
-			if (new->prev)
-				new->prev->next = new;
-			row->prev = new;
-		}
-		for (editing_row *i = new->next; i != NULL; i = i->next)
-		{
-			++i->index;
-		}
-	}
+    /*memmove(Editor.row + at + 1, Editor.row + at, sizeof(Editor.row[0])*(Editor.num_of_rows-at));
+      for(int j = at+1; j <= Editor.num_of_rows; j++) Editor.row[j].index++;*/
+    if (Editor.num_of_rows == 0)
+    {
+        Editor.row_head = new;
+        Editor.row_tail = NULL;
+        Editor.row_head->prev = Editor.row_head->next = NULL;
+    }
+    else if (at == Editor.num_of_rows)
+    {
+        if (Editor.row_tail == NULL)
+        {
+            Editor.row_tail = new;
+            new->prev = Editor.row_head;
+            new->next = NULL;
+            Editor.row_head->next = new;
+        }
+        else
+        {
+            Editor.row_tail->next = new;
+            new->prev = Editor.row_tail;
+            Editor.row_tail = Editor.row_tail->next;
+            new->next = NULL;
+        }
+    }
+    else
+    {
+        if (at == 0)
+        {
+            Editor.row_head->prev = new;
+            new->next = Editor.row_head;
+            Editor.row_head = Editor.row_head->prev;
+        }
+        else
+        {
+            editing_row *row = find_row(at);
+            new->next = row;
+            new->prev = row->prev;
+            if (new->prev)
+                new->prev->next = new;
+            row->prev = new;
+        }
+        for (editing_row *i = new->next; i != NULL; i = i->next)
+        {
+            ++i->index;
+        }
+    }
 
         new->size = length;
         new->chars = malloc(length+1);
@@ -541,10 +366,11 @@ void editor_insert_row(int at, char *s, size_t length)
         new->rendered_chars = NULL;
         new->rendered_size = 0;
         new->index = at;
-        editor_update_row(new);
+        editor_update_row(new/*Editor.row+at*/);
         ++Editor.num_of_rows;
-        if(Editor.num_of_rows)
-		  line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+    if(Editor.num_of_rows)
+        line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+//  printf("%d", line_number_length);
         Editor.dirty++;
         Editor.current = new;
 }
@@ -556,6 +382,7 @@ void editor_free_row(editing_row *row)
     free(row->chars);
     free(row->hl);
 }
+
 
 // Remove a linha em uma posicao especificada 
 void editor_delete_row(int at)
@@ -586,12 +413,12 @@ void editor_delete_row(int at)
     editor_free_row(row);
 
     --Editor.num_of_rows;
-	if(Editor.num_of_rows) {
-		line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
-	}
-	else {
-		line_number_length = 3;
-	}
+    if(Editor.num_of_rows) {
+        line_number_length = 3 + (int)log10((double)Editor.num_of_rows);
+    }
+    else {
+        line_number_length = 3;
+    }
     ++Editor.dirty;
 }
 
@@ -711,6 +538,10 @@ char *set_indent_prefix(char *text, char *prefix)
     return res;
 }
 
+/*
+ * This function copies the current line to a separate buffer.
+ */
+
 // Copia a linha atual para um buffer separado
 int editor_copy_row() 
 {
@@ -735,7 +566,7 @@ int editor_copy_row()
                 exit(1);
             }
         }
-	   return 1;
+       return 1;
     }
     return 0;
 }
@@ -744,8 +575,8 @@ int editor_copy_row()
 void editor_yank_row() 
 {
     if(editor_copy_row()) {
-    	int filerow = Editor.row_offset+Editor.cursor_y;
-    	editor_delete_row(filerow);
+        int filerow = Editor.row_offset+Editor.cursor_y;
+        editor_delete_row(filerow);
     }
 }
 
@@ -879,10 +710,10 @@ int editor_open(char *filename)
                 perror("Opening file");
                 exit(1);
         }
-    	// insere uma linha se o arquvo e' novo (vazio)
-    	editor_insert_row(Editor.num_of_rows, "", 0);
-    	Editor.dirty = 0;
-    	Editor.newfile = 1;
+        // insere uma linha se o arquvo e' novo (vazio)
+        editor_insert_row(Editor.num_of_rows, "", 0);
+        Editor.dirty = 0;
+        Editor.newfile = 1;
         return 1;
     }
 
@@ -928,7 +759,7 @@ writeerr:
     return 1;
 }
 
-// ATUALIZACAO DO TERMINAL
+/*** ATUALIZACAO DO TERMINAL ***/
 
 // Armazena o caractere ab passado no terminal
 void ab_append(struct append_buf *ab, char *s, int length)
@@ -1069,7 +900,7 @@ void editor_refresh_screen(void)
         {
             sprintf(buf, line_number_format[line_number_length - 3], filerow + 1);
             ab_append(&ab, buf, strlen(buf));
-	        ab_append(&ab, ": ", 2);
+            ab_append(&ab, ": ", 2);
         }
         if(filerow >= Editor.num_of_rows) {
             if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && Editor.mode != INSERT_MODE && !Editor.dirty && Editor.newfile) {
@@ -1219,7 +1050,7 @@ void editor_set_status_message(const char *fmt, ...)
     Editor.status_message_time = time(NULL);
 }
 
-// MODO DE PROCURA
+/*** MODO DE PROCURA ***/
 
 void editor_find(int fd)
 {
@@ -1327,20 +1158,20 @@ void editor_find(int fd)
     }
 }
 
-// MODO SUBSTITUICAO
+/*** MODO SUBSTITUICAO ***/
 
 void editor_find_replace(int fd)
 {
-	char query[BRIC_QUERY_LENGTH + 1] = { 0 };
-	char replace_word[BRIC_QUERY_LENGTH + 1] = { 0 };
-	int replace_len = 0;
-	int qlen = 0;
-	int last_match = -1; // ultima linha na qual o match foi encontrado, -1 para nenhuma
-	int find_next = 0; // se 1, procurar proximo; se -1, procurar anterior 
-	int saved_hl_line = -1; 
-	char *current_input = query;
-	int *current_input_len = &qlen;
-	char *saved_hl = NULL;
+    char query[BRIC_QUERY_LENGTH + 1] = { 0 };
+    char replace_word[BRIC_QUERY_LENGTH + 1] = { 0 };
+    int replace_len = 0;
+    int qlen = 0;
+    int last_match = -1; // ultima linha na qual o match foi encontrado, -1 para nenhuma
+    int find_next = 0; // se 1, procurar proximo; se -1, procurar anterior 
+    int saved_hl_line = -1; 
+    char *current_input = query;
+    int *current_input_len = &qlen;
+    char *saved_hl = NULL;
 
     #define FIND_RESTORE_HL do { \
         if(saved_hl) { \
@@ -1349,125 +1180,124 @@ void editor_find_replace(int fd)
         } \
     } while (0)
 
-	// salva a posicao do cursor para restaurar depois
-	int saved_cursor_x = Editor.cursor_x, saved_cursor_y = Editor.cursor_y;
-	int saved_column_offset = Editor.column_offset, saved_row_offset = Editor.row_offset;
+    // salva a posicao do cursor para restaurar depois
+    int saved_cursor_x = Editor.cursor_x, saved_cursor_y = Editor.cursor_y;
+    int saved_column_offset = Editor.column_offset, saved_row_offset = Editor.row_offset;
 
-	while (1) {
-		editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)", query, replace_word);
-		editor_refresh_screen();
+    while (1) {
+        editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)", query, replace_word);
+        editor_refresh_screen();
 
-		int c = editor_read_key(fd);
-		if (c == CTRL_H || c == BACKSPACE) {
-			if (*current_input_len != 0) current_input[--(*current_input_len)] = '\0';
-			last_match = -1;
-		}
-		else if (c == ESC) {
-			if (c == ESC) {
-				Editor.cursor_x = saved_cursor_x; Editor.cursor_y = saved_cursor_y;
-				Editor.column_offset = saved_column_offset; Editor.row_offset = saved_row_offset;
-			}
-			FIND_RESTORE_HL;
-			editor_set_status_message("");
-			return;
-		}
-		else if (c == ARROW_RIGHT || c == ARROW_DOWN) {
-			find_next = 1;
-		}
-		else if (c == ARROW_LEFT || c == ARROW_UP) {
-			find_next = -1;
-		}
-		else if (c == TAB) {
-			if (current_input == query) {
-				current_input = replace_word;
-				current_input_len = &replace_len;
-			} else if(current_input == replace_word) {
-				current_input = query;
-				current_input_len = &qlen;
-			}
-		}
-		else if (c == ENTER) {
-			Editor.cursor_x += qlen;
-			for (int i = 0; i < qlen; i++)
-			{
-				editor_delete_char();
-			}
-			for (int j = 0; j < replace_len; j++)
-			{
-				editor_insert_char(replace_word[j]);
-			}
+        int c = editor_read_key(fd);
+        if (c == CTRL_H || c == BACKSPACE) {
+            if (*current_input_len != 0) current_input[--(*current_input_len)] = '\0';
+            last_match = -1;
+        }
+        else if (c == ESC) {
+            if (c == ESC) {
+                Editor.cursor_x = saved_cursor_x; Editor.cursor_y = saved_cursor_y;
+                Editor.column_offset = saved_column_offset; Editor.row_offset = saved_row_offset;
+            }
+            FIND_RESTORE_HL;
+            editor_set_status_message("");
+            return;
+        }
+        else if (c == ARROW_RIGHT || c == ARROW_DOWN) {
+            find_next = 1;
+        }
+        else if (c == ARROW_LEFT || c == ARROW_UP) {
+            find_next = -1;
+        }
+        else if (c == TAB) {
+            if (current_input == query) {
+                current_input = replace_word;
+                current_input_len = &replace_len;
+            } else if(current_input == replace_word) {
+                current_input = query;
+                current_input_len = &qlen;
+            }
+        }
+        else if (c == ENTER) {
+            Editor.cursor_x += qlen;
+            for (int i = 0; i < qlen; i++)
+            {
+                editor_delete_char();
+            }
+            for (int j = 0; j < replace_len; j++)
+            {
+                editor_insert_char(replace_word[j]);
+            }
                        editor_refresh_screen();
                        return;
-		}
-		else if (isprint(c)) {
-			if (qlen < BRIC_QUERY_LENGTH) {
-				current_input[(*current_input_len)++] = c;
-				current_input[(*current_input_len)] = '\0';
-				last_match = -1;
-			}
-		}
+        }
+        else if (isprint(c)) {
+            if (qlen < BRIC_QUERY_LENGTH) {
+                current_input[(*current_input_len)++] = c;
+                current_input[(*current_input_len)] = '\0';
+                last_match = -1;
+            }
+        }
 
-		// procura a ocorrencia
-		if (last_match == -1) find_next = 1;
-		if (find_next) {
-			char *match = NULL;
-			int match_offset = 0;
-			int i, current = last_match;
+        // procura a ocorrencia
+        if (last_match == -1) find_next = 1;
+        if (find_next) {
+            char *match = NULL;
+            int match_offset = 0;
+            int i, current = last_match;
 
             editing_row *tmp = Editor.row_head;
-			for (i = 0; i < Editor.num_of_rows; i++) {
-				current += find_next;
+            for (i = 0; i < Editor.num_of_rows; i++) {
+                current += find_next;
                 tmp = find_row(current);
-				if (current == -1){
-			        current = Editor.num_of_rows - 1;
-			        tmp = Editor.row_tail;
-				 }
-				else if (current == Editor.num_of_rows){
-			        current = 0;
-			        tmp = Editor.row_head;
-				}
+                if (current == -1){
+                    current = Editor.num_of_rows - 1;
+                    tmp = Editor.row_tail;
+                 }
+                else if (current == Editor.num_of_rows){
+                    current = 0;
+                    tmp = Editor.row_head;
+                }
 
-				match = strstr(tmp->rendered_chars, query);
-				if (match) {
-					match_offset = match - tmp->rendered_chars;
-					break;
-				}
-			}
-			find_next = 0;
+                match = strstr(tmp->rendered_chars, query);
+                if (match) {
+                    match_offset = match - tmp->rendered_chars;
+                    break;
+                }
+            }
+            find_next = 0;
 
 
-			// Highlight
-			FIND_RESTORE_HL;
+            // Highlight
+            FIND_RESTORE_HL;
 
-			if (match) {
-				editing_row *row = find_row(current);
-				last_match = current;
-				if (row->hl) {
-					saved_hl_line = current;
-					saved_hl = malloc(row->rendered_size);
-					memcpy(saved_hl, row->hl, row->rendered_size);
-					memset(row->hl + match_offset, HL_MATCH, qlen);
-					memset(row->hl + match_offset + qlen, HL_BACKGROUND_DEFAULT, qlen);
-				}
-				Editor.cursor_y = 0;
-				Editor.cursor_x = match_offset;
-				Editor.row_offset = current;
-				Editor.column_offset = 0;
-				// scroll na horizontal caso seja necessario
-				if (Editor.cursor_x > Editor.screen_columns) {
-					int diff = Editor.cursor_x - Editor.screen_columns;
-					Editor.cursor_x -= diff;
-					Editor.column_offset += diff;
-				}
-			}
-		}
-	}
+            if (match) {
+                editing_row *row = find_row(current);
+                last_match = current;
+                if (row->hl) {
+                    saved_hl_line = current;
+                    saved_hl = malloc(row->rendered_size);
+                    memcpy(saved_hl, row->hl, row->rendered_size);
+                    memset(row->hl + match_offset, HL_MATCH, qlen);
+                    memset(row->hl + match_offset + qlen, HL_BACKGROUND_DEFAULT, qlen);
+                }
+                Editor.cursor_y = 0;
+                Editor.cursor_x = match_offset;
+                Editor.row_offset = current;
+                Editor.column_offset = 0;
+                // scroll na horizontal caso seja necessario
+                if (Editor.cursor_x > Editor.screen_columns) {
+                    int diff = Editor.cursor_x - Editor.screen_columns;
+                    Editor.cursor_x -= diff;
+                    Editor.column_offset += diff;
+                }
+            }
+        }
+    }
 }
 
+/*** TRATAMENTO DE EVENTOS DO EDITOR ***/
 
-// TRATAMENTO DE EVENTOS DO EDITOR
-
-//trar a mudanca de posicao do cursor devido ao pressionamento das setas do teclado
+// Trata a mudanca de posicao do cursor devido ao pressionamento das setas do teclado
 void editor_move_cursor(int key)
 {
     int filerow = Editor.row_offset + Editor.cursor_y;
@@ -1504,10 +1334,10 @@ void editor_move_cursor(int key)
                     Editor.cursor_x += 1;
                 }
             } else if ( row && filecol == row->size) {
-        	/* Nao ir alem da ultima linha */
-        	if(filerow == Editor.num_of_rows - 1) /* indexacao de 'filerow' comeca em 0 */ {
-        		break;
-        	}
+            /* Nao ir alem da ultima linha */
+            if(filerow == Editor.num_of_rows - 1) /* indexacao de 'filerow' comeca em 0 */ {
+                break;
+            }
                 Editor.cursor_x = 0;
                 Editor.column_offset = 0;
                 if(Editor.cursor_y == Editor.screen_rows-1) {
@@ -1527,7 +1357,7 @@ void editor_move_cursor(int key)
             break;
         case 'j':
         case ARROW_DOWN:
-            if(filerow < Editor.num_of_rows - 1) //Não vai além da última linha. Indexação de 'filerow' começa em 0
+            if(filerow < Editor.num_of_rows - 1) { //Não vai além da última linha. Indexação de 'filerow' começa em 0
                 if(Editor.cursor_y == Editor.screen_rows-1) {
                     Editor.row_offset++;
                 } else {
@@ -1580,44 +1410,43 @@ void editor_move_cursor(int key)
     }
 }
 
-
 // GOTO
 // Realiza a movimentacao dentro do editor editor
 void editor_goto(int linenumber)
 {
-	int line_number = linenumber;
-	int current_line;
+    int line_number = linenumber;
+    int current_line;
 
-	while(1) {
-		current_line = Editor.row_offset + Editor.cursor_y + 1;
-		editor_refresh_screen();
+    while(1) {
+        current_line = Editor.row_offset + Editor.cursor_y + 1;
+        editor_refresh_screen();
 
-		if(line_number <= Editor.num_of_rows && line_number > 0) {
-			if (current_line > line_number) {
-				int diff = current_line - line_number;
+        if(line_number <= Editor.num_of_rows && line_number > 0) {
+            if (current_line > line_number) {
+                int diff = current_line - line_number;
 
-      				while(diff > 0) {
-					editor_move_cursor(ARROW_UP);
-					diff--;
-				}
-				editor_set_status_message("");
-			} else if(line_number > current_line) {
-				int diff = line_number - current_line;
+                    while(diff > 0) {
+                    editor_move_cursor(ARROW_UP);
+                    diff--;
+                }
+                editor_set_status_message("");
+            } else if(line_number > current_line) {
+                int diff = line_number - current_line;
 
-				while(diff > 0) {
-					editor_move_cursor(ARROW_DOWN);
-					diff--;
-				}
-				editor_set_status_message("");
-			}
-			editor_refresh_screen();
-			return;
-		} else {
-			editor_set_status_message("Out of bounds");
-			editor_refresh_screen();
-			return;
-		}
-	}
+                while(diff > 0) {
+                    editor_move_cursor(ARROW_DOWN);
+                    diff--;
+                }
+                editor_set_status_message("");
+            }
+            editor_refresh_screen();
+            return;
+        } else {
+            editor_set_status_message("Out of bounds");
+            editor_refresh_screen();
+            return;
+        }
+    }
 }
 
 // Fecha o editor
@@ -1632,242 +1461,241 @@ void editor_harsh_quit()
 }
 
 /*
-*	Função que controla a opção para sair do editor bric.
-*	Passo 1: Mensagem de confirmação
-*	Passo 2: Verifica a entrada do usuário
-*		2.1) Se for 'DEL_KEY' ou 'BACKSPACE': apaga caracter escrito pelo usuário (se houver algum)
-*		2.2) Se for 'ENTER': verifica o comando digitado. Se 'y', então sai do editor. Se 'n', não sai
-*		2.3) Se for 'ESC': Não faz nada
-*		2.4) Se for qualquer outro caracter: adiciona ao vetor 'query' (vetor de comando)
+*   Função que controla a opção para sair do editor bric.
+*   Passo 1: Mensagem de confirmação
+*   Passo 2: Verifica a entrada do usuário
+*       2.1) Se for 'DEL_KEY' ou 'BACKSPACE': apaga caracter escrito pelo usuário (se houver algum)
+*       2.2) Se for 'ENTER': verifica o comando digitado. Se 'y', então sai do editor. Se 'n', não sai
+*       2.3) Se for 'ESC': Não faz nada
+*       2.4) Se for qualquer outro caracter: adiciona ao vetor 'query' (vetor de comando)
 */
 void editor_check_quit(int fd)
 {
-        char query[BRIC_QUERY_LENGTH+1] = {0};
-        int qlen = 0;
+    char query[BRIC_QUERY_LENGTH+1] = {0};
+    int qlen = 0;
 
-        while(1) {
-                editor_set_status_message("There are unsaved changes, quit? (y or n) %s", query);
-                editor_refresh_screen();
+    while(1) {
+        editor_set_status_message("There are unsaved changes, quit? (y or n) %s", query);
+        editor_refresh_screen();
 
-                int c = editor_read_key(fd);
-                if(c == DEL_KEY || c == BACKSPACE) {					//PASSO 2.1
-                        if(qlen != 0) query[--qlen] = '\0';
-                }else if(c == ENTER || c == ESC) {					//PASSO 2.2 E 2.3
-                        if(c == ENTER) {
-                                if (strcmp(query, "y") == 0) editor_harsh_quit();
-                                else if(strcmp(query, "n") == 0) return;
-                                else {
-                                        editor_check_quit(fd);
-                                        return;
-                                }
-                        }
-                } else if(isprint(c)) {							//PASSO 2.4
-                        if(qlen < BRIC_QUERY_LENGTH) {
-                                query[qlen++] = c;
-                                query[qlen] = '\0';
-                        }
+        int c = editor_read_key(fd);
+        if(c == DEL_KEY || c == BACKSPACE) {                //PASSO 2.1
+            if(qlen != 0) query[--qlen] = '\0';
+        }else if(c == ENTER || c == ESC) {                  //PASSO 2.2 E 2.3
+            if(c == ENTER) {
+                if (strcmp(query, "y") == 0) editor_harsh_quit();
+                else if(strcmp(query, "n") == 0) return;
+                else {
+                    editor_check_quit(fd);
+                    return;
                 }
+            }
+        } else if(isprint(c)) {                             //PASSO 2.4
+            if(qlen < BRIC_QUERY_LENGTH) {
+                query[qlen++] = c;
+                query[qlen] = '\0';
+            }
         }
+    }
 }
 
-// TAG MOVEMENT FUNCTIONS
+/*** TAG MOVEMENT FUNCTIONS ***/
 
 // Função para diferenciar nome de identificadores com sintaxe de linguagem
 int char_check(char c) {
-	if(c == ' ' || c == '\n' || c == '\t' || c == '(' || c == ')' || c == '{' || c == '}')
-		return 0;
-	if(c == '&' || c == '|' || c == '+' || c == '-' || c == '*' || c == '\\' || c == '/' )
-		return 0;
-	if(c == '^' || c == '%' || c == '=' || c == '[' || c == ']' || c == ';' || c == '>' || c == '<')
-		return 0;
-	if(c == '?' || c == ':' || c == '\'' || c == '\"' || c == '.' || c == ',' || c == '!')
-		return 0;
-	return 1;
+    if(c == ' ' || c == '\n' || c == '\t' || c == '(' || c == ')' || c == '{' || c == '}')
+        return 0;
+    if(c == '&' || c == '|' || c == '+' || c == '-' || c == '*' || c == '\\' || c == '/' )
+        return 0;
+    if(c == '^' || c == '%' || c == '=' || c == '[' || c == ']' || c == ';' || c == '>' || c == '<')
+        return 0;
+    if(c == '?' || c == ':' || c == '\'' || c == '\"' || c == '.' || c == ',' || c == '!')
+        return 0;
+    return 1;
 }
 
 // Função para obter a palavra chave (identificador) na qual o cursor está posicionado
 char* get_key(void) {
-	int i = 0;
-	int filerow = Editor.row_offset + Editor.cursor_y;
-	int filecol = Editor.column_offset + Editor.cursor_x;
-	if(!char_check(find_row(filerow)->chars[filecol]))
-		return "";
-	while(filecol != -1 && char_check(find_row(filerow)->chars[filecol]))
-		filecol--;
-	filecol++;
-	char *key = (char*)malloc(128 * sizeof(char));
-	while(char_check(find_row(filerow)->chars[filecol])) {
-		key[i] = find_row(filerow)->chars[filecol];
-		i++; 
-		filecol++;
-	}
-	key[i] = '\0';
-	return key;
+    int i = 0;
+    int filerow = Editor.row_offset + Editor.cursor_y;
+    int filecol = Editor.column_offset + Editor.cursor_x;
+    if(!char_check(find_row(filerow)->chars[filecol]))
+        return "";
+    while(filecol != -1 && char_check(find_row(filerow)->chars[filecol]))
+        filecol--;
+    filecol++;
+    char *key = (char*)malloc(128 * sizeof(char));
+    while(char_check(find_row(filerow)->chars[filecol])) {
+        key[i] = find_row(filerow)->chars[filecol];
+        i++; 
+        filecol++;
+    }
+    key[i] = '\0';
+    return key;
 }
 
 // Função para alanisar as tags do arquivo, como por exemplo o comando de busca requisitada de uma linha em um arquivo
 int tagsearch(char *tosearch) {
-	int dest_index = 0, source_index = 2, i = 0;
-	char *parsedsearch = (char*)malloc(strlen(tosearch) * sizeof(char));
-	while(tosearch[source_index] != '$') {
-		if(tosearch[source_index] == '\\') {
-			source_index++;
-			continue;
-		}
-		parsedsearch[dest_index] = tosearch[source_index];
-		source_index++;
-		dest_index++;
-	}
-	parsedsearch[dest_index] = '\0';
-	for(i = 0; i < Editor.num_of_rows; i++) {
-		if(strstr(find_row(i)->chars, parsedsearch) != NULL)
-			return i + 1;
-	}
-	return 0;
+    int dest_index = 0, source_index = 2, i = 0;
+    char *parsedsearch = (char*)malloc(strlen(tosearch) * sizeof(char));
+    while(tosearch[source_index] != '$') {
+        if(tosearch[source_index] == '\\') {
+            source_index++;
+            continue;
+        }
+        parsedsearch[dest_index] = tosearch[source_index];
+        source_index++;
+        dest_index++;
+    }
+    parsedsearch[dest_index] = '\0';
+    for(i = 0; i < Editor.num_of_rows; i++) {
+        if(strstr(find_row(i)->chars, parsedsearch) != NULL)
+            return i + 1;
+    }
+    return 0;
 }
-
 
 // Principal função para manipular movimentos de tag
 int handle_tag_movement(int where) {
-	int linenumber = 0, i = 0;
-	char *key = get_key();
-	char tag_line[256], *tagname, *filename, *tosearch, *orig_filename;
-	FILE *fp;
-	int cursor_pos = Editor.cursor_y, cursor_offset = Editor.row_offset;
-	tagdata tag_data;
-	orig_filename = (char*)malloc(sizeof(char) * strlen(Editor.filename));
-	strcpy(orig_filename, Editor.filename);
-	if(where == MOVE_BACK) {
-		if(isempty(&tag_stack)) {
-			editor_set_status_message("at bottom of tag stack");
-			return 1;
-		}
-		tag_data = pop(&tag_stack);
-		linenumber = tag_data.linenumber;
-		filename = (char*)malloc(sizeof(char) * strlen(tag_data.filename));
-		strcpy(filename, tag_data.filename);
-		if(strcmp(filename, Editor.filename)) {
+    int linenumber = 0, i = 0;
+    char *key = get_key();
+    char tag_line[256], *tagname, *filename, *tosearch, *orig_filename;
+    FILE *fp;
+    int cursor_pos = Editor.cursor_y, cursor_offset = Editor.row_offset;
+    tagdata tag_data;
+    orig_filename = (char*)malloc(sizeof(char) * strlen(Editor.filename));
+    strcpy(orig_filename, Editor.filename);
+    if(where == MOVE_BACK) {
+        if(isempty(&tag_stack)) {
+            editor_set_status_message("at bottom of tag stack");
+            return 1;
+        }
+        tag_data = pop(&tag_stack);
+        linenumber = tag_data.linenumber;
+        filename = (char*)malloc(sizeof(char) * strlen(tag_data.filename));
+        strcpy(filename, tag_data.filename);
+        if(strcmp(filename, Editor.filename)) {
                         if(Editor.dirty) {
                                 editor_set_status_message("Unsaved changes. Can't proceed");
                                 return 0;
                         }
                         editor_start(filename);
                 }
-		editor_goto(linenumber);
-		
+        editor_goto(linenumber);
+        
                 //Posiciona a página para que o cursor permaneça na mesma linha 
-		for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y < Editor.num_of_rows - 1; i++)
-			editor_move_cursor(ARROW_DOWN);
+        for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y < Editor.num_of_rows - 1; i++)
+            editor_move_cursor(ARROW_DOWN);
                 for(; i > 0; i--)
-			editor_move_cursor(ARROW_UP);
+            editor_move_cursor(ARROW_UP);
                 for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y > 0; i++)
-			editor_move_cursor(ARROW_UP);
+            editor_move_cursor(ARROW_UP);
                 for(; i > 0; i--)
-			editor_move_cursor(ARROW_DOWN);
-                return 1;		
-	}
-	if(key[0] == '\0') {
-		editor_set_status_message("No identifier under cursor");
-		return 0;
-	}
-	fp = fopen("tags", "r");
-	if(!fp) {
-		editor_set_status_message("tag not found: %s", key);
-		free(key);
-		return 0;
-	}
-	while(fgets(tag_line, 256, fp) != NULL) {
-		tagname = strtok(tag_line, "\t");
-		if(strcmp(tagname, key))
-			continue;
-		filename = strtok(NULL, "\t");
-		tosearch = strtok(NULL, "\t");
-		if(strcmp(filename, Editor.filename)) {
-			if(Editor.dirty) {
-				editor_set_status_message("Unsaved changes. Can't proceed");
-				return 0;				
-			}
-			editor_start(filename);
-		}
-		if(tosearch[0] == '/') {
-			linenumber = tagsearch(tosearch);
-		}
-		else {
-			sscanf(tosearch, "%d", &linenumber);
-		}
-		tag_data.linenumber = cursor_offset + cursor_pos + 1;
-		strcpy(tag_data.filename, orig_filename);
-		push(&tag_stack, tag_data);
-		editor_goto(linenumber);
+            editor_move_cursor(ARROW_DOWN);
+                return 1;       
+    }
+    if(key[0] == '\0') {
+        editor_set_status_message("No identifier under cursor");
+        return 0;
+    }
+    fp = fopen("tags", "r");
+    if(!fp) {
+        editor_set_status_message("tag not found: %s", key);
+        free(key);
+        return 0;
+    }
+    while(fgets(tag_line, 256, fp) != NULL) {
+        tagname = strtok(tag_line, "\t");
+        if(strcmp(tagname, key))
+            continue;
+        filename = strtok(NULL, "\t");
+        tosearch = strtok(NULL, "\t");
+        if(strcmp(filename, Editor.filename)) {
+            if(Editor.dirty) {
+                editor_set_status_message("Unsaved changes. Can't proceed");
+                return 0;               
+            }
+            editor_start(filename);
+        }
+        if(tosearch[0] == '/') {
+            linenumber = tagsearch(tosearch);
+        }
+        else {
+            sscanf(tosearch, "%d", &linenumber);
+        }
+        tag_data.linenumber = cursor_offset + cursor_pos + 1;
+        strcpy(tag_data.filename, orig_filename);
+        push(&tag_stack, tag_data);
+        editor_goto(linenumber);
 
                 //Posiciona a pagina para que o cursor permaneça na mesma linha
-		for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y < Editor.num_of_rows - 1; i++)
-			editor_move_cursor(ARROW_DOWN);
+        for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y < Editor.num_of_rows - 1; i++)
+            editor_move_cursor(ARROW_DOWN);
                 for(; i > 0; i--)
-			editor_move_cursor(ARROW_UP);
+            editor_move_cursor(ARROW_UP);
                 for(i = 0; i < cursor_pos && Editor.row_offset + Editor.cursor_y > 0; i++)
-			editor_move_cursor(ARROW_UP);
+            editor_move_cursor(ARROW_UP);
                 for(; i > 0; i--)
-			editor_move_cursor(ARROW_DOWN);
-		return 1;
-	}
-	editor_set_status_message("tag not found: %s", key);
-	free(key);
-	return 0;
+            editor_move_cursor(ARROW_DOWN);
+        return 1;
+    }
+    editor_set_status_message("tag not found: %s", key);
+    free(key);
+    return 0;
 }
 
 /*
 *  Função que executa os comandos do editor
 * Os comandos podem ser:
-*	Passo 1: Se o comando for valor numérico -> muda o cursor para a linha desejada
-*	Passo 2: Se o comando for 'q!' -> sair sem salvar
-*	Passo 3: Se o comando for 'w' -> salvar
-*	Passo 4: Se o comando for 'wq' -> salvar e sair
-*	Passo 5: Se o comando for 'q' -> oferece opção de salvar para sair ou não sair 
-*	Passo 6: Se o comando for 'f' -> 
-*	Passo 7: Se o comando for 'fr' -> 
-*	Passo 8: Se o comando for 'sm' -> modo para selecionar bloco de texto
-*	Passo 9: Se o comando for 'sp' -> 
-*	Passo 10: Se o comando for 'up' ->
+*   Passo 1: Se o comando for valor numérico -> muda o cursor para a linha desejada
+*   Passo 2: Se o comando for 'q!' -> sair sem salvar
+*   Passo 3: Se o comando for 'w' -> salvar
+*   Passo 4: Se o comando for 'wq' -> salvar e sair
+*   Passo 5: Se o comando for 'q' -> oferece opção de salvar para sair ou não sair 
+*   Passo 6: Se o comando for 'f' -> 
+*   Passo 7: Se o comando for 'fr' -> 
+*   Passo 8: Se o comando for 'sm' -> modo para selecionar bloco de texto
+*   Passo 9: Se o comando for 'sp' -> 
+*   Passo 10: Se o comando for 'up' ->
 */
 void editor_parse_command(int fd, char *query)
 {
-        if (numbers_only(query)) {			//PASSO 1
+        if (numbers_only(query)) {          //PASSO 1
                 editor_goto(atoi(query));
                 return;
-        } else if (strcmp(query, "q!") == 0) {		//PASSO 2
+        } else if (strcmp(query, "q!") == 0) {      //PASSO 2
                 editor_harsh_quit();
                 return;
-        } else if(strcmp(query, "w") == 0) {		//PASSO 3
+        } else if(strcmp(query, "w") == 0) {        //PASSO 3
                 editor_save();
                 return;
-        } else if (strcmp(query, "wq") == 0) {		//PASSO 4
+        } else if (strcmp(query, "wq") == 0) {      //PASSO 4
                 editor_save();
                 editor_harsh_quit();
                 return;
-        } else if (strcmp(query, "q") == 0) {		//PASSO 5
+        } else if (strcmp(query, "q") == 0) {       //PASSO 5
                 if (Editor.dirty) {
                         editor_check_quit(fd);
                 } else {
                         editor_harsh_quit();
                 }
                 return;
-        } else if (strcmp(query, "f") == 0) {		//PASSO 6
+        } else if (strcmp(query, "f") == 0) {       //PASSO 6
             editor_find(fd);
             return;
-        } else if (strcmp(query, "fr") == 0) {		//PASSO 7
+        } else if (strcmp(query, "fr") == 0) {      //PASSO 7
             editor_find_replace(fd);
             return;
-        } else if (strcmp(query, "sm") == 0) {		//PASSO 8
+        } else if (strcmp(query, "sm") == 0) {      //PASSO 8
             Editor.mode = SELECTION_MODE;
             Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
             Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
             editor_set_status_message(selection_mode_message);
             return;
-        } else if (strcmp(query, "sp") == 0) {		//PASSO 9
+        } else if (strcmp(query, "sp") == 0) {      //PASSO 9
             Editor.indent = 0;
             return;
-        } else if (strcmp(query, "up") == 0) {		//PASSO 10
+        } else if (strcmp(query, "up") == 0) {      //PASSO 10
             Editor.indent = 1;
             return;
         }
@@ -1877,30 +1705,30 @@ void editor_parse_command(int fd, char *query)
 void enter_command(int fd)
 {
         char query[BRIC_QUERY_LENGTH+1] = {0};
-	int qlen = 0;
+    int qlen = 0;
 
-	while(1) {
-		editor_set_status_message(":%s", query);
-		editor_refresh_screen();
+    while(1) {
+        editor_set_status_message(":%s", query);
+        editor_refresh_screen();
 
-		int c = editor_read_key(fd);
-		if(c == DEL_KEY || c == BACKSPACE) {
-			if(qlen != 0) query[--qlen] = '\0';
-		}else if(c == ENTER || c == ESC) {
-			if(c == ENTER) {
-				editor_parse_command(fd, query);
-				return;
-			} else {
+        int c = editor_read_key(fd);
+        if(c == DEL_KEY || c == BACKSPACE) {
+            if(qlen != 0) query[--qlen] = '\0';
+        }else if(c == ENTER || c == ESC) {
+            if(c == ENTER) {
+                editor_parse_command(fd, query);
+                return;
+            } else {
                                 editor_set_status_message("");
                                 return;
                         }
-		} else if(isprint(c)) {
-			if(qlen < BRIC_QUERY_LENGTH) {
-				query[qlen++] = c;
-				query[qlen] = '\0';
-			}
-		}
-	}
+        } else if(isprint(c)) {
+            if(qlen < BRIC_QUERY_LENGTH) {
+                query[qlen++] = c;
+                query[qlen] = '\0';
+            }
+        }
+    }
 }
 
 // Função que controla todos os comandos existentes do editor
@@ -1917,15 +1745,15 @@ void editor_process_key_press(int fd)
                                 editor_insert_newline();
                                 break;
                         case CTRL_G:
-             			break;
+                        break;
                         case CTRL_Q:
                                 //Sair sem salvar o arquivo
-				if(Editor.dirty && quit_times) {
-                                        editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit.", quit_times);
+                if(Editor.dirty && quit_times) {
+                                        editor_set_status_message("WARNING! File has unsaved changes." "Press Ctrl-Q %d more times to quit. ", quit_times);
                                         quit_times--;
                                         return;
                                 }
-                                exit(0);
+                                editor_harsh_quit();
                                 break;
                         case CTRL_S:
                                 editor_save();
@@ -1940,8 +1768,8 @@ void editor_process_key_press(int fd)
                                 editor_find(fd);
                                 break;
                         case CTRL_R:
-        			 editor_find_replace(fd);
-        			 break;
+                     editor_find_replace(fd);
+                     break;
                         case BACKSPACE:
                                 editor_delete_char();
                                 break;
@@ -1995,8 +1823,8 @@ void editor_process_key_press(int fd)
                                 editor_move_cursor(HOME_KEY);
                                 break;
                         case END_KEY:
-                        	editor_move_cursor(END_KEY);
-                        	break;
+                            editor_move_cursor(END_KEY);
+                            break;
 
                         case TAB:
                             {
@@ -2023,7 +1851,7 @@ void editor_process_key_press(int fd)
 
         case NORMAL_MODE:
                 switch (c)
-		{
+        {
                         case 'r':
                             if (Editor.prev_char == 'c') editor_copy_row();
                             if (Editor.prev_char == 'y') editor_yank_row();
@@ -2050,64 +1878,64 @@ void editor_process_key_press(int fd)
                         case ':':
                                 enter_command(fd);
                                 break;
-			// Ativo o Modo de Inserção no local atual do cursor
+            // Ativo o Modo de Inserção no local atual do cursor
                         case 'i':
                                 Editor.mode = INSERT_MODE;
                                 editor_set_status_message("Insert mode.");
                                 break;
-			// Ativa o Modo de Inserção no começo da linha em que se encontra o cursor
+            // Ativa o Modo de Inserção no começo da linha em que se encontra o cursor
                         case 'I':
-				editor_move_cursor(HOME_KEY);
-				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
-				break;
-			// Cria uma nova linha e muda o cursos para ela
+                editor_move_cursor(HOME_KEY);
+                Editor.mode = INSERT_MODE;
+                editor_set_status_message("Insert mode. ");
+                break;
+            // Cria uma nova linha e muda o cursos para ela
                         case 'o':
-				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode.");
-				editor_insert_row(filerow + 1, "", 0);
-				editor_move_cursor(ARROW_DOWN);
-				break;
-			// Cria uma nova linha no local atual do cursor
+                Editor.mode = INSERT_MODE;
+                editor_set_status_message("Insert mode.");
+                editor_insert_row(filerow + 1, "", 0);
+                editor_move_cursor(ARROW_DOWN);
+                break;
+            // Cria uma nova linha no local atual do cursor
                         case 'O':
-				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
-				editor_insert_row(filerow, "", 0);
-				break;
-			// Pula para a última linha de texto
+                Editor.mode = INSERT_MODE;
+                editor_set_status_message("Insert mode. ");
+                editor_insert_row(filerow, "", 0);
+                break;
+            // Pula para a última linha de texto
                         case 'G':
-                    		editor_goto(Editor.num_of_rows);
-                    		break;
-			// Pula para a primeira linha de texto
+                            editor_goto(Editor.num_of_rows);
+                            break;
+            // Pula para a primeira linha de texto
                         case 'g':
-                    		editor_goto(1);
-                    		break;
-			// Move o cursor para a última coluna (caracter) da linha atual
+                            editor_goto(1);
+                            break;
+            // Move o cursor para a última coluna (caracter) da linha atual
                         case '$':
-				editor_move_cursor(END_KEY);
-				break;
-			// Move o cursor para a primeira coluna (caracter) da linha atual
+                editor_move_cursor(END_KEY);
+                break;
+            // Move o cursor para a primeira coluna (caracter) da linha atual
                         case '0':
-				editor_move_cursor(HOME_KEY);
-				break;
-			// Ativa o Modo de Inserção um caracter a frente do local atual do cursor
+                editor_move_cursor(HOME_KEY);
+                break;
+            // Ativa o Modo de Inserção um caracter a frente do local atual do cursor
                         case 'a':     
-				editor_move_cursor(ARROW_RIGHT);
-				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
-				break;
-			// Ativa o Modo de Inserção no final da linha atual
+                editor_move_cursor(ARROW_RIGHT);
+                Editor.mode = INSERT_MODE;
+                editor_set_status_message("Insert mode. ");
+                break;
+            // Ativa o Modo de Inserção no final da linha atual
                         case 'A':
-				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
-				editor_move_cursor(END_KEY);
-				editor_move_cursor(ARROW_RIGHT);
-				break;
-			// Move o cursor para a primeira coluna (caracter) da linha atual
+                Editor.mode = INSERT_MODE;
+                editor_set_status_message("Insert mode. ");
+                editor_move_cursor(END_KEY);
+                editor_move_cursor(ARROW_RIGHT);
+                break;
+            // Move o cursor para a primeira coluna (caracter) da linha atual
                         case HOME_KEY:
                                 editor_move_cursor(HOME_KEY);
                                 break;
-			// Move o cursor para a última coluna (caracter) da linha atual
+            // Move o cursor para a última coluna (caracter) da linha atual
                         case END_KEY:
                                 editor_move_cursor(END_KEY);
                                 break;
@@ -2128,7 +1956,7 @@ void editor_process_key_press(int fd)
 
             case SELECTION_MODE:
                 switch(c) 
-		{
+        {
                     case 'h':
                     case 'j':
                     case 'k':
@@ -2154,14 +1982,12 @@ void editor_process_key_press(int fd)
         quit_times = BRIC_QUIT_TIMES;
 }
 
-
-
 int editor_file_was_modified(void)
 {
         return Editor.dirty;
 }
 
-//Função que inicia o editor com as configurações base
+// Função que inicia o editor com as configurações base
 void init_editor(void)
 {
         Editor.cursor_x = 0;
@@ -2191,48 +2017,46 @@ void init_editor(void)
         Editor.colours.hl_background_colour = 49;
         Editor.colours.hl_default_colour = 37;
         Editor.mode = NORMAL_MODE;
-
-        if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1)
-	{
+        if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
                 perror("Unable to query the screen for size (columns / rows)");
                 exit(1);
         }
-
         if (Editor.line_numbers)
         {
             Editor.screen_columns -= line_number_length;
         }
-
         Editor.prev_char = ' ';
         Editor.screen_rows -= 2; // get room for status bar
 }
 
-
-/*
-* Function to load the editor with the infomations
-* from an existent file
-*/
-/* 
-* Função que carrega o editor com as informações
-* contidas em um arquivo ja existente
-*/
+ 
+// Função que carrega o editor com as informações
+// contidas em um arquivo ja existente
 void load_config_file(void)
 {
     struct passwd *user = getpwuid(getuid());
     char config_file[80];
-    char variable_name[60], value[60];
     config_file[0] = 0;
     strcat(config_file, user->pw_dir);
     strcat(config_file, "/.bricrc");
-
     FILE *config = fopen(config_file, "r");
     if (config == NULL)
     {
         return;
     }
 
-   while (fscanf(config, "set %s %s\n", variable_name, value) == 2)
-   {
+		/*
+			input_conf will be allocated by getline() but we have to free it afterward.
+			Same with the scanf family, %m allocate a buffer but we have to free it
+		*/
+		char *input_conf = NULL;
+		char *variable_name = NULL;
+		char *value = NULL;
+		size_t len_line = 0;
+
+    while (getline(&input_conf, &len_line, config) != -1){
+			if(sscanf(input_conf, "set %ms %ms\n", &variable_name, &value) == 2)
+    {
         if (strcmp(variable_name, "linenumbers") == 0)
         {
             if (strcmp(value, "true") == 0)
@@ -2313,18 +2137,26 @@ void load_config_file(void)
         }
 
     }
+	}
+
+		//free variables from getline and sscanf
+		if(input_conf)
+			free(input_conf);
+		if(variable_name)
+			free(variable_name);
+		if(value)
+			free(value);
 
     fclose(config);
 }
 
-// Função que fecha o editor de forma correta
 void close_editor(void)
 {
     free(Editor.filename);
 
+    //free(Editor.row);
     editing_row *i = Editor.row_head;
     editing_row *prev;
-
     while (i != NULL)
     {
             prev = i;
@@ -2337,11 +2169,10 @@ void close_editor(void)
                     free(prev);
             }
     }
-
     free(Editor.clipboard);
 }
 
-// Recebe um nome de arquivo. Inicia o editor com o arquivo aberto
+// Given a filename, start editor with that file opened
 void editor_start(char *filename) {
         free(Editor.filename);
         init_editor();
@@ -2350,7 +2181,7 @@ void editor_start(char *filename) {
         load_config_file();
         editor_select_syntax_highlight(filename);
         editor_open(filename);
-        enable_raw_mode(STDIN_FILENO);
+        enable_raw_mode(STDIN_FILENO, &orig_termios, &Editor);
         editor_set_status_message(help_message);
 }
 
@@ -2359,7 +2190,6 @@ int main(int argc, char **argv)
         signal(SIGWINCH, sigwinch_handler);
         init(&tag_stack);
         int file_arg = -1;
-
         for (int i = 1; i < argc; i++)
         {
             if (argv[i][0] != '-')
@@ -2367,22 +2197,12 @@ int main(int argc, char **argv)
                 file_arg = i;
             }
         }
-
         if(file_arg == -1) {
                 fprintf(stderr, "Usage: bric <filename>\n");
                 exit(1);
         }
-
-        // Setamos a informação acutal do arquivo
-	set_current_file(argv[file_arg], &CurrentFile);
-
-	// Verificamos se o arquivo atual está trancado
-        if(!is_file_locked(CurrentFile)){
-                lock_file(CurrentFile);
-        }else{
-                fprintf(stderr, "The file has been locked, try to remove the locker!\n");
-                return EXIT_FAILURE;
-        }
+        // We set the current file information
+        set_current_file(argv[file_arg], &CurrentFile);
 
         for (int i = 1; i < argc; i++)
         {
@@ -2391,7 +2211,13 @@ int main(int argc, char **argv)
                 parse_argument(argv[i]);
             }
         }
-
+	// We check if current file is locked
+	if(!is_file_locked(CurrentFile)){
+		lock_file(CurrentFile);
+	}else{
+		fprintf(stderr, "The file has been locked, try to remove the locker!\n");
+		return EXIT_FAILURE;
+	}
         editor_start(argv[file_arg]);
         while(1) {
                 editor_refresh_screen();
