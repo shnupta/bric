@@ -47,6 +47,28 @@ set tab_length 8
 Note: 
 Not all options have to be set. The ones shown above are the colours (however indent maintaining and linenumbers are not)
 
+### Brief tutorial:
+Here are a brief list of commands to start use the editor:
+
+Insert Mode: We have some different ways to that:
+	*Press 'i' to active this mode at the current cursor position
+	*Press 'I' to active this mode at the beginning of line when the cursor is
+	*Press 'o' to create a new line and active this monde
+	*Press 'O' to create a new line at the current cursor position (shift all the lines below)
+	*Press 'a' to active this mode one character foward from the current cursor position
+	*Press 'A' to active this mode at the end from the current line
+
+Normal Mode:
+	*Press 'ESC' to active this mode
+
+Other basic commands:
+	*Press 'CTRL+Q' used to exit without save (you'll receive a message to "confirm")
+	*Press 'g' jump the cursor to the first line
+	*Press 'G' jump the cursor to the last line
+	*Press '$' move the cursor to the last character of the current line
+	*Press '0' move the cursor to the first character of the current line
+	*Press 'HOME_KEY' move the cursor to the first character of the current line
+	*Press 'END_KEY' move the cursor to the last character of the current line
 
 ### Contribution:
 I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR! A contribution guide will be written shortly.
