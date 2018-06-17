@@ -1,4 +1,4 @@
-//Stack implementation for tag-based movement
+// Implementaca em pilha para movimento baseado em tag
 
 #include<stdlib.h>
 #include<string.h>
