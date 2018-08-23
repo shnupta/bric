@@ -12,9 +12,6 @@ EXTRA_DIST=         \
 packextrasdir=@docdir@
 packextras_DATA=$(EXTRA_DIST)
 
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
-
 ACLOCAL = true
 AUTOCONF = true
 AUTOHEADER = true
