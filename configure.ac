@@ -1,4 +1,4 @@
-AC_INIT([bric], [git], [noone@localhost], ,['https://github.com/shnupta/bric'])
+AC_INIT([bric], [m4_esyscmd_s([cat ./.version])], [noone@localhost], ,['https://github.com/shnupta/bric'])
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_PREREQ(2.69)
 AC_CONFIG_HEADERS([src/config.h:config.in])
