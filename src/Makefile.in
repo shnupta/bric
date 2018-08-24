@@ -102,7 +102,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_bric_OBJECTS = bric.$(OBJEXT) locking.$(OBJEXT) tagstack.$(OBJEXT) \
 	handling.$(OBJEXT)
 bric_OBJECTS = $(am_bric_OBJECTS)
-bric_LDADD = $(LDADD)
+bric_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -245,12 +245,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = -std=gnu99 -Wall -g -W -pedantic -lm
+AM_CFLAGS = -std=gnu99 -Wall -g -W -pedantic
 bric_SOURCES = bric.c		\
 		locking.c	\
 		tagstack.c	\
 		handling.c
 
+bric_LDADD = -lm
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
