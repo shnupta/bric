@@ -4,10 +4,12 @@ SUBDIRS = src
 
 # the docs listed in EXTRA_DIST will be installed to a "doc" when make
 # install is run
-EXTRA_DIST=         \
-	README.md         \
-	USAGE.md					\
-	LICENSE
+EXTRA_DIST=		\
+	README.md	\
+	USAGE.md	\
+	LICENSE		\
+	INSTALL		\
+	CONTRIBUTING.md
 
 packextrasdir=@docdir@
 packextras_DATA=$(EXTRA_DIST)
