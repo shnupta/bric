@@ -11,3 +11,11 @@ tags
 
 # NetBeans
 nbproject/
+autom4te.cache
+config.in~
+config.h
+stamp-h1
+.deps
+config.log
+config.status
+Makefile
