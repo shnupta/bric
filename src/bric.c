@@ -1539,7 +1539,7 @@ char* get_key(void) {
 	char *key = (char*)malloc(128 * sizeof(char));
 	while(char_check(find_row(filerow)->chars[filecol])) {
 		key[i] = find_row(filerow)->chars[filecol];
-		i++; 
+		i++;
 		filecol++;
 	}
 	key[i] = '\0';
@@ -1603,7 +1603,7 @@ int handle_tag_movement(int where) {
 			editor_move_cursor(ARROW_UP);
                 for(; i > 0; i--)
 			editor_move_cursor(ARROW_DOWN);
-                return 1;		
+                return 1;
 	}
 	if(key[0] == '\0') {
 		editor_set_status_message("No identifier under cursor");
@@ -1624,7 +1624,7 @@ int handle_tag_movement(int where) {
 		if(strcmp(filename, Editor.filename)) {
 			if(Editor.dirty) {
 				editor_set_status_message("Unsaved changes. Can't proceed");
-				return 0;				
+				return 0;
 			}
 			editor_start(filename);
 		}
@@ -1902,7 +1902,7 @@ void editor_process_key_press(int fd)
                         case '0':
 				editor_move_cursor(HOME_KEY);
 				break;
-                        case 'a':     
+                        case 'a':
 				editor_move_cursor(ARROW_RIGHT);
 				Editor.mode = INSERT_MODE;
 				editor_set_status_message("Insert mode. ");
@@ -2164,6 +2164,11 @@ void editor_start(char *filename) {
 
 int main(int argc, char **argv)
 {
+        // used to implement gettext for translations
+        setlocale (LC_ALL, "");
+        bindtextdomain (PACKAGE, LOCALEDIR);
+        textdomain (PACKAGE);
+
         signal(SIGWINCH, sigwinch_handler);
         init(&tag_stack);
         int file_arg = -1;
@@ -2175,7 +2180,7 @@ int main(int argc, char **argv)
             }
         }
         if(file_arg == -1) {
-                fprintf(stderr, "Usage: bric <filename>\n");
+                fprintf(stderr, _("Usage: bric <filename>\n"));
                 exit(1);
         }
         // We set the current file information

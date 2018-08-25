@@ -6,6 +6,10 @@ AC_PROG_CC([cc])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_PROG_INSTALL
 
+AM_GNU_GETTEXT([external], [need-formatstring-macros])
+AM_GNU_GETTEXT_VERSION([0.19.8])
+
 AC_CONFIG_FILES([       Makefile
-                        src/Makefile])
+                        src/Makefile
+			po/Makefile.in])
 AC_OUTPUT

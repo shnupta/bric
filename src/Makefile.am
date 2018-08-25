@@ -6,4 +6,6 @@ bric_SOURCES =	bric.c		\
 		tagstack.c	\
 		handling.c
 
-bric_LDADD=-lm
+DEFS = -DLOCALEDIR=\"$(localedir)\" -DSYSCONFDIR=\"$(sysconfdir)\" @DEFS@
+LIBS = @LIBINTL@ @LIBS@
+bric_LDADD = @LIBINTL@ -lm
