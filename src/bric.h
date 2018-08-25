@@ -21,6 +21,14 @@
 #include <math.h>
 #include <signal.h>
 
+#include "config.h"
+
+#include <locale.h>
+#include "gettext.h"
+#define _(String) gettext (String)
+#define gettext_noop(String) String
+#define N_(String) gettext_noop (String)
+
 #include "editor.h"
 
 // FILE LOCKING
