@@ -16,7 +16,7 @@ make install
 ```
 
 ### Usage:
-If you have performed a `make install` then just `bric <filename>`. It can be a new or existing filename. 
+If you have performed a `make install` then just `bric <filename>`. It can be a new or existing filename.
 
 Currently bric only supports a few vim commands (with similar names) but plans are in place to implement more to make editing much easier and more efficient.
 
@@ -44,7 +44,7 @@ set hl_default_colour 37
 
 set tab_length 8
 ```
-Note: 
+Note:
 Not all options have to be set. The ones shown above are the colours (however indent maintaining and linenumbers are not)
 
 
@@ -52,7 +52,7 @@ Not all options have to be set. The ones shown above are the colours (however in
 I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR! A contribution guide will be written shortly.
 
 The basic workflow as of November 2017 is:
-- Development and pul requests are made on the development branch.
+- Development and pull requests are made on the development branch.
 - These PRs will be reviewed and if accepted merged into the development branch.
 - Every (x time period) a test version of bric will be merged into the testing branch for confirmation that new features are working as expected.
 - Once tested, approved features will be merged into the master branch for the next release.
@@ -62,4 +62,4 @@ To submit any bugs or give feedback please add an issue on this repo or email me
 
 ### References:
 - kilo - https://github.com/antirez/kilo
-- My site - https://shnupta.github.com
+- My site - https://shnupta.github.io
