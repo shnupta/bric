@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.com/shnupta/bric.svg?branch=development)](https://travis-ci.com/shnupta/bric)
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/shnupta/bric.svg?columns=all)](https://waffle.io/shnupta/bric) 
+[Join our slack team!](https://bric-editor.slack.com)
+
 # bric
 bric is a text editor based on kilo.
 
