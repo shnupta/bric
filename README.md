@@ -2,7 +2,7 @@
 
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/shnupta/bric.svg?columns=all)](https://waffle.io/shnupta/bric) 
 
-[Join our slack team!](https://bric-editor.slack.com)
+[Join our slack team!](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI)
 
 # bric
 bric is a text editor based on kilo.
