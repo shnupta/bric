@@ -1,3 +1,6 @@
+notifications:
+    slack: bric-editor:D8HosEXGwCVA1kAoJXo3BWqX
+
 language: c
 
 matrix:
