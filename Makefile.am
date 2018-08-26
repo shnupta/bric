@@ -19,11 +19,6 @@ datarootdir= @datarootdir@
 localedir = @localedir@
 sysconfdir = @sysconfdir@
 
-ACLOCAL = true
-AUTOCONF = true
-AUTOHEADER = true
-AUTOMAKE = true
-
 ACLOCAL_AMFLAGS = --install -I m4
 
 distdir = $(PACKAGE)-$(VERSION)
