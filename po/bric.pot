@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bric 0.0.3-dev\n"
 "Report-Msgid-Bugs-To: williamshoops96@gmail.com\n"
-"POT-Creation-Date: 2018-08-25 21:07-0500\n"
+"POT-Creation-Date: 2018-08-26 09:31-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,11 +41,8 @@ msgstr ""
 msgid "Error allocating memory."
 msgstr ""
 
-#: src/bric.c:1878 src/bric.c:1887
-msgid "Insert mode."
-msgstr ""
-
-#: src/bric.c:1883 src/bric.c:1893 src/bric.c:1911 src/bric.c:1915
+#: src/bric.c:1878 src/bric.c:1883 src/bric.c:1887 src/bric.c:1893
+#: src/bric.c:1911 src/bric.c:1915
 msgid "Insert mode. "
 msgstr ""
 
