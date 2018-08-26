@@ -1875,7 +1875,7 @@ void editor_process_key_press(int fd)
                                 break;
                         case 'i':
                                 Editor.mode = INSERT_MODE;
-                                editor_set_status_message(_("Insert mode."));
+                                editor_set_status_message(_("Insert mode. "));
                                 break;
                         case 'I':
 				editor_move_cursor(HOME_KEY);
@@ -1884,7 +1884,7 @@ void editor_process_key_press(int fd)
 				break;
                         case 'o':
 				Editor.mode = INSERT_MODE;
-				editor_set_status_message(_("Insert mode."));
+				editor_set_status_message(_("Insert mode. "));
 				editor_insert_row(filerow + 1, "", 0);
 				editor_move_cursor(ARROW_DOWN);
 				break;
