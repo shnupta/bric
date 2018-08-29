@@ -1,0 +1,117 @@
+# Dutch translations for bric package.
+# Copyright (C) 2018 Casey Williams
+# This file is distributed under the same license as the bric package.
+# Andy <andy400-dev@yahoo.com>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: bric 0.0.3-dev\n"
+"Report-Msgid-Bugs-To: williamshoops96@gmail.com\n"
+"POT-Creation-Date: 2018-08-26 09:31-0500\n"
+"PO-Revision-Date: 2018-08-29 10:45-0500\n"
+"Last-Translator: Andy <andy400-dev@yahoo.com>\n"
+"Language-Team: Dutch\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/bric.c:760
+#, c-format
+msgid "%d bytes written on disk"
+msgstr ""
+
+#. TRANSLATORS:  "Bric" is the program name and should not be translated
+#: src/bric.c:918
+#, c-format
+msgid "Bric editor -- version %s[0K\r\n"
+msgstr ""
+
+#: src/bric.c:766
+#, c-format
+msgid "Cannot save! I/O error: %s"
+msgstr ""
+
+#: src/locking.c:66
+msgid "Could not created locker file"
+msgstr ""
+
+#: src/bric.c:566 src/bric.c:573
+msgid "Error allocating memory."
+msgstr ""
+
+#: src/bric.c:1878 src/bric.c:1883 src/bric.c:1887 src/bric.c:1893
+#: src/bric.c:1911 src/bric.c:1915
+msgid "Insert mode. "
+msgstr ""
+
+#: src/bric.c:1612
+msgid "No identifier under cursor"
+msgstr ""
+
+#: src/bric.c:1815
+msgid "Normal mode."
+msgstr ""
+
+#: src/bric.c:718
+msgid "Opening file"
+msgstr ""
+
+#. TRANSLATORS: alternate meaning: "exceeds boundary"
+#: src/bric.c:1467
+msgid "Out of bounds"
+msgstr ""
+
+#: src/bric.c:1091
+#, c-format
+msgid "Search: %s (Use ESC/Arrows/Enter)"
+msgstr ""
+
+#: src/bric.c:1203
+#, c-format
+msgid "Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)"
+msgstr ""
+
+#: src/bric.c:2203
+#, c-format
+msgid "The file has been locked, try to remove the locker!\n"
+msgstr ""
+
+#: src/bric.c:1492
+#, c-format
+msgid "There are unsaved changes, quit? (y or n) %s"
+msgstr ""
+
+#: src/bric.c:13 src/bric.c:2004
+msgid "Unable to query the screen for size (columns / rows)"
+msgstr ""
+
+#: src/bric.c:1594 src/bric.c:1629
+msgid "Unsaved changes. Can't proceed"
+msgstr ""
+
+#: src/bric.c:2186
+#, c-format
+msgid "Usage: bric <filename>\n"
+msgstr "Gebruik: bric <bestandsnaam>\n"
+
+#: src/bric.c:1749
+#, c-format
+msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
+msgstr ""
+
+#: src/bric.c:1585
+msgid "at bottom of tag stack"
+msgstr ""
+
+#. TRANSLATORS:  "bric" is the program name, do not translate
+#: src/bric.c:704
+#, c-format
+msgid "bric: invalid option -- '%c'\n"
+msgstr ""
+
+#: src/bric.c:1617 src/bric.c:1655
+#, c-format
+msgid "tag not found: %s"
+msgstr ""

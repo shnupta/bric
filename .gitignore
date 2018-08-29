@@ -19,3 +19,6 @@ stamp-h1
 config.log
 config.status
 Makefile
+m4/*~
+
+po/*~

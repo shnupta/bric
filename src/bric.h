@@ -1,8 +1,6 @@
 #ifndef _BRIC_H
 #define _BRIC_H
 
-#define BRIC_VERSION "0.0.1"
-
 #include <termios.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,6 +18,14 @@
 #include <assert.h>
 #include <math.h>
 #include <signal.h>
+
+#include "config.h"
+
+#include <locale.h>
+#include "gettext.h"
+#define _(String) gettext (String)
+#define gettext_noop(String) String
+#define N_(String) gettext_noop (String)
 
 #include "editor.h"
 

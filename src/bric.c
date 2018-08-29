@@ -10,7 +10,7 @@ void sigwinch_handler()
 {
 	int old_columns = Editor.screen_columns;
 	if (get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
-                perror("Unable to query the screen for size (columns / rows)");
+                perror(_("Unable to query the screen for size (columns / rows)"));
                 exit(1);
         }
 
@@ -563,14 +563,14 @@ int editor_copy_row() {
             if ((Editor.yank_buffer = (char*) malloc(Editor.yank_buffer_len)) != NULL ) {
                 memcpy(Editor.yank_buffer, row->chars, Editor.yank_buffer_len);
             } else {
-                perror("Error allocating memory.");
+                perror(_("Error allocating memory."));
                 exit(1);
             }
         } else {
             if ((Editor.yank_buffer = (char*) realloc(Editor.yank_buffer, Editor.yank_buffer_len)) != NULL ) {
                 memcpy(Editor.yank_buffer, row->chars, Editor.yank_buffer_len);
             } else {
-                perror("Error allocating memory.");
+                perror(_("Error allocating memory."));
                 exit(1);
             }
         }
@@ -700,7 +700,8 @@ void parse_argument(char *arg)
                 Editor.indent = 1;
                 break;
             default:
-                fprintf(stderr, "bric: invalid option -- '%c'\n", arg[ptr]);
+                /* TRANSLATORS:  "bric" is the program name, do not translate */
+                fprintf(stderr, _("bric: invalid option -- '%c'\n"), arg[ptr]);
                 exit(1);
         }
         ptr++;
@@ -714,7 +715,7 @@ int editor_open(char *filename)
         fp = fopen(filename, "r");
         if(!fp) {
                 if(errno != ENOENT) {
-                        perror("Opening file");
+                        perror(_("Opening file"));
                         exit(1);
                 }
 		/*Add a row if file is new*/
@@ -756,13 +757,13 @@ int editor_save(void)
         free(buf);
         Editor.dirty = 0;
         Editor.newfile = 0;
-        editor_set_status_message("%d bytes written on disk", len);
+        editor_set_status_message(_("%d bytes written on disk"), len);
         return 0;
 
 writeerr:
         free(buf);
         if(fd != -1) close(fd);
-        editor_set_status_message("Cannot save! I/O error: %s", strerror(errno));
+        editor_set_status_message(_("Cannot save! I/O error: %s"), strerror(errno));
         return 1;
 }
 
@@ -913,7 +914,8 @@ void editor_refresh_screen(void)
                 if(filerow >= Editor.num_of_rows) {
                         if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && Editor.mode != INSERT_MODE && !Editor.dirty && Editor.newfile) {
                                 char welcome[80];
-                                int welcomelen = snprintf(welcome, sizeof(welcome), "Bric editor -- version %s\x1b[0K\r\n", BRIC_VERSION);
+                                  /* TRANSLATORS:  "Bric" is the program name and should not be translated */
+                                int welcomelen = snprintf(welcome, sizeof(welcome), _("Bric editor -- version %s\x1b[0K\r\n"), VERSION);
                                 int padding = (Editor.screen_columns-welcomelen)/2;
                                 if(padding) {
                                         ab_append(&ab, "~", 1);
@@ -1086,7 +1088,7 @@ void editor_find(int fd)
         int saved_column_offset = Editor.column_offset, saved_row_offset = Editor.row_offset;
 
         while(1) {
-                editor_set_status_message("Search: %s (Use ESC/Arrows/Enter)", query);
+                editor_set_status_message(_("Search: %s (Use ESC/Arrows/Enter)"), query);
                 editor_refresh_screen();
 
                 int c = editor_read_key(fd);
@@ -1198,7 +1200,7 @@ void editor_find_replace(int fd)
 	int saved_column_offset = Editor.column_offset, saved_row_offset = Editor.row_offset;
 
 	while (1) {
-		editor_set_status_message("Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)", query, replace_word);
+		editor_set_status_message(_("Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)"), query, replace_word);
 		editor_refresh_screen();
 
 		int c = editor_read_key(fd);
@@ -1461,7 +1463,8 @@ void editor_goto(int linenumber)
 			editor_refresh_screen();
 			return;
 		} else {
-			editor_set_status_message("Out of bounds");
+                        /* TRANSLATORS: alternate meaning: "exceeds boundary" */
+			editor_set_status_message(_("Out of bounds"));
 			editor_refresh_screen();
 			return;
 		}
@@ -1486,7 +1489,7 @@ void editor_check_quit(int fd)
         int qlen = 0;
 
         while(1) {
-                editor_set_status_message("There are unsaved changes, quit? (y or n) %s", query);
+                editor_set_status_message(_("There are unsaved changes, quit? (y or n) %s"), query);
                 editor_refresh_screen();
 
                 int c = editor_read_key(fd);
@@ -1539,7 +1542,7 @@ char* get_key(void) {
 	char *key = (char*)malloc(128 * sizeof(char));
 	while(char_check(find_row(filerow)->chars[filecol])) {
 		key[i] = find_row(filerow)->chars[filecol];
-		i++; 
+		i++;
 		filecol++;
 	}
 	key[i] = '\0';
@@ -1579,7 +1582,7 @@ int handle_tag_movement(int where) {
 	strcpy(orig_filename, Editor.filename);
 	if(where == MOVE_BACK) {
 		if(isempty(&tag_stack)) {
-			editor_set_status_message("at bottom of tag stack");
+			editor_set_status_message(_("at bottom of tag stack"));
 			return 1;
 		}
 		tag_data = pop(&tag_stack);
@@ -1588,7 +1591,7 @@ int handle_tag_movement(int where) {
 		strcpy(filename, tag_data.filename);
 		if(strcmp(filename, Editor.filename)) {
                         if(Editor.dirty) {
-                                editor_set_status_message("Unsaved changes. Can't proceed");
+                                editor_set_status_message(_("Unsaved changes. Can't proceed"));
                                 return 0;
                         }
                         editor_start(filename);
@@ -1603,15 +1606,15 @@ int handle_tag_movement(int where) {
 			editor_move_cursor(ARROW_UP);
                 for(; i > 0; i--)
 			editor_move_cursor(ARROW_DOWN);
-                return 1;		
+                return 1;
 	}
 	if(key[0] == '\0') {
-		editor_set_status_message("No identifier under cursor");
+		editor_set_status_message(_("No identifier under cursor"));
 		return 0;
 	}
 	fp = fopen("tags", "r");
 	if(!fp) {
-		editor_set_status_message("tag not found: %s", key);
+		editor_set_status_message(_("tag not found: %s"), key);
 		free(key);
 		return 0;
 	}
@@ -1623,8 +1626,8 @@ int handle_tag_movement(int where) {
 		tosearch = strtok(NULL, "\t");
 		if(strcmp(filename, Editor.filename)) {
 			if(Editor.dirty) {
-				editor_set_status_message("Unsaved changes. Can't proceed");
-				return 0;				
+				editor_set_status_message(_("Unsaved changes. Can't proceed"));
+				return 0;
 			}
 			editor_start(filename);
 		}
@@ -1649,7 +1652,7 @@ int handle_tag_movement(int where) {
 			editor_move_cursor(ARROW_DOWN);
 		return 1;
 	}
-	editor_set_status_message("tag not found: %s", key);
+	editor_set_status_message(_("tag not found: %s"), key);
 	free(key);
 	return 0;
 }
@@ -1743,7 +1746,7 @@ void editor_process_key_press(int fd)
                         case CTRL_Q:
                                 //quit if the file isnt dirty
                                 if(Editor.dirty && quit_times) {
-                                        editor_set_status_message("WARNING! File has unsaved changes. " "Press Ctrl-Q %d more times to quit.", quit_times);
+                                        editor_set_status_message(_("WARNING! File has unsaved changes. " "Press Ctrl-Q %d more times to quit."), quit_times);
                                         quit_times--;
                                         return;
                                 }
@@ -1809,7 +1812,7 @@ void editor_process_key_press(int fd)
                                 break;
                         case ESC:
                                 Editor.mode = NORMAL_MODE;
-                                editor_set_status_message("Normal mode.");
+                                editor_set_status_message(_("Normal mode."));
                                 if(filecol != 0)
                                     editor_move_cursor(ARROW_LEFT);
                                 break;
@@ -1872,22 +1875,22 @@ void editor_process_key_press(int fd)
                                 break;
                         case 'i':
                                 Editor.mode = INSERT_MODE;
-                                editor_set_status_message("Insert mode.");
+                                editor_set_status_message(_("Insert mode. "));
                                 break;
                         case 'I':
 				editor_move_cursor(HOME_KEY);
 				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
+				editor_set_status_message(_("Insert mode. "));
 				break;
                         case 'o':
 				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode.");
+				editor_set_status_message(_("Insert mode. "));
 				editor_insert_row(filerow + 1, "", 0);
 				editor_move_cursor(ARROW_DOWN);
 				break;
                         case 'O':
 				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
+				editor_set_status_message(_("Insert mode. "));
 				editor_insert_row(filerow, "", 0);
 				break;
                         case 'G':
@@ -1902,14 +1905,14 @@ void editor_process_key_press(int fd)
                         case '0':
 				editor_move_cursor(HOME_KEY);
 				break;
-                        case 'a':     
+                        case 'a':
 				editor_move_cursor(ARROW_RIGHT);
 				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
+				editor_set_status_message(_("Insert mode. "));
 				break;
                         case 'A':
 				Editor.mode = INSERT_MODE;
-				editor_set_status_message("Insert mode. ");
+				editor_set_status_message(_("Insert mode. "));
 				editor_move_cursor(END_KEY);
 				editor_move_cursor(ARROW_RIGHT);
 				break;
@@ -1998,7 +2001,7 @@ void init_editor(void)
         Editor.colours.hl_default_colour = 37;
         Editor.mode = NORMAL_MODE;
         if(get_window_size(STDIN_FILENO, STDOUT_FILENO, &Editor.screen_rows, &Editor.screen_columns) == -1) {
-                perror("Unable to query the screen for size (columns / rows)");
+                perror(_("Unable to query the screen for size (columns / rows)"));
                 exit(1);
         }
         if (Editor.line_numbers)
@@ -2164,6 +2167,11 @@ void editor_start(char *filename) {
 
 int main(int argc, char **argv)
 {
+        // used to implement gettext for translations
+        setlocale (LC_ALL, "");
+        bindtextdomain (PACKAGE, LOCALEDIR);
+        textdomain (PACKAGE);
+
         signal(SIGWINCH, sigwinch_handler);
         init(&tag_stack);
         int file_arg = -1;
@@ -2175,7 +2183,7 @@ int main(int argc, char **argv)
             }
         }
         if(file_arg == -1) {
-                fprintf(stderr, "Usage: bric <filename>\n");
+                fprintf(stderr, _("Usage: bric <filename>\n"));
                 exit(1);
         }
         // We set the current file information
@@ -2192,7 +2200,7 @@ int main(int argc, char **argv)
 	if(!is_file_locked(CurrentFile)){
 		lock_file(CurrentFile);
 	}else{
-		fprintf(stderr, "The file has been locked, try to remove the locker!\n");
+		fprintf(stderr, _("The file has been locked, try to remove the locker!\n"));
 		return EXIT_FAILURE;
 	}
         editor_start(argv[file_arg]);
