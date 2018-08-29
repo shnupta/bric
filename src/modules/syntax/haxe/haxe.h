@@ -8,6 +8,7 @@ char *HAXE_keywords[] = {
 	"Bool", "Float", "Int", "true", "false", "String",
 	"null", "Void", "NaN", "Array",
 	"var", "trace", "Node", "TString", "TInt", "Class",
+	"EReg",
 
 	//conditionals
 	"switch~", "if~", "throw~", "else~", "case~", "try~", "catch~",
@@ -19,11 +20,12 @@ char *HAXE_keywords[] = {
 	//adapters
 	"static^", "public^", "protected^", "private^", "class^", "extern^",
 	"function^", "import^", "using^", "typedef^", "inline^", "package^",
+	"cast^", "implements^",
 
 	//loops
 	"for@", "while@", "do@", "in@", "...@",
 
-	// Should figure out metadata lixe @:keep and @:rtti selectors in haxe.
+	// Should figure out metadata like @:keep and @:rtti selectors in haxe.
 	// https://haxe.org/manual/lf-metadata.html
 
 	NULL
