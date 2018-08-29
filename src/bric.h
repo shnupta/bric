@@ -1,8 +1,6 @@
 #ifndef _BRIC_H
 #define _BRIC_H
 
-#define BRIC_VERSION "0.0.1"
-
 #include <termios.h>
 #include <stdlib.h>
 #include <stdio.h>
