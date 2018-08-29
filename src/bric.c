@@ -915,7 +915,7 @@ void editor_refresh_screen(void)
                         if(Editor.num_of_rows == 1 && y == Editor.screen_rows/3 && Editor.mode != INSERT_MODE && !Editor.dirty && Editor.newfile) {
                                 char welcome[80];
                                   /* TRANSLATORS:  "Bric" is the program name and should not be translated */
-                                int welcomelen = snprintf(welcome, sizeof(welcome), _("Bric editor -- version %s\x1b[0K\r\n"), BRIC_VERSION);
+                                int welcomelen = snprintf(welcome, sizeof(welcome), _("Bric editor -- version %s\x1b[0K\r\n"), VERSION);
                                 int padding = (Editor.screen_columns-welcomelen)/2;
                                 if(padding) {
                                         ab_append(&ab, "~", 1);
