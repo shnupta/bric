@@ -23,11 +23,12 @@ https://github.com/shnupta/bric
 
 From the top level of the source directory, run:
 
-    ./configure (use `./configure --help` to set extra options)
+    mkdir build
+    ../configure (use `../configure --help` to set extra options)
 
 By default, `make install` will install all the files in
 */usr/local/bin*, */usr/local/lib* etc.  You can specify
-an installation prefix other than */usr/local* using `./configure --prefix`,
+an installation prefix other than */usr/local* using `../configure --prefix`,
 for instance *--prefix=$HOME* or *--prefix=$PWD/install_test*.
 
     make (Before install, the resulting `bric` binary will be located in src/)
@@ -44,7 +45,7 @@ can be found in the [INSTALL](INSTALL) document.
 
 #### Removing files:
 
-    make clean
+    make clean (or remove the build directory you created)
     make distclean
 
 #### Uninstalling
