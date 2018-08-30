@@ -36,7 +36,7 @@ msgstr "reguläre Datei"
 
 * You will need the `gettext` package from your OS distribution.
 * [Fork the repo](https://github.com/shnupta/bric#fork-destination-box)
-* After you clone your fork, go into the rmw source po/ directory
+* After you clone your fork, go into the bric source po/ directory
 
 * run `msginit -i bric.pot -o lc_CC.po -l lc_CC` (Where lc is your
  [iso-631-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)) and CC is your country code
