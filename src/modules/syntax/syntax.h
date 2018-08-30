@@ -20,6 +20,7 @@
 #include "makefile/makefile.h"
 #include "dockerfile/dockerfile.h"
 #include "swift/swift.h"
+#include "haxe/haxe.h"
 
 // Syntax highlighting macros
 #define HL_NORMAL 0
@@ -64,7 +65,8 @@ struct editor_syntax highlight_db[] = {
   BASH_syntax,
   MAKEFILE_syntax,
   DOCKERFILE_syntax,
-  SWIFT_syntax
+  SWIFT_syntax,
+  HAXE_syntax
 };
 
 #define HIGHLIGHT_DB_ENTRIES (sizeof(highlight_db)/sizeof(highlight_db[0]))
