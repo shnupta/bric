@@ -10,7 +10,7 @@ EXTRA_DIST=		\
 	LICENSE		\
 	INSTALL		\
 	CONTRIBUTING.md	\
-	TRANSLATE
+	TRANSLATE.md
 
 packextrasdir=@docdir@
 packextras_DATA=$(EXTRA_DIST)

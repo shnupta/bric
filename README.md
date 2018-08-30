@@ -85,7 +85,7 @@ Not all options have to be set. The ones shown above are the colours (however in
 
 ### Translating
 
-If you are interested in translating bric, please see the [TRANSLATE document](TRANSLATE).
+If you are interested in translating bric, please see the [TRANSLATE document](TRANSLATE.md).
 
 ### Contribution:
 I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR! A contribution guide will be written shortly.
