@@ -20,5 +20,3 @@ localedir = @localedir@
 sysconfdir = @sysconfdir@
 
 ACLOCAL_AMFLAGS = --install -I m4
-
-distdir = $(PACKAGE)-$(VERSION)
