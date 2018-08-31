@@ -20,10 +20,11 @@ void push(tagstack *s, tagdata element) {
 	strcpy(foo->p->data.tagname, element.tagname);
 	foo->p->data.linenumber = element.linenumber;
 	strcpy(foo->p->data.filename, element.filename);
-	foo->p->p = NULL;	
+	foo->p->p = NULL;
 }
 tagdata pop(tagstack *s) {
-	tagstack *foo, *curr;
+	tagstack *foo = calloc (sizeof (tagstack), sizeof (char));
+	tagstack *curr = calloc (sizeof (tagstack), sizeof (char));
 	tagdata element;
 	foo = s;
 	while(foo->p != NULL) {
