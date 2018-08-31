@@ -10,7 +10,7 @@ char *Python_keywords[] = {
 	//conditionals
 	"if~", "elif~", "continue~", "break~", "pass~", "try~", 
 	// return
-	"return#", "raise#", "is#", "in#",
+	"return#", "raise#", "is#", "in#", "def#",
 	// loops
 	"for@", "while@", "try@", "except@", "finally@",
 	// misc
