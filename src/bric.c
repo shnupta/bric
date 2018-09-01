@@ -1005,7 +1005,11 @@ void editor_refresh_screen(void)
         ab_append(&ab, "\x1b[0K", 4);
         ab_append(&ab, "\x1b[7m", 4);
         char status[80], rstatus[80];
-        int len = snprintf(status, sizeof(status), "%.50s =- %d lines %s", Editor.filename, Editor.num_of_rows, Editor.dirty ? "(modified)" : "");
+        int len = snprintf(status, sizeof(status),
+                /* TRANSLATORS: lines = number of lines in a text file */
+                ngettext("%.50s =- %d line %s", "%.50s =- %d lines %s", Editor.num_of_rows),
+                /* TRANSLATORS: modified = changed file */
+                Editor.filename, Editor.num_of_rows, Editor.dirty ? _("(modified)") : "");
         int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", Editor.row_offset+Editor.cursor_y+1, Editor.num_of_rows);
         if(len > Editor.screen_columns) len = Editor.screen_columns;
         ab_append(&ab, status, len);
