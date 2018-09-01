@@ -14,7 +14,8 @@ AM_MAINTAINER_MODE
 AM_GNU_GETTEXT([external], [need-formatstring-macros])
 AM_GNU_GETTEXT_VERSION([0.19.8])
 
+# The Makefile.* filenames in po/ are different than the others, and that's intentional,
+# according the GNU Gettext documentation.
 AC_CONFIG_FILES([       Makefile
-                        src/Makefile
 			po/Makefile.in])
 AC_OUTPUT
