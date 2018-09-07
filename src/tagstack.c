@@ -30,14 +30,14 @@ void push(tagstack *s, tagdata element) {
 	foo->p->p = NULL;
 }
 tagdata pop(tagstack *s) {
-	tagstack *foo = calloc (sizeof (tagstack), sizeof (char));
+	tagstack *foo = (tagstack *)calloc (sizeof (s), sizeof (char));
 	if (foo == NULL)
 	{
 		perror(_("Error allocating memory."));
 		exit (1);
 	}
 
-	tagstack *curr = calloc (sizeof (tagstack), sizeof (char));
+	tagstack *curr = (tagstack *)calloc (sizeof (s), sizeof (char));
 	if (curr == NULL)
 	{
 		perror(_("Error allocating memory."));
