@@ -47,7 +47,7 @@ void push(tagstack *s, tagdata element) {
 	foo->p->p = NULL;
 }
 tagdata pop(tagstack *s) {
-	/* This is using a "Linked List" */
+	/* This function is using a "Linked List" */
 	tagstack *foo;
 	tagstack *node;
 

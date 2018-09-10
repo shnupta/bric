@@ -2,4 +2,3 @@
 
 src/bric.c
 src/locking.c
-src/tagstack.c
