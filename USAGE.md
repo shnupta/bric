@@ -9,7 +9,7 @@ This document is intended to be a guide and index of the commands and functions 
 	- [Edit](#edit)
 	- [Misc](#misc)
 
-- [Insert mode](#insert-mode) 
+- [Insert mode](#insert-mode)
 	- [Movement](#movement-1)
 	- [Edit](#edit-1)
 	- [Misc](#misc-1)
@@ -43,7 +43,7 @@ This document is intended to be a guide and index of the commands and functions 
 >	- __END__ - Move cursor to the end of the current row.
 >	- __PAGE UP__ - Move cursor to the first row.
 >	- __PAGE DOWN__ - Move cursor to the last line or move cursor to the last visual line (??).
->	- __ctrl + m__ - Jump to symbol definition .
+>	- __ctrl + m__ - Jump to symbol definition (bric will read from a [tags](src/modules/tag/documentation) file).
 >	- __ctrl + n__ - Jump back to previous position after __ctrl + m__ .
 
 2. ### Edit
@@ -54,7 +54,7 @@ This document is intended to be a guide and index of the commands and functions 
 >	- __cp__ - Paste from clipboard.
 
 3. ### Misc
->	- __cc__ - Clears the clipboard  
+>	- __cc__ - Clears the clipboard
 >	- __:__ - Enter command mode.
 >	- __i__ - Enter insert mode.
 >	- __I__ - Enter insert mode.
@@ -114,7 +114,7 @@ This document is intended to be a guide and index of the commands and functions 
 >	- __wq__ - Save changes and quit.
 >	- __q__ - Quit.
 >	- __f__ - Find.
->	- __fr__ - Find and replace. 
+>	- __fr__ - Find and replace.
 >	- __sm__ - Enter selection mode.
 >	- __sp__ - ???
 >	- __up__ - ???
