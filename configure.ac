@@ -1,5 +1,5 @@
 AC_INIT([bric], [m4_esyscmd_s([cat ./.version])], [https://github.com/shnupta/bric/issues], ,[https://github.com/shnupta/bric])
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([subdir-objects foreign])
 AC_PREREQ(2.69)
 AC_CONFIG_HEADERS([src/config.h:config.in])
 AC_PROG_CC([cc])
