@@ -53,12 +53,15 @@ branch](https://github.com/Kunena/Kunena-Forum/wiki/Create-a-new-branch-with-git
 branch](https://github.com/shnupta/bric/tree/master))
     * Do not merge it with the master branch on your fork. That would result in multiple, or unrelated patches being included in a single PR.
 
-## Syncing ##
+## Syncing
 
-Periodically, you'll need the sync your repo with mine (the upstream).
-GitHub has instructions for doing this
+Periodically, especially before starting a new patch, you'll need to sync your
+repo with the remote upstream. GitHub has instructions for doing this:
 
-* [Configuring a remote for a fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/)
-  * For step 3 on that page, use https://github.com/shnupta/bric for the URL.
-* [Syncing a Fork](https://help.github.com/articles/syncing-a-fork/)
-  * On that page, it shows how to merge the **master** branch (steps 4 & 5).
+1. [Configuring a remote for a fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/)
+    * For step 3 on that page, use https://github.com/shnupta/bric.git
+    for the URL.
+
+2. [Syncing a Fork](https://help.github.com/articles/syncing-a-fork/)
+    * On that page, it shows how to merge the **master** branch (steps
+    4 & 5 of **Syncing a Fork**).
