@@ -1,9 +1,9 @@
 /**
  * File:        locking.h
- * 
- * Description: This file contents the functions used to handle the file locking, 
+ *
+ * Description: This file contents the functions used to handle the file locking,
  *              based in the current filename.
- * 
+ *
  * Author: Ivan Botero <ivan.botero@protonmail.ch>
  */
 
@@ -15,6 +15,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
+
+#include <locale.h>
+#include "gettext.h"
+#define _(String) gettext (String)
+#define gettext_noop(String) String
+#define N_(String) gettext_noop (String)
 
 /* Structures */
 struct __current_file

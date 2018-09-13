@@ -1,4 +1,6 @@
 bric
+bric.exe
+/build
 .bric.c.swp
 .bric.h.swp
 .DS_Store
@@ -7,3 +9,22 @@ tags
 
 # Objects
 *.o
+
+# NetBeans
+nbproject/
+autom4te.cache
+config.in~
+config.h
+stamp-h1
+.deps
+config.log
+config.status
+Makefile
+m4/*~
+
+po/*~
+*.patch
+
+# don't commit tarballs
+*.tar.gz
+*.tgz
