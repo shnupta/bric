@@ -25,16 +25,16 @@
 /* Structures */
 struct __current_file
 {
-    char pathname[512];
+  char pathname[512];
 };
 
 /* Functions */
-void set_current_file(char *filename, struct __current_file *current_file);
-char *get_locker_name(struct __current_file current_file);
+void set_current_file (char *filename, struct __current_file *current_file);
+char *get_locker_name (struct __current_file current_file);
 
-void lock_file(struct __current_file current_file);
-void unlock_file(struct __current_file current_file);
+void lock_file (struct __current_file current_file);
+void unlock_file (struct __current_file current_file);
 
-int is_file_locked(struct __current_file current_file);
+int is_file_locked (struct __current_file current_file);
 
 #endif

@@ -14,10 +14,11 @@
  * Return:      N/A
  *
  */
-void set_current_file(char *filename, struct __current_file *current_file)
+void
+set_current_file (char *filename, struct __current_file *current_file)
 {
-    strcpy(current_file->pathname, filename);
-    return;
+  strcpy (current_file->pathname, filename);
+  return;
 }
 
 /**
@@ -35,15 +36,17 @@ void set_current_file(char *filename, struct __current_file *current_file)
  * Return:      <char *>    Name of the locker file.
  *
  */
-char *get_locker_name(struct __current_file current_file)
+char *
+get_locker_name (struct __current_file current_file)
 {
-    char locker[512];
-    char *buffer = malloc(512);
+  char locker[512];
+  char *buffer = malloc (512);
 
-    sprintf(locker, "%s/.%s.lock", dirname(current_file.pathname), basename(current_file.pathname));
-    strcpy(buffer, locker);
+  sprintf (locker, "%s/.%s.lock", dirname (current_file.pathname),
+           basename (current_file.pathname));
+  strcpy (buffer, locker);
 
-    return buffer;
+  return buffer;
 }
 
 /**
@@ -56,21 +59,22 @@ char *get_locker_name(struct __current_file current_file)
  * Return:      N/A
  *
  */
-void lock_file(struct __current_file current_file)
+void
+lock_file (struct __current_file current_file)
 {
-    char *locker = get_locker_name(current_file);
-    FILE *locker_file = fopen(locker, "w");
+  char *locker = get_locker_name (current_file);
+  FILE *locker_file = fopen (locker, "w");
 
-    if (!locker_file)
-    {
-        perror(_("Could not create locker file"));
-    }
-    else
-    {
-        fclose(locker_file);
-    }
+  if (!locker_file)
+  {
+    perror (_("Could not create locker file"));
+  }
+  else
+  {
+    fclose (locker_file);
+  }
 
-    return;
+  return;
 }
 
 /**
@@ -83,18 +87,19 @@ void lock_file(struct __current_file current_file)
  * Return:      N/A
  *
  */
-void unlock_file(struct __current_file current_file)
+void
+unlock_file (struct __current_file current_file)
 {
-    char *locker = get_locker_name(current_file);
-    FILE *locker_file = fopen(locker, "r");
+  char *locker = get_locker_name (current_file);
+  FILE *locker_file = fopen (locker, "r");
 
-    if (locker_file)
-    {
-        fclose(locker_file);
-        remove(locker);
-    }
+  if (locker_file)
+  {
+    fclose (locker_file);
+    remove (locker);
+  }
 
-    return;
+  return;
 }
 
 /**
@@ -108,16 +113,17 @@ void unlock_file(struct __current_file current_file)
  * Return:      <int>           If the current file is locked 1, otherwise 0.
  *
  */
-int is_file_locked(struct __current_file current_file)
+int
+is_file_locked (struct __current_file current_file)
 {
-    char *locker = get_locker_name(current_file);
-    FILE *locker_file = fopen(locker, "r");
+  char *locker = get_locker_name (current_file);
+  FILE *locker_file = fopen (locker, "r");
 
-    if (locker_file)
-    {
-        fclose(locker_file);
-        return 1;
-    }
+  if (locker_file)
+  {
+    fclose (locker_file);
+    return 1;
+  }
 
-    return 0;
+  return 0;
 }

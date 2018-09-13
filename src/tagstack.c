@@ -28,41 +28,53 @@
  * a tags file.
  */
 
-int isempty(tagstack *s) {
-	return s->p == NULL;
-}
-void init(tagstack *s) {
-	s->p = NULL;
-}
-void push(tagstack *s, tagdata element) {
-	tagstack *foo;
-	foo = s;
-	while(foo->p != NULL) {
-		foo = foo->p;
-	}
-	foo->p = (tagstack*)malloc(sizeof(tagstack));
-	strcpy(foo->p->data.tagname, element.tagname);
-	foo->p->data.linenumber = element.linenumber;
-	strcpy(foo->p->data.filename, element.filename);
-	foo->p->p = NULL;
-}
-tagdata pop(tagstack *s) {
-	/* This function is using a "Linked List" */
-	tagstack *foo;
-	tagstack *node;
-
-	tagdata element;
-	foo = s;
-	node = foo;
-	while(foo->p != NULL) {
-		node = foo;
-		foo = foo->p;
-	}
-	strcpy(element.tagname, foo->data.tagname);
-	element.linenumber = foo->data.linenumber;
-	strcpy(element.filename, foo->data.filename);
-
-	node->p = NULL;
-	return element;
+int
+isempty (tagstack * s)
+{
+  return s->p == NULL;
 }
 
+void
+init (tagstack * s)
+{
+  s->p = NULL;
+}
+
+void
+push (tagstack * s, tagdata element)
+{
+  tagstack *foo;
+  foo = s;
+  while (foo->p != NULL)
+  {
+    foo = foo->p;
+  }
+  foo->p = (tagstack *) malloc (sizeof (tagstack));
+  strcpy (foo->p->data.tagname, element.tagname);
+  foo->p->data.linenumber = element.linenumber;
+  strcpy (foo->p->data.filename, element.filename);
+  foo->p->p = NULL;
+}
+
+tagdata
+pop (tagstack * s)
+{
+  /* This function is using a "Linked List" */
+  tagstack *foo;
+  tagstack *node;
+
+  tagdata element;
+  foo = s;
+  node = foo;
+  while (foo->p != NULL)
+  {
+    node = foo;
+    foo = foo->p;
+  }
+  strcpy (element.tagname, foo->data.tagname);
+  element.linenumber = foo->data.linenumber;
+  strcpy (element.filename, foo->data.filename);
+
+  node->p = NULL;
+  return element;
+}

@@ -7,7 +7,7 @@
 
 tagstack tag_stack;
 
-int handle_tag_movement(int where);
-char* get_key(void);
-int char_check(char c);
-int tagsearch(char *tosearch);
+int handle_tag_movement (int where);
+char *get_key (void);
+int char_check (char c);
+int tagsearch (char *tosearch);
