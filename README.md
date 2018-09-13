@@ -1,20 +1,31 @@
-[![Build Status](https://travis-ci.com/shnupta/bric.svg?branch=development)](https://travis-ci.com/shnupta/bric)
+[![Build
+Status](https://travis-ci.com/shnupta/bric.svg?branch=master)](https://travis-ci.com/shnupta/bric)
 
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/shnupta/bric.svg?columns=all)](https://waffle.io/shnupta/bric)
+[![Waffle.io - Columns and their card
+count](https://badge.waffle.io/shnupta/bric.svg?columns=all)](https://waffle.io/shnupta/bric)
 
-[Join our slack team!](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI)
+[Join our slack
+team!](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI)
 
 # bric
-bric is a text editor based on kilo.
+bric is a text editor based on [kilo](https://github.com/antirez/kilo).
 
-bric does not depend on any library (not even curses). It uses fairly standard VT100 (and similar terminals) escape sequences to write and read to and from the terminal.
+bric does not depend on any library (not even curses). It uses fairly
+standard VT100 (and similar terminals) escape sequences to write and
+read to and from the terminal.
 
-[My blog post](https://shnupta.github.io/blog/17/04/bric.html)
+A blog post by [Casey](https://github.com/shnupta), bric's first maintainer
+
+[Casey's blog post](https://shnupta.github.io/blog/17/04/bric.html)
 
 ### Screencast of bric on macOS:
 [View Screencast](https://andy5995.github.io/screencast_low.gif)
 
 ### Getting the code
+
+The code on the master branch is more likely to be unstable. See the
+[Releases](https://github.com/shnupta/bric/releases) section for
+downloads that have been more thoroughly tested.
 
 The links to the git repo or source archives can be found at
 https://github.com/shnupta/bric
@@ -54,9 +65,13 @@ can be found in the [INSTALL](INSTALL) document.
     make uninstall (must be run before `make distclean`)
 
 ### Usage:
-If you have performed a `make install` then just `bric <filename>`. It can be a new or existing filename.
 
-Currently bric only supports a few vim commands (with similar names) but plans are in place to implement more to make editing much easier and more efficient.
+If you have performed a `make install` then just `bric <filename>`. It
+can be a new or existing filename.
+
+Currently bric only supports a few vim commands (with similar names)
+but plans are in place to implement more to make editing much easier
+and more efficient.
 
 Config file:
 bric is customizable from a configuration file - `~/.bricrc`
@@ -90,17 +105,18 @@ Not all options have to be set. The ones shown above are the colours (however in
 If you are interested in translating bric, please see the [TRANSLATE document](TRANSLATE.md).
 
 ### Contribution:
-I'm completely open to anyone forking and helping build features of the editor so go ahead and make a PR! A contribution guide will be written shortly.
+
+I'm completely open to anyone forking and helping build features of the
+editor so go ahead and make a PR!
+
+Please review the [CONTRIBUTING
+guidelines](https://github.com/shnupta/bric/blob/master/CONTRIBUTING.md).
 
 The basic workflow as of November 2017 is:
-- Development and pull requests are made on the development branch.
-- These PRs will be reviewed and if accepted merged into the development branch.
-- Every (x time period) a test version of bric will be merged into the testing branch for confirmation that new features are working as expected.
-- Once tested, approved features will be merged into the master branch for the next release.
+- Development and pull requests are made on the master branch.
+- These PRs will be reviewed and if accepted merged into the master branch.
 
 ### Bugs and feedback:
-To submit any bugs or give feedback please add an issue on this repo or email me or one of the contributors.
 
-### References:
-- kilo - https://github.com/antirez/kilo
-- My site - https://shnupta.github.io
+To submit any bugs or give feedback please add an issue on this repo or
+[join the bric chat room](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI).
