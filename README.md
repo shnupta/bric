@@ -24,6 +24,7 @@ https://github.com/shnupta/bric
 From the top level of the source directory, run:
 
     mkdir build
+    cd build
     ../configure (use `../configure --help` to set extra options)
 
 By default, `make install` will install all the files in

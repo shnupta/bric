@@ -1,5 +1,6 @@
 bric
 bric.exe
+/build
 .bric.c.swp
 .bric.h.swp
 .DS_Store
@@ -22,6 +23,7 @@ Makefile
 m4/*~
 
 po/*~
+*.patch
 
 # don't commit tarballs
 *.tar.gz
