@@ -11,8 +11,8 @@ bric does not depend on any library (not even curses). It uses fairly standard V
 
 [My blog post](https://shnupta.github.io/blog/17/04/bric.html)
 
-### Here is a screencast of bric on macOS:
-![Screencast](https://andy5995.github.io/screencast_low.gif)
+### Screencast of bric on macOS:
+[View Screencast](https://andy5995.github.io/screencast_low.gif)
 
 ### Getting the code
 
