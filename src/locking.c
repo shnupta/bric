@@ -63,7 +63,7 @@ void lock_file(struct __current_file current_file)
 
     if (!locker_file)
     {
-        perror(_("Could not created locker file"));
+        perror(_("Could not create locker file"));
     }
     else
     {

@@ -23,5 +23,8 @@ Makefile
 m4/*~
 
 po/*~
-
 *.patch
+
+# don't commit tarballs
+*.tar.gz
+*.tgz
