@@ -23,6 +23,13 @@
 
 #include "bric.h"
 
+#define MSG_INSERT_MODE "Insert mode."
+
+const char help_message[] = "Normal mode.";
+const char selection_mode_message[] =
+  "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy";
+// this represents the current single line of the file that we are editing
+
 static struct __current_file CurrentFile;
 struct editor_config Editor;
 struct termios orig_termios;    // so we can restore original at exit
@@ -2307,22 +2314,22 @@ editor_process_key_press (int fd)
       break;
     case 'i':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_("Insert mode. "));
+      editor_set_status_message (_(MSG_INSERT_MODE));
       break;
     case 'I':
       editor_move_cursor (HOME_KEY);
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_("Insert mode. "));
+      editor_set_status_message (_(MSG_INSERT_MODE));
       break;
     case 'o':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_("Insert mode. "));
+      editor_set_status_message (_(MSG_INSERT_MODE));
       editor_insert_row (filerow + 1, "", 0);
       editor_move_cursor (ARROW_DOWN);
       break;
     case 'O':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_("Insert mode. "));
+      editor_set_status_message (_(MSG_INSERT_MODE));
       editor_insert_row (filerow, "", 0);
       break;
     case 'G':
@@ -2340,11 +2347,11 @@ editor_process_key_press (int fd)
     case 'a':
       editor_move_cursor (ARROW_RIGHT);
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_("Insert mode. "));
+      editor_set_status_message (_(MSG_INSERT_MODE));
       break;
     case 'A':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_("Insert mode. "));
+      editor_set_status_message (_(MSG_INSERT_MODE));
       editor_move_cursor (END_KEY);
       editor_move_cursor (ARROW_RIGHT);
       break;

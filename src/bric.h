@@ -65,12 +65,6 @@
 #define SELECTION_MODE 1
 #define NORMAL_MODE 2
 
-const char help_message[] = "Normal mode.";
-const char selection_mode_message[] =
-  "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy";
-// this represents the current single line of the file that we are editing
-
-
 // Syntax highlighting!!!
 
 int is_separator (int c);
