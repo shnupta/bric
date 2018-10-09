@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bric 0.0.3-dev\n"
 "Report-Msgid-Bugs-To: williamshoops96@gmail.com\n"
-"POT-Creation-Date: 2018-08-30 20:02-0500\n"
+"POT-Creation-Date: 2018-10-08 22:46-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,113 +19,106 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. TRANSLATORS: lines = number of lines in a text file
-#: src/bric.c:1010
+#: src/bric.c:1230
 #, c-format
 msgid "%.50s =- %d line %s"
 msgid_plural "%.50s =- %d lines %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/bric.c:760
+#: src/bric.c:940
 #, c-format
 msgid "%d bytes written on disk"
 msgstr ""
 
-#. TRANSLATORS: modified = changed file
-#: src/bric.c:1012
+#: src/bric.c:1235
 msgid "(modified)"
 msgstr ""
 
-#. TRANSLATORS:  "Bric" is the program name and should not be translated
-#: src/bric.c:918
+#: src/bric.c:1120
 #, c-format
 msgid "Bric editor -- version %s[0K\r\n"
 msgstr ""
 
-#: src/bric.c:766
+#: src/bric.c:947
 #, c-format
 msgid "Cannot save! I/O error: %s"
 msgstr ""
 
-#: src/locking.c:66
-msgid "Could not created locker file"
+#: src/locking.c:70
+msgid "Could not create locker file"
 msgstr ""
 
-#: src/bric.c:566 src/bric.c:573
+#: src/bric.c:708 src/bric.c:722
 msgid "Error allocating memory."
 msgstr ""
 
-#: src/bric.c:1882 src/bric.c:1887 src/bric.c:1891 src/bric.c:1897
-#: src/bric.c:1915 src/bric.c:1919
-msgid "Insert mode. "
-msgstr ""
-
-#: src/bric.c:1616
+#: src/bric.c:1992
 msgid "No identifier under cursor"
 msgstr ""
 
-#: src/bric.c:1819
+#: src/bric.c:2246
 msgid "Normal mode."
 msgstr ""
 
-#: src/bric.c:718
+#: src/bric.c:893
 msgid "Opening file"
 msgstr ""
 
 #. TRANSLATORS: alternate meaning: "exceeds boundary"
-#: src/bric.c:1471
+#: src/bric.c:1806
 msgid "Out of bounds"
 msgstr ""
 
-#: src/bric.c:1095
+#: src/bric.c:1338
 #, c-format
 msgid "Search: %s (Use ESC/Arrows/Enter)"
 msgstr ""
 
-#: src/bric.c:1207
+#: src/bric.c:1474
 #, c-format
 msgid "Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)"
 msgstr ""
 
-#: src/bric.c:2207
+#: src/bric.c:2659
 #, c-format
 msgid "The file has been locked, try to remove the locker!\n"
 msgstr ""
 
-#: src/bric.c:1496
+#: src/bric.c:1836
 #, c-format
 msgid "There are unsaved changes, quit? (y or n) %s"
 msgstr ""
 
-#: src/bric.c:13 src/bric.c:2008
+#: src/bric.c:47 src/bric.c:2449
 msgid "Unable to query the screen for size (columns / rows)"
 msgstr ""
 
-#: src/bric.c:1598 src/bric.c:1633
+#: src/bric.c:1970 src/bric.c:2013
 msgid "Unsaved changes. Can't proceed"
 msgstr ""
 
-#: src/bric.c:2190
+#: src/bric.c:2638
 #, c-format
 msgid "Usage: bric <filename>\n"
 msgstr ""
 
-#: src/bric.c:1753
+#: src/bric.c:2178
 #, c-format
 msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
 msgstr ""
 
-#: src/bric.c:1589
+#: src/bric.c:1959
 msgid "at bottom of tag stack"
 msgstr ""
 
 #. TRANSLATORS:  "bric" is the program name, do not translate
-#: src/bric.c:704
+#: src/bric.c:875
 #, c-format
 msgid "bric: invalid option -- '%c'\n"
 msgstr ""
 
-#: src/bric.c:1621 src/bric.c:1659
+#: src/bric.c:1998 src/bric.c:2044
 #, c-format
 msgid "tag not found: %s"
 msgstr ""
