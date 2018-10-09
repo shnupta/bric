@@ -11,9 +11,9 @@ msgstr ""
 "PO-Revision-Date: 2018-10-09 12:33+0200\n"
 "Last-Translator: Dennis Rohner <midzer@gmail.com>\n"
 "Language-Team: German\n"
-"Language: de\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ASCII\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -91,7 +91,9 @@ msgstr "Es gibt ungespeicherte Änderungen, beenden? (y oder n) %s"
 
 #: src/bric.c:47 src/bric.c:2449
 msgid "Unable to query the screen for size (columns / rows)"
-msgstr "Es ist nicht möglich, den Bildschirm nach der Größe (Spalten / Reihen) abzufragen"
+msgstr ""
+"Es ist nicht möglich, den Bildschirm nach der Größe (Spalten / Reihen) "
+"abzufragen"
 
 #: src/bric.c:1970 src/bric.c:2013
 msgid "Unsaved changes. Can't proceed"
@@ -105,7 +107,9 @@ msgstr "Verwendung: bric <dateiname>\n"
 #: src/bric.c:2178
 #, c-format
 msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
-msgstr "WARNUNG! Datei hat ungespeicherte Änderungen. Zum Beenden Ctrl-Q %d mehrmals drücken"
+msgstr ""
+"WARNUNG! Datei hat ungespeicherte Änderungen. Zum Beenden Ctrl-Q %d mehrmals "
+"drücken"
 
 #: src/bric.c:1959
 msgid "at bottom of tag stack"
