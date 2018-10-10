@@ -9,14 +9,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: williamshoops96@gmail.com\n"
 "POT-Creation-Date: 2018-10-08 22:46-0500\n"
 "PO-Revision-Date: 2018-10-09 19:01-0300\n"
+"Last-Translator: \n"
 "Language-Team: \n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.1.1\n"
-"Last-Translator: \n"
-"Language: pt_BR\n"
 
 #. TRANSLATORS: lines = number of lines in a text file
 #: src/bric.c:1230
@@ -106,7 +106,9 @@ msgstr "Uso: bric <arquivo>\n"
 #: src/bric.c:2178
 #, c-format
 msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
-msgstr "ATENÇÃO! Arquivo possui modicações não salvas. Aperte Ctrl-Q mais %d vezes para sair."
+msgstr ""
+"ATENÇÃO! Arquivo possui modicações não salvas. Aperte Ctrl-Q mais %d vezes "
+"para sair."
 
 #: src/bric.c:1959
 msgid "at bottom of tag stack"
