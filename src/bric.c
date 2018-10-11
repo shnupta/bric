@@ -23,11 +23,9 @@
 
 #include "bric.h"
 
-#define MSG_INSERT_MODE "Insert mode."
-
-const char help_message[] = "Normal mode.";
-const char selection_mode_message[] =
-  "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy";
+#define MSG_INSERT_MODE gettext ("Insert mode.")
+#define MSG_NORMAL_MODE gettext ("Normal mode.")
+#define MSG_SELECTION_MODE gettext ("Selection mode: ESC = exit | arrows = select | Ctrl-C = copy")
 // this represents the current single line of the file that we are editing
 
 static struct __current_file CurrentFile;
@@ -2097,7 +2095,7 @@ editor_parse_command (int fd, char *query)
     Editor.mode = SELECTION_MODE;
     Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
     Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
-    editor_set_status_message (selection_mode_message);
+    editor_set_status_message (MSG_SELECTION_MODE);
     return;
   }
   else if (strcmp (query, "sp") == 0)
@@ -2226,7 +2224,7 @@ editor_process_key_press (int fd)
         Editor.mode = SELECTION_MODE;
         Editor.selected_base_x = Editor.cursor_x + Editor.column_offset;
         Editor.selected_base_y = Editor.cursor_y + Editor.row_offset;
-        editor_set_status_message (selection_mode_message);
+        editor_set_status_message (MSG_SELECTION_MODE);
       }
       break;
     case CTRL_C:
@@ -2243,7 +2241,7 @@ editor_process_key_press (int fd)
       break;
     case ESC:
       Editor.mode = NORMAL_MODE;
-      editor_set_status_message (_("Normal mode."));
+      editor_set_status_message (MSG_NORMAL_MODE);
       if (filecol != 0)
         editor_move_cursor (ARROW_LEFT);
       break;
@@ -2314,22 +2312,22 @@ editor_process_key_press (int fd)
       break;
     case 'i':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_(MSG_INSERT_MODE));
+      editor_set_status_message (MSG_INSERT_MODE);
       break;
     case 'I':
       editor_move_cursor (HOME_KEY);
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_(MSG_INSERT_MODE));
+      editor_set_status_message (MSG_INSERT_MODE);
       break;
     case 'o':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_(MSG_INSERT_MODE));
+      editor_set_status_message (MSG_INSERT_MODE);
       editor_insert_row (filerow + 1, "", 0);
       editor_move_cursor (ARROW_DOWN);
       break;
     case 'O':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_(MSG_INSERT_MODE));
+      editor_set_status_message (MSG_INSERT_MODE);
       editor_insert_row (filerow, "", 0);
       break;
     case 'G':
@@ -2347,11 +2345,11 @@ editor_process_key_press (int fd)
     case 'a':
       editor_move_cursor (ARROW_RIGHT);
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_(MSG_INSERT_MODE));
+      editor_set_status_message (MSG_INSERT_MODE);
       break;
     case 'A':
       Editor.mode = INSERT_MODE;
-      editor_set_status_message (_(MSG_INSERT_MODE));
+      editor_set_status_message (MSG_INSERT_MODE);
       editor_move_cursor (END_KEY);
       editor_move_cursor (ARROW_RIGHT);
       break;
@@ -2612,7 +2610,7 @@ editor_start (char *filename)
   editor_select_syntax_highlight (filename);
   editor_open (filename);
   enable_raw_mode (STDIN_FILENO, &orig_termios, &Editor);
-  editor_set_status_message (help_message);
+  editor_set_status_message (MSG_NORMAL_MODE);
 }
 
 int
