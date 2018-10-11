@@ -1,0 +1,131 @@
+# Spanish translations for bric package.
+# Copyright (C) 2018 Casey Williams
+# This file is distributed under the same license as the bric package.
+# Juan Carlos <jclopezdev@gmail.com>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: bric 0.0.3-dev\n"
+"Report-Msgid-Bugs-To: williamshoops96@gmail.com\n"
+"POT-Creation-Date: 2018-10-10 21:02-0500\n"
+"PO-Revision-Date: 2018-10-10 23:57-0500\n"
+"Last-Translator: Juan Carlos <jclopezdev@gmail.com>\n"
+"Language-Team: Spanish\n"
+"Language: es_MX\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. TRANSLATORS: lines = number of lines in a text file
+#: src/bric.c:1228
+#, c-format
+msgid "%.50s =- %d line %s"
+msgid_plural "%.50s =- %d lines %s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/bric.c:938
+#, c-format
+msgid "%d bytes written on disk"
+msgstr "%d bytes escritos en disco"
+
+#: src/bric.c:1233
+msgid "(modified)"
+msgstr "(modificado)"
+
+#: src/bric.c:1118
+#, c-format
+msgid "Bric editor -- version %s[0K\r\n"
+msgstr "Bric editor -- versión %s[0K\r\n"
+
+#: src/bric.c:945
+#, c-format
+msgid "Cannot save! I/O error: %s"
+msgstr "No se pudo guardar error de E/S: %s"
+
+#: src/locking.c:70
+msgid "Could not create locker file"
+msgstr "No se pudo crear el archivo de bloqueo"
+
+#: src/bric.c:706 src/bric.c:720
+msgid "Error allocating memory."
+msgstr "Error al asignar memoria."
+
+#: src/bric.c:26
+msgid "Insert mode."
+msgstr "Modeo de insersión"
+
+#: src/bric.c:1990
+msgid "No identifier under cursor"
+msgstr "Sin identificador debajo del cursor"
+
+#: src/bric.c:27
+msgid "Normal mode."
+msgstr "Modo normal."
+
+#: src/bric.c:891
+msgid "Opening file"
+msgstr "Abriendo archivo"
+
+#. TRANSLATORS: alternate meaning: "exceeds boundary"
+#: src/bric.c:1804
+msgid "Out of bounds"
+msgstr "Fuera de límites"
+
+#: src/bric.c:1336
+#, c-format
+msgid "Search: %s (Use ESC/Arrows/Enter)"
+msgstr "Buscar: %s (Use ESC/Flechas/Enter)"
+
+#: src/bric.c:1472
+#, c-format
+msgid "Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)"
+msgstr "Buscar: %s Reemplazar: %s (Use ESC/Tabulador/Flechas/Enter)"
+
+#: src/bric.c:28
+msgid "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy"
+msgstr "Modo de selección: ESC = salir | flechas = seleccionar | Ctrl-C = copiar"
+
+#: src/bric.c:2657
+#, c-format
+msgid "The file has been locked, try to remove the locker!\n"
+msgstr "El archivo ha sido bloqueado, intente eliminar el bloqueador!\n"
+
+#: src/bric.c:1834
+#, c-format
+msgid "There are unsaved changes, quit? (y or n) %s"
+msgstr "Hay cambios no guardados, quitar? (si o no) %s"
+
+#: src/bric.c:45 src/bric.c:2447
+msgid "Unable to query the screen for size (columns / rows)"
+msgstr "No se puede consultar el tamaño de la pantalla (columnas / filas)"
+
+#: src/bric.c:1968 src/bric.c:2011
+msgid "Unsaved changes. Can't proceed"
+msgstr "Cambios no guardados. No se puede continuar"
+
+#: src/bric.c:2636
+#, c-format
+msgid "Usage: bric <filename>\n"
+msgstr "Uso: bric <nombre de archivo>\n"
+
+#: src/bric.c:2176
+#, c-format
+msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
+msgstr "¡ADVERTENCIA! El archivo tiene cambios no guardados. Presione Ctrl-Q %d más veces para salir."
+
+#: src/bric.c:1957
+msgid "at bottom of tag stack"
+msgstr "en la parte inferior de las etiquetas"
+
+#. TRANSLATORS:  "bric" is the program name, do not translate
+#: src/bric.c:873
+#, c-format
+msgid "bric: invalid option -- '%c'\n"
+msgstr "bric: opción inválida -- '%c'\n"
+
+#: src/bric.c:1996 src/bric.c:2042
+#, c-format
+msgid "tag not found: %s"
+msgstr "etiqueta no encontrada: %s"
