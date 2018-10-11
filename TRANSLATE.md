@@ -41,6 +41,12 @@ msgstr "reguläre Datei"
 * run `msginit -i bric.pot -o lc_CC.po -l lc_CC` (Where lc is your
  [iso-631-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)) and CC is your country code
 
-* At this point, you may open your new .po file and begin adding translations
+* At this point, you may open your new .po file and begin adding
+  translations. You should also change ASCII to UTF-8 in the Content-Type
+  line of your .po file if your language needs non-ASCII characters. Be
+  sure to save the file in UTF-8 encoding.
+
+* Add the appropriate line for your language to the LINGUAS file
+
 * When done, make a [pull request](CONTRIBUTING.md)
 * Thank you!
