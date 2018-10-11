@@ -16,7 +16,9 @@ localedir = @localedir@
 sysconfdir = @sysconfdir@
 
 bin_PROGRAMS=bric
-AM_CFLAGS=-std=gnu99 -Wall -g -W -pedantic
+
+# std=gnu99 is used to prevent warnings related to use of getline()
+AM_CFLAGS=-std=gnu99 -Wall -g
 
 bric_SOURCES =	src/bric.c		\
 		src/locking.c	\

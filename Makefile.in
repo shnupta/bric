@@ -388,7 +388,9 @@ EXTRA_DIST = README.md USAGE.md LICENSE INSTALL CONTRIBUTING.md \
 
 packextrasdir = @docdir@
 packextras_DATA = $(EXTRA_DIST)
-AM_CFLAGS = -std=gnu99 -Wall -g -W -pedantic
+
+# std=gnu99 is used to prevent warnings related to use of getline()
+AM_CFLAGS = -std=gnu99 -Wall -g
 bric_SOURCES = src/bric.c		\
 		src/locking.c	\
 		src/tagstack.c	\

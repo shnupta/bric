@@ -1,6 +1,6 @@
 #ifndef _SYNTAX_PHP_H
 #define _SYNTAX_PHP_H
-#include "../editor_syntax.h"
+#include "editor_syntax.h"
 
 char *PHP_extensions[] = {".php",NULL};
 char *PHP_keywords[] = {
