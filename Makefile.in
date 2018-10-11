@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -101,7 +102,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) $(am__DIST_COMMON)
+	$(am__configure_deps) $(noinst_HEADERS) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
@@ -186,6 +187,7 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 DATA = $(packextras_DATA)
+HEADERS = $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -391,10 +393,46 @@ packextras_DATA = $(EXTRA_DIST)
 
 # std=gnu99 is used to prevent warnings related to use of getline()
 AM_CFLAGS = -std=gnu99 -Wall -g
-bric_SOURCES = src/bric.c		\
+bric_SOURCES = \
+		src/bric.c	\
 		src/locking.c	\
 		src/tagstack.c	\
-		src/handling.c
+		src/handling.c	\
+		src/gettext.h
+
+
+# syntax lang headers
+SYNTAX_LANG_H = \
+	src/modules/syntax/brain.h	\
+	src/modules/syntax/d.h \
+	src/modules/syntax/go.h \
+	src/modules/syntax/java.h	\
+	src/modules/syntax/pascal.h	\
+	src/modules/syntax/ruby.h	\
+	src/modules/syntax/swift.h	\
+	src/modules/syntax/ccpp.h	\
+	src/modules/syntax/dockerfile.h	\
+	src/modules/syntax/haxe.h	\
+	src/modules/syntax/javascript.h	\
+	src/modules/syntax/php.h	\
+	src/modules/syntax/rust.h	\
+	src/modules/syntax/bash.h	\
+	src/modules/syntax/csharp.h	\
+	src/modules/syntax/html.h	\
+	src/modules/syntax/makefile.h	\
+	src/modules/syntax/python.h	\
+	src/modules/syntax/sql.h
+
+noinst_HEADERS = \
+	$(SYNTAX_LANG_H)	\
+	src/bric.h	\
+	src/editor.h	\
+	src/handling.h	\
+	src/locking.h	\
+ 	src/modules/syntax/editor_syntax.h	\
+ 	src/modules/syntax/syntax.h	\
+ 	src/modules/tag/tagfuncs.h	\
+ 	src/modules/tag/tagstack.h
 
 bric_LDADD = @LIBINTL@ -lm
 ACLOCAL_AMFLAGS = --install -I m4
@@ -855,7 +893,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(PROGRAMS) $(DATA)
+all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(packextrasdir)"; do \
