@@ -1,0 +1,25 @@
+bric ChangeLog
+
+2018-10-10
+
+  * Begin ChangeLog
+  * fix "make dist" and "make distcheck"
+
+
+2018-10-09
+
+  * Added pt_BR translation
+  * Added de_DE translation
+
+
+2018-08-29
+
+  * Syntax support for Haxe added
+
+
+2018-08-24
+
+  * Added "configure" script, GNU automake and autoconf file
+  * Added support for translations using the GNU gettext library
+
+
