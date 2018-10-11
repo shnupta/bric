@@ -55,7 +55,7 @@ msgstr "Erro alocando memória."
 
 #: src/bric.c:26
 msgid "Insert mode."
-msgstr ""
+msgstr "Modo de inserção"
 
 #: src/bric.c:1990
 msgid "No identifier under cursor"
@@ -86,7 +86,7 @@ msgstr "Procurar: %s Substituir: %s (Use ESC/Tab/Arrows/Enter)"
 
 #: src/bric.c:28
 msgid "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy"
-msgstr ""
+msgstr "Modo de seleção: ESC = sair | setas = selecione | Ctrl-C = cópia"
 
 #: src/bric.c:2657
 #, c-format

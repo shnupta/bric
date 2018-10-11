@@ -54,7 +54,7 @@ msgstr "Fehler bei der Speicherzuweisung."
 
 #: src/bric.c:26
 msgid "Insert mode."
-msgstr ""
+msgstr "Einfügemodus."
 
 #: src/bric.c:1990
 msgid "No identifier under cursor"
@@ -62,7 +62,7 @@ msgstr "Kein Identifikator unter dem Cursor"
 
 #: src/bric.c:27
 msgid "Normal mode."
-msgstr "Standard Modus"
+msgstr "Standard Modus."
 
 #: src/bric.c:891
 msgid "Opening file"
@@ -85,7 +85,7 @@ msgstr "Suchen: %s Ersetzen: %s (Benutze ESC/Tab/Pfeiltasten/Enter)"
 
 #: src/bric.c:28
 msgid "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy"
-msgstr ""
+msgstr "Auswahlmodus: ESC = Beenden | Pfeile = auswählen | Ctrl-C = Kopieren"
 
 #: src/bric.c:2657
 #, c-format
@@ -117,7 +117,7 @@ msgstr "Verwendung: bric <dateiname>\n"
 msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
 msgstr ""
 "WARNUNG! Datei hat ungespeicherte Änderungen. Zum Beenden Ctrl-Q %d mehrmals "
-"drücken"
+"drücken."
 
 #: src/bric.c:1957
 msgid "at bottom of tag stack"
