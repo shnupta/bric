@@ -1,0 +1,131 @@
+# Hungarian translations for bric package.
+# Copyright (C) 2018 Casey Williams
+# This file is distributed under the same license as the bric package.
+# Balázs Epresi <epresib@gmail.com>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: bric 0.0.3-dev\n"
+"Report-Msgid-Bugs-To: williamshoops96@gmail.com\n"
+"POT-Creation-Date: 2018-10-10 21:02-0500\n"
+"PO-Revision-Date: 2018-10-12 19:44+0200\n"
+"Last-Translator: Balázs Epresi <epresib@gmail.com>\n"
+"Language-Team: Hungarian\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. TRANSLATORS: lines = number of lines in a text file
+#: src/bric.c:1228
+#, c-format
+msgid "%.50s =- %d line %s"
+msgid_plural "%.50s =- %d lines %s"
+msgstr[0] "%.50s =- %d sor %s"
+msgstr[1] "%.50s =- %d sorok %s"
+
+#: src/bric.c:938
+#, c-format
+msgid "%d bytes written on disk"
+msgstr "%d bájt lemezre írva"
+
+#: src/bric.c:1233
+msgid "(modified)"
+msgstr "(módosítva)"
+
+#: src/bric.c:1118
+#, c-format
+msgid "Bric editor -- version %s[0K\r\n"
+msgstr "Bric szerkesztő -- verzió %s[0K\r\n"
+
+#: src/bric.c:945
+#, c-format
+msgid "Cannot save! I/O error: %s"
+msgstr "Nem sikerült menteni! I/O hiba: %s"
+
+#: src/locking.c:70
+msgid "Could not create locker file"
+msgstr "Zárolási fájl elkészítése sikertelen"
+
+#: src/bric.c:706 src/bric.c:720
+msgid "Error allocating memory."
+msgstr "Memóriafoglalási hiba."
+
+#: src/bric.c:26
+msgid "Insert mode."
+msgstr "Beszúrás mód."
+
+#: src/bric.c:1990
+msgid "No identifier under cursor"
+msgstr "Nincs azonosító a kurzor alatt"
+
+#: src/bric.c:27
+msgid "Normal mode."
+msgstr "Normál mód."
+
+#: src/bric.c:891
+msgid "Opening file"
+msgstr "Fájl megnyitása"
+
+#. TRANSLATORS: alternate meaning: "exceeds boundary"
+#: src/bric.c:1804
+msgid "Out of bounds"
+msgstr "Határokon kívül"
+
+#: src/bric.c:1336
+#, c-format
+msgid "Search: %s (Use ESC/Arrows/Enter)"
+msgstr "Keresés: %s (Használja ESC/Arrows/Enter)"
+
+#: src/bric.c:1472
+#, c-format
+msgid "Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)"
+msgstr "Keresés: %s Csere: %s (Használja ESC/Tab/Arrows/Enter)"
+
+#: src/bric.c:28
+msgid "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy"
+msgstr "Kiválasztás mód: ESC = kilépés | nyilak = kiválasztás | Ctrl-C = másolás"
+
+#: src/bric.c:2657
+#, c-format
+msgid "The file has been locked, try to remove the locker!\n"
+msgstr "A fájl zárolva lett, próbálja meg megszüntetni a zárolást!\n"
+
+#: src/bric.c:1834
+#, c-format
+msgid "There are unsaved changes, quit? (y or n) %s"
+msgstr "Nem mentett változtatások vannak, kilép? (y or n) %s"
+
+#: src/bric.c:45 src/bric.c:2447
+msgid "Unable to query the screen for size (columns / rows)"
+msgstr "Képernyőméret lekérdezés nem lehetséges (oszlopok / sorok)"
+
+#: src/bric.c:1968 src/bric.c:2011
+msgid "Unsaved changes. Can't proceed"
+msgstr "Nem mentett módosítások. Nem lehet folytatni"
+
+#: src/bric.c:2636
+#, c-format
+msgid "Usage: bric <filename>\n"
+msgstr "Használat: bric <filename>\n"
+
+#: src/bric.c:2176
+#, c-format
+msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
+msgstr "FIGYELEM! A fájlban nem mentett változtatások vannak. A kilépéshez nyomja meg a Ctrl-Q kombinációt még ennyiszer: %d."
+
+#: src/bric.c:1957
+msgid "at bottom of tag stack"
+msgstr "címke lista vége"
+
+#. TRANSLATORS:  "bric" is the program name, do not translate
+#: src/bric.c:873
+#, c-format
+msgid "bric: invalid option -- '%c'\n"
+msgstr "bric: érvénytelen művelet -- '%c'\n"
+
+#: src/bric.c:1996 src/bric.c:2042
+#, c-format
+msgid "tag not found: %s"
+msgstr "címke nem található: %s"
