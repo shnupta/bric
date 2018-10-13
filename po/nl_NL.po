@@ -28,7 +28,7 @@ msgstr[1] ""
 #: src/bric.c:938
 #, c-format
 msgid "%d bytes written on disk"
-msgstr ""
+msgstr "%d bytes weggeschreven"
 
 #: src/bric.c:1233
 msgid "(modified)"
@@ -37,51 +37,55 @@ msgstr ""
 #: src/bric.c:1118
 #, c-format
 msgid "Bric editor -- version %s[0K\r\n"
-msgstr ""
+msgstr "Bric editor -- versie %s[0K\r\n"
 
 #: src/bric.c:945
 #, c-format
 msgid "Cannot save! I/O error: %s"
-msgstr ""
+msgstr "Kan niet opslaan! I/O fout: %s"
 
 #: src/locking.c:70
+#, fuzzy
+#| msgid "Could not created locker file"
 msgid "Could not create locker file"
-msgstr ""
+msgstr "Kan locker bestand niet aanmaken"
 
 #: src/bric.c:706 src/bric.c:720
 msgid "Error allocating memory."
-msgstr ""
+msgstr "Fout bij reserveren van geheugen."
 
 #: src/bric.c:26
+#, fuzzy
+#| msgid "Insert mode. "
 msgid "Insert mode."
-msgstr ""
+msgstr "Invoeg modus."
 
 #: src/bric.c:1990
 msgid "No identifier under cursor"
-msgstr ""
+msgstr "Geen identificatie bij de cursor"
 
 #: src/bric.c:27
 msgid "Normal mode."
-msgstr ""
+msgstr "Normale modus."
 
 #: src/bric.c:891
 msgid "Opening file"
-msgstr ""
+msgstr "Bestand openen"
 
 #. TRANSLATORS: alternate meaning: "exceeds boundary"
 #: src/bric.c:1804
 msgid "Out of bounds"
-msgstr ""
+msgstr "Buiten bereik"
 
 #: src/bric.c:1336
 #, c-format
 msgid "Search: %s (Use ESC/Arrows/Enter)"
-msgstr ""
+msgstr "Zoeken: %s (Gebruik ESC/Pijltjes/Enter)"
 
 #: src/bric.c:1472
 #, c-format
 msgid "Search: %s Replace: %s (Use ESC/Tab/Arrows/Enter)"
-msgstr ""
+msgstr "Zoeken: %s Vervangen: %s (Gebruik ESC/Pijltjes/Enter)"
 
 #: src/bric.c:28
 msgid "Selection mode: ESC = exit | arrows = select | Ctrl-C = copy"
@@ -90,20 +94,20 @@ msgstr ""
 #: src/bric.c:2657
 #, c-format
 msgid "The file has been locked, try to remove the locker!\n"
-msgstr ""
+msgstr "Het bestand is vergrendeld, probeer de locker te verwijderen!\n"
 
 #: src/bric.c:1834
 #, c-format
 msgid "There are unsaved changes, quit? (y or n) %s"
-msgstr ""
+msgstr "Er zijn onopgeslagen wijzigingen, afsluiten? (y of n) %s"
 
 #: src/bric.c:45 src/bric.c:2447
 msgid "Unable to query the screen for size (columns / rows)"
-msgstr ""
+msgstr "Kan de afmetingen van het scherm niet bepalen (kolommen / rijen)"
 
 #: src/bric.c:1968 src/bric.c:2011
 msgid "Unsaved changes. Can't proceed"
-msgstr ""
+msgstr "Onopgeslagen wijzigingen. Kan niet doorgaan"
 
 #: src/bric.c:2636
 #, c-format
@@ -114,18 +118,20 @@ msgstr "Gebruik: bric <bestandsnaam>\n"
 #, c-format
 msgid "WARNING! File has unsaved changes. Press Ctrl-Q %d more times to quit."
 msgstr ""
+"PAS OP! Bestand heeft onopgeslagen wijzigingen. Druk op Ctrs-Q %d keer om af "
+"te sluiten."
 
 #: src/bric.c:1957
 msgid "at bottom of tag stack"
-msgstr ""
+msgstr "onderaan de tag stack"
 
 #. TRANSLATORS:  "bric" is the program name, do not translate
 #: src/bric.c:873
 #, c-format
 msgid "bric: invalid option -- '%c'\n"
-msgstr ""
+msgstr "bric: invalide optie -- '%c'\n"
 
 #: src/bric.c:1996 src/bric.c:2042
 #, c-format
 msgid "tag not found: %s"
-msgstr ""
+msgstr "tag niet gevonden: %s"
