@@ -4,8 +4,8 @@ Status](https://travis-ci.com/shnupta/bric.svg?branch=master)](https://travis-ci
 [![Waffle.io - Columns and their card
 count](https://badge.waffle.io/shnupta/bric.svg?columns=all)](https://waffle.io/shnupta/bric)
 
-[Join our slack
-team!](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI)
+[Join our Matrix
+chat room!](https://matrix.to/#/!hhzVjHGoQleZmFfyrP:matrix.org)
 
 # bric
 bric is a text editor based on [kilo](https://github.com/antirez/kilo).
@@ -119,4 +119,4 @@ The basic workflow as of November 2017 is:
 ### Bugs and feedback:
 
 To submit any bugs or give feedback please add an issue on this repo or
-[join the bric chat room](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI).
+[join the bric chat room](https://matrix.to/#/!hhzVjHGoQleZmFfyrP:matrix.org).

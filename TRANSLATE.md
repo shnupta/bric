@@ -1,7 +1,7 @@
 # Translating
 
 Translators are encouraged to join the [chat
-room](https://join.slack.com/t/bric-editor/shared_invite/enQtNDIyNjg5NzY2MTQ1LTk4OTE4ZjdiMGFmMDlhNWM2ZWJkMmM0MGQxMjNhODJlOWY1MjQzMmQ5MDEzOGM3YjM0YTJiZTc3MWY5MGNmZjI).
+room](https://matrix.to/#/!hhzVjHGoQleZmFfyrP:matrix.org).
 We will try to help and answer any questions you may have about the
 translation process.
 
