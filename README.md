@@ -16,7 +16,7 @@ read to and from the terminal.
 
 A blog post by [Casey](https://github.com/shnupta), bric's first maintainer
 
-[Casey's blog post](https://shnupta.github.io/blog/17/04/bric.html)
+[Casey's blog post](https://shnupta.github.io/posts/bric-text-editor)
 
 ### Screencast of bric on macOS:
 [View Screencast](https://andy5995.github.io/screencast_low.gif)
